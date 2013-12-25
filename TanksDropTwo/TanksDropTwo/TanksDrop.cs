@@ -14,7 +14,7 @@ namespace TanksDropTwo
 	/// <summary>
 	/// This is the main type for your game
 	/// </summary>
-	public class TanksDrop : Microsoft.Xna.Framework.Game
+	public class TanksDrop : Game
 	{
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
@@ -22,6 +22,10 @@ namespace TanksDropTwo
 		TimeSpan currentGameTime;
 		int ScreenWidth;
 		int ScreenHeight;
+		int NumOfPlayers;
+
+		int WaitMillisecs;
+		int FreezeMillisecs;
 
 		public TanksDrop()
 		{
@@ -41,9 +45,36 @@ namespace TanksDropTwo
 		/// </summary>
 		protected override void Initialize()
 		{
-			// TODO: Add your initialization logic here
+			NumOfPlayers = 4;
+			WaitMillisecs = 3000;
+			FreezeMillisecs = 1000;
+
+			// Shows mouse
+			IsMouseVisible = true;
+
 			Entities = new HashSet<GameEntity>();
+
+			// Player 1
 			Entities.Add( new Tank( "Player 1", new Vector2( 50, 50 ), 45, new KeySet( Keys.Up, Keys.Down, Keys.Left, Keys.Right, Keys.Z, Keys.X ), Colors.Green, 5 ) );
+			
+			// Player 2
+			Entities.Add( new Tank( "Player 2", new Vector2( ScreenWidth - 50, ScreenHeight - 50 ), 225, new KeySet( Keys.W, Keys.S, Keys.A, Keys.D, Keys.Q, Keys.E ), Colors.Red, 5 ) );
+
+			if ( NumOfPlayers >= 3 )
+			{
+				Entities.Add( new Tank( "Player 3", new Vector2( ScreenWidth - 50, 50 ), 135, new KeySet( Keys.T, Keys.G, Keys.F, Keys.H, Keys.R, Keys.Y ), Colors.Blue, 5 ) );
+			}
+
+			if ( NumOfPlayers >= 4 )
+			{
+				Entities.Add( new Tank( "Player 4", new Vector2( 50, ScreenHeight - 50 ), 315, new KeySet( Keys.NumPad5, Keys.NumPad2, Keys.NumPad1, Keys.NumPad3, Keys.NumPad7, Keys.NumPad8 ), Colors.Yellow, 5 ) );
+			}
+
+			foreach ( GameEntity entity in Entities )
+			{
+				entity.Initialize( this );
+			}
+
 			base.Initialize();
 		}
 
@@ -71,6 +102,9 @@ namespace TanksDropTwo
 			// TODO: Unload any non ContentManager content here
 		}
 
+		// This TimeSpan is not null only when the game is waiting to go to the next round, and it represents the time when it started waiting.
+		TimeSpan? BeganWait;
+
 		/// <summary>
 		/// Allows the game to run logic such as updating the world,
 		/// checking for collisions, gathering input, and playing audio.
@@ -89,12 +123,59 @@ namespace TanksDropTwo
 
 			KeyboardState keyState = Keyboard.GetState();
 
-			foreach ( GameEntity entity in Entities )
+			if ( keyState.IsKeyDown( Keys.R ) )
 			{
-				entity.Update( currentGameTime, Entities, keyState );
+				Initialize();
 			}
 
+			if ( keyState.IsKeyDown( Keys.Escape ) )
+			{
+				this.Exit();
+			}
+
+			HashSet<GameEntity> EntitiesCopy = new HashSet<GameEntity>( Entities );
+			int NumberOfLivingTanks = 0;
+			foreach ( GameEntity entity in EntitiesCopy )
+			{
+				entity.Update( currentGameTime, EntitiesCopy, keyState );
+				if ( entity is Tank && ( ( Tank )entity ).IsAlive )
+				{
+					NumberOfLivingTanks++;
+				}
+			}
+			if ( NumberOfLivingTanks <= 1 )
+			{
+				if ( !BeganWait.HasValue )
+				{
+					BeganWait = currentGameTime;
+				}
+				else if ( ( currentGameTime - BeganWait.Value ).TotalMilliseconds >= WaitMillisecs )
+				{
+					System.Threading.Thread.Sleep( FreezeMillisecs );
+					NewRound();
+					BeganWait = null;
+				}
+			}
 			base.Update( gameTime );
+		}
+
+		private void NewRound()
+		{
+			HashSet<GameEntity> OldEntities = new HashSet<GameEntity>( Entities );
+			Entities = new HashSet<GameEntity>();
+			foreach ( GameEntity entity in OldEntities )
+			{
+				if ( entity is Tank )
+				{
+					Tank t = ( Tank )entity;
+					if ( t.IsAlive )
+					{
+						t.Score++;
+					}
+					t.Reset();
+					Entities.Add( entity );
+				}
+			}
 		}
 
 		/// <summary>
@@ -113,6 +194,37 @@ namespace TanksDropTwo
 			spriteBatch.End();
 
 			base.Draw( gameTime );
+		}
+
+		/// <summary>
+		/// Adds the entity to the game.
+		/// </summary>
+		/// <param name="entity">The entity to add. LoadContent is called within the function.</param>
+		/// <returns>true if the entity was added, false if it already existed.</returns>
+		public bool QueueEntity( GameEntity entity )
+		{
+			entity.LoadContent( Content, ScreenWidth, ScreenHeight );
+			if ( Entities.Contains( entity ) )
+			{
+				return false;
+			}
+			Entities.Add( entity );
+			return true;
+		}
+
+		/// <summary>
+		/// Removes an existing entity from the game.
+		/// </summary>
+		/// <param name="entity">The entity to remove.</param>
+		/// <returns>True if the entity was removed, otherwise false.</returns>
+		public bool RemoveEntity( GameEntity entity )
+		{
+			if ( Entities.Contains( entity ) )
+			{
+				Entities.Remove( entity );
+				return true;
+			}
+			return false;
 		}
 	}
 }

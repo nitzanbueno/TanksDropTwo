@@ -9,7 +9,7 @@ namespace TanksDropTwo
 	/// <summary>
 	/// This class gives its owner its control scheme, by telling it which key moves what part of it.
 	/// </summary>
-	class KeySet
+	public class KeySet
 	{
 		public Keys KeyForward;
 		public Keys KeyBackward;
