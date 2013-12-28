@@ -14,24 +14,35 @@ namespace TanksDropTwo
 		private Tank owner;
 		private int height;
 		private int width;
+		private int lifetime;
 
 		private TimeSpan spawnTime;
 
-		public Fence( Vector2 Point1, Vector2 Point2, Tank Owner, float Width, TimeSpan gameTime )
+		/// <summary>
+		/// Initializes a new Fence entity.
+		/// </summary>
+		/// <param name="point1">The first endpoint of the fence.</param>
+		/// <param name="point2">The second endpoint of the fence.</param>
+		/// <param name="owner">The owning tank (currently for color only).</param>
+		/// <param name="thickness">The thickness of the fence.</param>
+		/// <param name="gameTime">The current game time.</param>
+		/// <param name="lifetime">The amount of time the fence stays on the board in milliseconds. -1 is infinity.</param>
+		public Fence( Vector2 point1, Vector2 point2, Tank owner, float thickness, TimeSpan gameTime, int lifetime )
 		{
-			owner = Owner;
-			Angle = MathHelper.ToDegrees( ( float )Math.Atan2( Point2.Y - Point1.Y, Point2.X - Point1.X ) );
-			height = ( int )Width;
-			width = ( int )Vector2.Distance( Point1, Point2 );
+			this.owner = owner;
+			Angle = MathHelper.ToDegrees( ( float )Math.Atan2( point2.Y - point1.Y, point2.X - point1.X ) );
+			height = ( int )thickness;
+			width = ( int )Vector2.Distance( point1, point2 );
 			Origin = new Vector2( ( int )( width / 2 ), ( int )( height / 2 ) );
-			Position = ( Point1 + Point2 ) / 2;
+			Position = ( point1 + point2 ) / 2;
 			Scale = 1;
 			spawnTime = gameTime;
+			this.lifetime = lifetime;
 		}
 
 		public override void Update( TimeSpan gameTime, HashSet<GameEntity> Entities, KeyboardState keyState )
 		{
-			if ( ( gameTime - spawnTime ).TotalMilliseconds > 10000 )
+			if ( ( gameTime - spawnTime ).TotalMilliseconds > lifetime && lifetime > 0 )
 			{
 				Game.RemoveEntity( this );
 			}

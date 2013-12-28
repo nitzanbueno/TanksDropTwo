@@ -9,6 +9,9 @@ using Microsoft.Xna.Framework;
 
 namespace TanksDropTwo
 {
+	/// <summary>
+	/// A projectile which is black and kills the tank it first hits, including its owner.
+	/// </summary>
 	class Bullet : Projectile
 	{
 		public Bullet( float Speed, Tank Owner, TimeSpan gameTime )
@@ -19,11 +22,13 @@ namespace TanksDropTwo
 			Origin = new Vector2( 16, 16 );
 		}
 
+		protected Bullet( float speed ) { this.speed = speed; }
+
 		public override void Update( TimeSpan gameTime, HashSet<GameEntity> Entities, KeyboardState keyState )
 		{
 			Move( speed );
 			CheckBounces();
-			UpdatePhysics( Entities );
+			CheckHits( Entities );
 			CheckDestruction( gameTime, 10000 );
 			base.Update( gameTime, Entities, keyState );
 		}
@@ -32,6 +37,15 @@ namespace TanksDropTwo
 		{
 			Texture = Content.Load<Texture2D>( "Sprites\\Bullet" );
 			base.LoadContent( Content, screenWidth, screenHeight );
+		}
+
+		public override Projectile Clone()
+		{
+			Bullet b = new Bullet( speed, owner, spawnTime );
+			b.Initialize( Game );
+			b.Position = Position;
+			b.LoadContent( Game.Content, ScreenWidth, ScreenHeight );
+			return b;
 		}
 	}
 }

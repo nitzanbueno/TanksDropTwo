@@ -26,6 +26,13 @@ namespace TanksDropTwo
 
 		int WaitMillisecs;
 		int FreezeMillisecs;
+		int SpawnMillisecs;
+
+		Projectile[] AvailableProjectiles = new Projectile[]
+		{
+			new HomingBullet( Tank.blank, 10, 0.1F, TimeSpan.Zero, 0 ),
+		};
+		Random r = new Random();
 
 		public TanksDrop()
 		{
@@ -48,6 +55,7 @@ namespace TanksDropTwo
 			NumOfPlayers = 4;
 			WaitMillisecs = 3000;
 			FreezeMillisecs = 1000;
+			SpawnMillisecs = 1000;
 
 			// Shows mouse
 			IsMouseVisible = true;
@@ -56,13 +64,13 @@ namespace TanksDropTwo
 
 			// Player 1
 			Entities.Add( new Tank( "Player 1", new Vector2( 50, 50 ), 45, new KeySet( Keys.Up, Keys.Down, Keys.Left, Keys.Right, Keys.Z, Keys.X ), Colors.Green, 5 ) );
-			
+
 			// Player 2
 			Entities.Add( new Tank( "Player 2", new Vector2( ScreenWidth - 50, ScreenHeight - 50 ), 225, new KeySet( Keys.W, Keys.S, Keys.A, Keys.D, Keys.Q, Keys.E ), Colors.Red, 5 ) );
 
 			if ( NumOfPlayers >= 3 )
 			{
-				Entities.Add( new Tank( "Player 3", new Vector2( ScreenWidth - 50, 50 ), 135, new KeySet( Keys.T, Keys.G, Keys.F, Keys.H, Keys.R, Keys.Y ), Colors.Blue, 5 ) );
+				Entities.Add( new Tank( "Player 3", new Vector2( ScreenWidth - 50, 50 ), 135, new KeySet( Keys.T, Keys.G, Keys.F, Keys.H, Keys.V, Keys.B ), Colors.Blue, 5 ) );
 			}
 
 			if ( NumOfPlayers >= 4 )
@@ -91,6 +99,11 @@ namespace TanksDropTwo
 			{
 				entity.LoadContent( Content, ScreenWidth, ScreenHeight );
 			}
+
+			foreach ( Projectile p in AvailableProjectiles )
+			{
+				p.LoadContent( Content, ScreenWidth, ScreenHeight );
+			}
 		}
 
 		/// <summary>
@@ -104,6 +117,9 @@ namespace TanksDropTwo
 
 		// This TimeSpan is not null only when the game is waiting to go to the next round, and it represents the time when it started waiting.
 		TimeSpan? BeganWait;
+
+		// This is the TimeSpan used when checking for pickup spawns.
+		TimeSpan timeSinceLastPickup;
 
 		/// <summary>
 		/// Allows the game to run logic such as updating the world,
@@ -143,6 +159,13 @@ namespace TanksDropTwo
 					NumberOfLivingTanks++;
 				}
 			}
+
+			if ( ( currentGameTime - timeSinceLastPickup ).TotalMilliseconds > SpawnMillisecs )
+			{
+				SpawnPickup();
+				timeSinceLastPickup = currentGameTime;
+			}
+
 			if ( NumberOfLivingTanks <= 1 )
 			{
 				if ( !BeganWait.HasValue )
@@ -194,6 +217,21 @@ namespace TanksDropTwo
 			spriteBatch.End();
 
 			base.Draw( gameTime );
+		}
+
+		/// <summary>
+		/// Spawns a new pickup on the screen.
+		/// </summary>
+		protected void SpawnPickup()
+		{
+			Pickup p = null;
+			// Null for when I add power-ups.
+			p = AvailableProjectiles[ r.Next( AvailableProjectiles.Length ) ].Pickup;
+			// Currently only projectiles.
+
+			p.Position = new Vector2( r.Next( ScreenWidth ), r.Next( ScreenHeight ) );
+			p.Initialize( this );
+			QueueEntity( p );
 		}
 
 		/// <summary>

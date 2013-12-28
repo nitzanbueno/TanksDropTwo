@@ -13,7 +13,7 @@ namespace TanksDropTwo
 	/// The parent class for anything that is seen on the screen, such as tanks, bullets and pickups.
 	/// </summary>
 	public abstract class GameEntity
-	{
+	{ 
 		protected int ScreenWidth;
 		protected int ScreenHeight;
 
@@ -167,6 +167,13 @@ namespace TanksDropTwo
 			}
 		}
 
+		/// <summary>
+		/// Returns whether or not this entity and the given one collide, pixel-wise.
+		/// </summary>
+		/// <param name="otherEntity">The entity to check collision with.</param>
+		/// <returns>Whether or not the two entities touch.</returns>
+		/// <remarks>This function is copied from the internet so I don't really get the full general idea of how it works.
+		/// It just does.</remarks>
 		public bool CollidesWith( GameEntity otherEntity )
 		{
 			int thisWidth = Texture.Width;
@@ -406,6 +413,5 @@ namespace TanksDropTwo
 			// No intersection found
 			return false;
 		}
-
 	}
 }

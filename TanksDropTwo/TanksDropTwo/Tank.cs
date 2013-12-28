@@ -15,17 +15,75 @@ namespace TanksDropTwo
 	/// </summary>
 	public class Tank : GameEntity
 	{
+		/// <summary>
+		/// Since this is an animated entity, the texture datas for each frame.
+		/// </summary>
 		private Color[][] texDatas;
+		/// <summary>
+		/// Since this is an animated entity, the source rectangles for each frame.
+		/// </summary>
 		private Rectangle[] TankSourceRects;
+		/// <summary>
+		/// The name of the tank.
+		/// Currently purely aesthetic and useless.
+		/// </summary>
 		public string Name;
+		/// <summary>
+		/// The keys of the tank.
+		/// </summary>
 		private KeySet keys;
+		/// <summary>
+		/// The color of the tank.
+		/// </summary>
 		private Colors color;
+		/// <summary>
+		/// The speed of the tank.
+		/// </summary>
 		public float Speed;
+		/// <summary>
+		/// true if the tank is alive, otherwise false.
+		/// If this is false, the tank is invisiblem cannot shoot or place fences, and does not interact with the projectiles.
+		/// </summary>
 		public bool IsAlive;
+		/// <summary>
+		/// The number of bullets owned by this tank currently on the screen.
+		/// </summary>
 		public int NumberOfBullets;
+		/// <summary>
+		/// The number of times this tank has won the round.
+		/// </summary>
 		public int Score;
+		/// <summary>
+		/// The original position of the tank.
+		/// </summary>
 		private Vector2 originalPosition;
+		/// <summary>
+		/// The original angle of the tank.
+		/// </summary>
 		private float originalAngle;
+		/// <summary>
+		/// The projectile loaded in the tank currently.
+		/// Used for projectile pickups.
+		/// </summary>
+		private Projectile nextProjectile;
+		/// <summary>
+		/// The original projectile of this tank.
+		/// Normally a normal bullet, except when testing or badassing.
+		/// </summary>
+		private Projectile originalProjectile;
+		/// <summary>
+		/// A useable clone of the original projectile.
+		/// Used because if using the original, will set all bullets' position.
+		/// </summary>
+		public Projectile OriginalProjectile
+		{
+			get
+			{
+				return originalProjectile.Clone();
+			}
+		}
+
+		public static Tank blank = new Tank();
 
 		public Color Color
 		{
@@ -55,7 +113,14 @@ namespace TanksDropTwo
 			}
 		}
 
-		public Tank( string name, Vector2 startPosition, float startAngle, KeySet keys, Colors color, float speed )
+		private Tank() { }
+
+		public Tank( string name, Vector2 startPosition, float startAngle, KeySet keys, Colors color, float speed, Projectile originalProjectile )
+		{
+			Construct( name, startPosition, startAngle, keys, color, speed, originalProjectile );
+		}
+
+		private void Construct( string name, Vector2 startPosition, float startAngle, KeySet keys, Colors color, float speed, Projectile originalProjectile )
 		{
 			Name = name;
 			Speed = speed;
@@ -65,7 +130,13 @@ namespace TanksDropTwo
 			this.color = color;
 			Scale = 2;
 			Origin = new Vector2( 16, 16 );
-			Reset();
+			this.originalProjectile = originalProjectile;
+			Reset(false);
+		}
+
+		public Tank( string name, Vector2 startPosition, float startAngle, KeySet keys, Colors color, float speed )
+		{
+			Construct( name, startPosition, startAngle, keys, color, speed, new Bullet( 10, this, TimeSpan.Zero ) );
 		}
 
 		// The timeSpan in which the frame was updated.
@@ -74,6 +145,13 @@ namespace TanksDropTwo
 
 		// Tanks have 8 frames each, so this is the current frame.
 		int frame = 0;
+
+		public override void Initialize( TanksDrop game )
+		{
+			originalProjectile.Initialize( game );
+			nextProjectile = OriginalProjectile;
+			base.Initialize( game );
+		}
 
 		public override void Update( TimeSpan gameTime, HashSet<GameEntity> Entities, KeyboardState keyState )
 		{
@@ -141,12 +219,12 @@ namespace TanksDropTwo
 				Angle = newAngle;
 			}
 
-			if ( isKeyPressed( keyState, keys.KeyShoot ) )
+			if ( isKeyPressed( keyState, keys.KeyShoot ) && IsAlive )
 			{
 				Shoot( gameTime );
 			}
 
-			if ( isKeyPressed( keyState, keys.KeyPlace ) ) //keyState.IsKeyDown( keys.KeyPlace ) )
+			if ( isKeyPressed( keyState, keys.KeyPlace ) && IsAlive ) //keyState.IsKeyDown( keys.KeyPlace ) )
 			{
 				PlaceFence( gameTime );
 			}
@@ -160,19 +238,19 @@ namespace TanksDropTwo
 			float sideDeg = 40F;
 			Fence newFence = new Fence(
 				Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( Angle + sideDeg ) ), ( float )Math.Sin( MathHelper.ToRadians( Angle + sideDeg ) ) ) * dist * 2.5F ),
-				Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( Angle - sideDeg ) ), ( float )Math.Sin( MathHelper.ToRadians( Angle - sideDeg ) ) ) * dist * 2.5F ), this, 16, gameTime );
+				Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( Angle - sideDeg ) ), ( float )Math.Sin( MathHelper.ToRadians( Angle - sideDeg ) ) ) * dist * 2.5F ), this, 16, gameTime, -1 );
 			newFence.Initialize( Game );
 			Game.QueueEntity( newFence );
 		}
 
 		private void Shoot( TimeSpan gameTime )
 		{
-			Bullet newBullet = new Bullet( 10, this, gameTime );
-			newBullet.Angle = Angle;
-			newBullet.Position = Forward( 20 * Scale );
+			nextProjectile.Angle = Angle;
+			nextProjectile.Position = Forward( 20 * Scale );
 			NumberOfBullets++;
-			newBullet.Initialize( Game );
-			Game.QueueEntity( newBullet );
+			nextProjectile.Initialize( Game, gameTime );
+			Game.QueueEntity( nextProjectile );
+			nextProjectile = OriginalProjectile;
 		}
 
 		public override void Draw( TimeSpan gameTime, SpriteBatch spriteBatch )
@@ -229,10 +307,24 @@ namespace TanksDropTwo
 			return color;
 		}
 
-		public void Reset()
+		public bool PickupProjectile( ProjectilePickup proj )
+		{
+			if ( nextProjectile.GetType() == OriginalProjectile.GetType() )
+			{
+				nextProjectile = proj.Carrier;
+				return true;
+			}
+			return false;
+		}
+
+		public void Reset(bool proj = true)
 		{
 			Position = originalPosition;
 			Angle = originalAngle;
+			if ( proj )
+			{
+				nextProjectile = OriginalProjectile;
+			}
 			IsAlive = true;
 			NumberOfBullets = 0;
 		}

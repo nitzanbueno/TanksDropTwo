@@ -107,9 +107,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Pickup.cs" />
+    <Compile Include="ProjectilePickup.cs" />
     <Compile Include="Projectiles\Bullet.cs" />
     <Compile Include="Fence.cs" />
     <Compile Include="GameEntity.cs" />
+    <Compile Include="Projectiles\HomingBullet.cs" />
     <Compile Include="Projectiles\Projectile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />

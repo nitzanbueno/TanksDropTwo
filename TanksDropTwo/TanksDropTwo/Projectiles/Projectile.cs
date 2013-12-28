@@ -10,8 +10,19 @@ namespace TanksDropTwo
 	public abstract class Projectile : GameEntity
 	{
 		protected float speed;
-		private Tank owner;
+		protected Tank owner;
 		protected TimeSpan spawnTime;
+
+		/// <summary>
+		/// Gets a ProjectilePickup with this projectile in it.
+		/// </summary>
+		public ProjectilePickup Pickup
+		{
+			get
+			{
+				return new ProjectilePickup( this );
+			}
+		}
 
 		public Projectile( Tank Owner, TimeSpan gameTime )
 		{
@@ -19,7 +30,26 @@ namespace TanksDropTwo
 			spawnTime = gameTime;
 		}
 
-		protected void UpdatePhysics( HashSet<GameEntity> Entities )
+		public Projectile( Tank Owner )
+		{
+			owner = Owner;
+		}
+
+		protected Projectile() { }
+
+		public void Initialize( TanksDrop game, TimeSpan gameTime )
+		{
+			Game = game;
+			spawnTime = gameTime;
+		}
+
+		/// <summary>
+		/// If hit a tank, kills the tank.
+		/// If hit a fence, mirrors off.
+		/// </summary>
+		/// <param name="Entities">The list of entities.</param>
+		/// <param name="CheckFences">True if should mirror angle when hits a fence, otherwise false.</param>
+		protected void CheckHits( HashSet<GameEntity> Entities, bool CheckFences = true )
 		{
 			foreach ( GameEntity entity in Entities )
 			{
@@ -30,12 +60,13 @@ namespace TanksDropTwo
 					{
 						// The projectile hit a tank.
 						Tank HitTank = ( Tank )entity;
-						if ( HitTank.Hit( this ) )
+						if ( HitTank.IsAlive && HitTank.Hit( this ) )
 						{
 							Game.RemoveEntity( this );
+							break;
 						}
 					}
-					else if ( entity is Fence )
+					else if ( entity is Fence && CheckFences )
 					{
 						Fence HitFence = ( Fence )entity;
 						// The angle will always face upwards.
@@ -74,5 +105,7 @@ namespace TanksDropTwo
 			owner.NumberOfBullets--;
 			Game.RemoveEntity( this );
 		}
+
+		public abstract Projectile Clone();
 	}
 }
