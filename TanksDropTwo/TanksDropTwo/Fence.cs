@@ -9,14 +9,11 @@ using Microsoft.Xna.Framework.Input;
 
 namespace TanksDropTwo
 {
-	class Fence : GameEntity
+	public class Fence : GameEntity
 	{
 		private Tank owner;
 		private int height;
 		private int width;
-		private int lifetime;
-
-		private TimeSpan spawnTime;
 
 		/// <summary>
 		/// Initializes a new Fence entity.
@@ -37,16 +34,7 @@ namespace TanksDropTwo
 			Position = ( point1 + point2 ) / 2;
 			Scale = 1;
 			spawnTime = gameTime;
-			this.lifetime = lifetime;
-		}
-
-		public override void Update( TimeSpan gameTime, HashSet<GameEntity> Entities, KeyboardState keyState )
-		{
-			if ( ( gameTime - spawnTime ).TotalMilliseconds > lifetime && lifetime > 0 )
-			{
-				Game.RemoveEntity( this );
-			}
-			base.Update( gameTime, Entities, keyState );
+			lifeTime = lifetime;
 		}
 
 		public override void LoadContent( ContentManager Content, int screenWidth, int screenHeight )

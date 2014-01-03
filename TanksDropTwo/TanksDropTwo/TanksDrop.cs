@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using TanksDropTwo.Controllers;
 
 namespace TanksDropTwo
 {
@@ -19,10 +20,13 @@ namespace TanksDropTwo
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
 		HashSet<GameEntity> Entities;
+		HashSet<GameController> MasterControllers;
 		TimeSpan currentGameTime;
 		int ScreenWidth;
 		int ScreenHeight;
 		int NumOfPlayers;
+
+		int PickupLifetime;
 
 		int WaitMillisecs;
 		int FreezeMillisecs;
@@ -30,7 +34,12 @@ namespace TanksDropTwo
 
 		Projectile[] AvailableProjectiles = new Projectile[]
 		{
-			new HomingBullet( Tank.blank, 10, 0.1F, TimeSpan.Zero, 0 ),
+			new HomingBullet( Tank.blank, 10, 5, TimeSpan.Zero, 1000 ),
+		};
+		TankController[] AvailableControllers = new TankController[]
+		{
+			new Ghost( Tank.blank, 10000 ),
+			new Deflector( Tank.blank ),
 		};
 		Random r = new Random();
 
@@ -57,8 +66,12 @@ namespace TanksDropTwo
 			FreezeMillisecs = 1000;
 			SpawnMillisecs = 1000;
 
+			PickupLifetime = 10000;
+
 			// Shows mouse
 			IsMouseVisible = true;
+
+			MasterControllers = new HashSet<GameController>();
 
 			Entities = new HashSet<GameEntity>();
 
@@ -153,7 +166,7 @@ namespace TanksDropTwo
 			int NumberOfLivingTanks = 0;
 			foreach ( GameEntity entity in EntitiesCopy )
 			{
-				entity.Update( currentGameTime, EntitiesCopy, keyState );
+				entity.ConUpdate( currentGameTime, EntitiesCopy, keyState );
 				if ( entity is Tank && ( ( Tank )entity ).IsAlive )
 				{
 					NumberOfLivingTanks++;
@@ -162,7 +175,7 @@ namespace TanksDropTwo
 
 			if ( ( currentGameTime - timeSinceLastPickup ).TotalMilliseconds > SpawnMillisecs )
 			{
-				SpawnPickup();
+				SpawnPickup( currentGameTime );
 				timeSinceLastPickup = currentGameTime;
 			}
 
@@ -186,6 +199,7 @@ namespace TanksDropTwo
 		{
 			HashSet<GameEntity> OldEntities = new HashSet<GameEntity>( Entities );
 			Entities = new HashSet<GameEntity>();
+			MasterControllers = new HashSet<GameController>();
 			foreach ( GameEntity entity in OldEntities )
 			{
 				if ( entity is Tank )
@@ -222,15 +236,20 @@ namespace TanksDropTwo
 		/// <summary>
 		/// Spawns a new pickup on the screen.
 		/// </summary>
-		protected void SpawnPickup()
+		protected void SpawnPickup( TimeSpan gameTime )
 		{
 			Pickup p = null;
-			// Null for when I add power-ups.
-			p = AvailableProjectiles[ r.Next( AvailableProjectiles.Length ) ].Pickup;
-			// Currently only projectiles.
+
+			bool Projectile = r.Next( 2 ) == 0;
+
+			p = Projectile ? new ProjectilePickup( AvailableProjectiles[ r.Next( AvailableProjectiles.Length ) ], PickupLifetime ) : ( Pickup )new TankControllerPickup( AvailableControllers[ r.Next( AvailableControllers.Length ) ], PickupLifetime );
 
 			p.Position = new Vector2( r.Next( ScreenWidth ), r.Next( ScreenHeight ) );
-			p.Initialize( this );
+			p.Initialize( this, gameTime );
+			if ( p is TankControllerPickup )
+			{
+				( ( TankControllerPickup )p ).Carrier.LoadTexture( Content );
+			}
 			QueueEntity( p );
 		}
 
@@ -246,6 +265,13 @@ namespace TanksDropTwo
 			{
 				return false;
 			}
+			foreach ( GameController controller in MasterControllers )
+			{
+				if ( controller.AddEntity( entity ) )
+				{
+					entity.AppendController( controller );
+				}
+			}
 			Entities.Add( entity );
 			return true;
 		}
@@ -257,12 +283,48 @@ namespace TanksDropTwo
 		/// <returns>True if the entity was removed, otherwise false.</returns>
 		public bool RemoveEntity( GameEntity entity )
 		{
-			if ( Entities.Contains( entity ) )
+			return Entities.Remove( entity );
+		}
+
+		/// <summary>
+		/// Adds the controller to all entities on the board that satisfy the controller's AddEntity condition, as well as future entities that are spawned.
+		/// </summary>
+		/// <param name="controller">The controller to append.</param>
+		public void AppendController( GameController controller )
+		{
+			foreach ( GameEntity entity in Entities )
 			{
-				Entities.Remove( entity );
-				return true;
+				if ( controller.AddEntity( entity ) )
+				{
+					entity.AppendController( controller );
+				}
 			}
-			return false;
+			MasterControllers.Add( controller );
+		}
+
+		/// <summary>
+		/// Stops sticking the given controller to future entities.
+		/// </summary>
+		/// <param name="controller">The controller to stop.</param>
+		public void StopController( GameController controller )
+		{
+			MasterControllers.Remove( controller );
+		}
+
+		/// <summary>
+		/// Stops the controller from sticking to future entities, and removes it from all entities that have it and satisfy the match condition.
+		/// </summary>
+		/// <param name="controller"></param>
+		public void RemoveController( GameController controller, Predicate<GameEntity> match )
+		{
+			foreach ( GameEntity entity in Entities )
+			{
+				if ( match( entity ) )
+				{
+					entity.RemoveController( controller );
+				}
+			}
+			MasterControllers.Remove( controller );
 		}
 	}
 }

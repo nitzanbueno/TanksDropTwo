@@ -107,6 +107,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\Deflector.cs" />
+    <Compile Include="Controllers\UseableController.cs" />
+    <Compile Include="Controllers\Ghost.cs" />
+    <Compile Include="GameController.cs" />
     <Compile Include="Pickup.cs" />
     <Compile Include="ProjectilePickup.cs" />
     <Compile Include="Projectiles\Bullet.cs" />
@@ -117,6 +121,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Tank.cs" />
+    <Compile Include="TankController.cs" />
+    <Compile Include="TankControllerPickup.cs" />
     <Compile Include="TanksDrop.cs" />
     <Compile Include="Tools.cs" />
   </ItemGroup>

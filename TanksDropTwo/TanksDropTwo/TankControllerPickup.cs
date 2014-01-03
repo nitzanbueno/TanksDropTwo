@@ -5,12 +5,16 @@ using System.Text;
 
 namespace TanksDropTwo
 {
-	/// <summary>
-	/// A pickup that has a projectile in it.
-	/// </summary>
-	public class ProjectilePickup : Pickup
+	public class TankControllerPickup : Pickup
 	{
-		public ProjectilePickup( Projectile carrier, int lifeTime )
+		/// <summary>
+		/// The projectile this pickup has.
+		/// </summary>
+		// You can think of it as what's inside the pickup box.
+		public TankController Carrier;
+
+
+		public TankControllerPickup( TankController carrier, int lifeTime )
 			: base( lifeTime )
 		{
 			Carrier = carrier;
@@ -24,15 +28,9 @@ namespace TanksDropTwo
 			base.LoadContent( Content, screenWidth, screenHeight );
 		}
 
-		/// <summary>
-		/// The projectile this pickup has.
-		/// </summary>
-		// You can think of it as what's inside the pickup box.
-		public Projectile Carrier;
-
 		protected override void TankPickup( Tank tank, TimeSpan gameTime )
 		{
-			if ( tank.PickupProjectile( this ) )
+			if ( tank.PickupController( this, gameTime ) )
 			{
 				Game.RemoveEntity( this );
 			}

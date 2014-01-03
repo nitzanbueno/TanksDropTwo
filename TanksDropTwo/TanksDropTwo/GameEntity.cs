@@ -13,9 +13,33 @@ namespace TanksDropTwo
 	/// The parent class for anything that is seen on the screen, such as tanks, bullets and pickups.
 	/// </summary>
 	public abstract class GameEntity
-	{ 
+	{
+		/// <summary>
+		/// The width of the screen.
+		/// </summary>
 		protected int ScreenWidth;
+
+		/// <summary>
+		/// The height of the screen.
+		/// </summary>
 		protected int ScreenHeight;
+
+		/// <summary>
+		/// The time, in milliseconds, the entity stays on the board.
+		/// -1 means unlimited time.
+		/// </summary>
+		protected int lifeTime;
+
+		/// <summary>
+		/// The TimeSpan in which the entity has appeared on the board.
+		/// </summary>
+		protected TimeSpan spawnTime;
+
+		/// <summary>
+		/// Every update, the controllers mentioned here change the entity according to their needs.
+		/// If all controllers allow the update, the entity is updated using the Update function.
+		/// </summary>
+		protected HashSet<GameController> Controllers = new HashSet<GameController>();
 
 		protected TanksDrop Game;
 
@@ -31,6 +55,9 @@ namespace TanksDropTwo
 		/// </summary>
 		private float angle;
 
+		/// <summary>
+		/// The current width of the entity, on the screen, in pixels.
+		/// </summary>
 		public int GameWidth
 		{
 			get
@@ -39,6 +66,9 @@ namespace TanksDropTwo
 			}
 		}
 
+		/// <summary>
+		/// The current height of the entity, on the screen, in pixels.
+		/// </summary>
 		public int GameHeight
 		{
 			get
@@ -82,6 +112,10 @@ namespace TanksDropTwo
 			}
 		}
 
+		/// <summary>
+		/// Initializes the entity.
+		/// </summary>
+		/// <param name="game">The current game the entity exists in.</param>
 		public virtual void Initialize( TanksDrop game )
 		{
 			Game = game;
@@ -122,7 +156,28 @@ namespace TanksDropTwo
 			return Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( Angle ) ), ( float )Math.Sin( MathHelper.ToRadians( Angle ) ) ) * speed );
 		}
 
+		// The previous key state, used to check key presses.
 		private KeyboardState prevKey;
+
+		/// <summary>
+		/// Updates the entity, but only if its controllers allow it.
+		/// </summary>
+		/// <param name="gameTime">The current game time.</param>
+		/// <param name="Entities">The other entities present on board.</param>
+		/// <param name="keyState">The current keyboard state.</param>
+		public void ConUpdate( TimeSpan gameTime, HashSet<GameEntity> Entities, KeyboardState keyState )
+		{
+			bool ShouldUpdate = true;
+			HashSet<GameController> ControllersCopy = new HashSet<GameController>( Controllers );
+			foreach ( GameController controller in ControllersCopy )
+			{
+				ShouldUpdate = ShouldUpdate ? controller.Control( this, gameTime ) : false;
+			}
+			if ( ShouldUpdate )
+			{
+				Update( gameTime, Entities, keyState );
+			}
+		}
 
 		/// <summary>
 		/// Updates the entity using its logic.
@@ -133,8 +188,17 @@ namespace TanksDropTwo
 		public virtual void Update( TimeSpan gameTime, HashSet<GameEntity> Entities, KeyboardState keyState )
 		{
 			prevKey = keyState;
+			if ( lifeTime > 0 && ( gameTime - spawnTime ).TotalMilliseconds > lifeTime )
+			{
+				Game.RemoveEntity( this );
+			}
 		}
 
+		/// <summary>
+		/// Returns true if the given key was pressed (was pushed this frame) and false if not.
+		/// </summary>
+		/// <param name="state">The current keyboard state.</param>
+		/// <param name="key">The key to check.</param>
 		protected bool isKeyPressed( KeyboardState state, Keys key )
 		{
 			return state.IsKeyDown( key ) && prevKey.IsKeyUp( key );
@@ -167,13 +231,12 @@ namespace TanksDropTwo
 			}
 		}
 
+		// Copied from the internet, and set to match criteria.
 		/// <summary>
 		/// Returns whether or not this entity and the given one collide, pixel-wise.
 		/// </summary>
 		/// <param name="otherEntity">The entity to check collision with.</param>
 		/// <returns>Whether or not the two entities touch.</returns>
-		/// <remarks>This function is copied from the internet so I don't really get the full general idea of how it works.
-		/// It just does.</remarks>
 		public bool CollidesWith( GameEntity otherEntity )
 		{
 			int thisWidth = Texture.Width;
@@ -186,7 +249,7 @@ namespace TanksDropTwo
 
 			int otherWidth = otherEntity.Texture.Width;
 			int otherHeight = otherEntity.Texture.Height;
-			
+
 			if ( otherEntity.SourceRectangle.HasValue )
 			{
 				otherWidth = otherEntity.SourceRectangle.Value.Width;
@@ -224,6 +287,12 @@ namespace TanksDropTwo
 			return false;
 		}
 
+		/// <summary>
+		/// Returns true if the entity collides with the other entity, AFTER the current entity has undergone the given transformation.
+		/// </summary>
+		/// <param name="otherEntity">The entity to check collision with.</param>
+		/// <param name="Transformation">The transformation to apply.</param>
+		/// <returns></returns>
 		protected bool CollidesWith( GameEntity otherEntity, Matrix Transformation )
 		{
 			int thisWidth = Texture.Width;
@@ -270,6 +339,7 @@ namespace TanksDropTwo
 			return false;
 		}
 
+		// Copied from the internet.
 		/// <summary>
 		/// Calculates an axis aligned rectangle which fully contains an arbitrarily
 		/// transformed axis aligned rectangle.
@@ -302,6 +372,7 @@ namespace TanksDropTwo
 								 ( int )( max.X - min.X ), ( int )( max.Y - min.Y ) );
 		}
 
+		// Copied from the internet.
 		/// <summary>
 		/// Determines if there is overlap of the non-transparent pixels
 		/// between two sprites.
@@ -343,6 +414,7 @@ namespace TanksDropTwo
 			return false;
 		}
 
+		// Copied from the internet.
 		/// <summary>
 		/// Determines if there is overlap of the non-transparent pixels between two
 		/// sprites.
@@ -411,6 +483,36 @@ namespace TanksDropTwo
 			}
 
 			// No intersection found
+			return false;
+		}
+
+		/// <summary>
+		/// Adds the controller to the entity's controllers, if not already present.
+		/// </summary>
+		/// <param name="controller">The controller to add.</param>
+		/// <returns>True if the controller was added, false if it already existed.</returns>
+		public bool AppendController( GameController controller )
+		{
+			if ( Controllers.Contains( controller ) )
+			{
+				return false;
+			}
+			Controllers.Add( controller );
+			return true;
+		}
+
+		/// <summary>
+		/// Removes the controller from the entity's controllers, if present.
+		/// </summary>
+		/// <param name="controller">The controller to remove.</param>
+		/// <returns>True if the controller was removed, false if it doesn't exist.</returns>
+		public bool RemoveController( GameController controller )
+		{
+			if ( Controllers.Contains( controller ) )
+			{
+				Controllers.Remove( controller );
+				return true;
+			}
 			return false;
 		}
 	}

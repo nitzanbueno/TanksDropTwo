@@ -19,58 +19,71 @@ namespace TanksDropTwo
 		/// Since this is an animated entity, the texture datas for each frame.
 		/// </summary>
 		private Color[][] texDatas;
+
 		/// <summary>
 		/// Since this is an animated entity, the source rectangles for each frame.
 		/// </summary>
 		private Rectangle[] TankSourceRects;
+
 		/// <summary>
 		/// The name of the tank.
 		/// Currently purely aesthetic and useless.
 		/// </summary>
 		public string Name;
+
 		/// <summary>
 		/// The keys of the tank.
 		/// </summary>
 		private KeySet keys;
+
 		/// <summary>
 		/// The color of the tank.
 		/// </summary>
 		private Colors color;
+
 		/// <summary>
 		/// The speed of the tank.
 		/// </summary>
 		public float Speed;
+
 		/// <summary>
 		/// true if the tank is alive, otherwise false.
 		/// If this is false, the tank is invisiblem cannot shoot or place fences, and does not interact with the projectiles.
 		/// </summary>
 		public bool IsAlive;
+
 		/// <summary>
 		/// The number of bullets owned by this tank currently on the screen.
 		/// </summary>
 		public int NumberOfBullets;
+
 		/// <summary>
 		/// The number of times this tank has won the round.
 		/// </summary>
 		public int Score;
+
 		/// <summary>
 		/// The original position of the tank.
 		/// </summary>
 		private Vector2 originalPosition;
+
 		/// <summary>
 		/// The original angle of the tank.
 		/// </summary>
 		private float originalAngle;
+
 		/// <summary>
 		/// The projectile loaded in the tank currently.
 		/// Used for projectile pickups.
 		/// </summary>
 		private Projectile nextProjectile;
+
 		/// <summary>
 		/// The original projectile of this tank.
 		/// Normally a normal bullet, except when testing or badassing.
 		/// </summary>
 		private Projectile originalProjectile;
+
 		/// <summary>
 		/// A useable clone of the original projectile.
 		/// Used because if using the original, will set all bullets' position.
@@ -82,6 +95,11 @@ namespace TanksDropTwo
 				return originalProjectile.Clone();
 			}
 		}
+
+		/// <summary>
+		/// This tank's controller, if exists.
+		/// </summary>
+		public TankController Controller;
 
 		public static Tank blank = new Tank();
 
@@ -131,7 +149,7 @@ namespace TanksDropTwo
 			Scale = 2;
 			Origin = new Vector2( 16, 16 );
 			this.originalProjectile = originalProjectile;
-			Reset(false);
+			Reset( false );
 		}
 
 		public Tank( string name, Vector2 startPosition, float startAngle, KeySet keys, Colors color, float speed )
@@ -207,8 +225,13 @@ namespace TanksDropTwo
 				{
 					// If when I move, I will hit a fence,
 					toMove = false;
+					if ( Controller != null ) // And if there's a controller
+						toMove = Controller.HitFence( ( Fence )entity ); // it doesn't allow that,
 					// I won't move!
-					break;
+					// However, due to the ghost controller and other tanks, I may be stuck IN a fence.
+					// In that case, I should be able to go outside of it.
+					toMove = toMove || CollidesWith( entity );
+					if ( !toMove ) break;
 				}
 			}
 
@@ -224,12 +247,20 @@ namespace TanksDropTwo
 				Shoot( gameTime );
 			}
 
-			if ( isKeyPressed( keyState, keys.KeyPlace ) && IsAlive ) //keyState.IsKeyDown( keys.KeyPlace ) )
+			if ( isKeyPressed( keyState, keys.KeyPlace ) )
 			{
-				PlaceFence( gameTime );
+				CheckPlaceFence( gameTime );
 			}
 
 			base.Update( gameTime, Entities, keyState );
+		}
+
+		private void CheckPlaceFence( TimeSpan gameTime )
+		{
+			if ( ( Controller == null || Controller.OnPlaceFence() ) && IsAlive )
+			{
+				PlaceFence( gameTime );
+			}
 		}
 
 		private void PlaceFence( TimeSpan gameTime )
@@ -238,19 +269,23 @@ namespace TanksDropTwo
 			float sideDeg = 40F;
 			Fence newFence = new Fence(
 				Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( Angle + sideDeg ) ), ( float )Math.Sin( MathHelper.ToRadians( Angle + sideDeg ) ) ) * dist * 2.5F ),
-				Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( Angle - sideDeg ) ), ( float )Math.Sin( MathHelper.ToRadians( Angle - sideDeg ) ) ) * dist * 2.5F ), this, 16, gameTime, -1 );
+				Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( Angle - sideDeg ) ), ( float )Math.Sin( MathHelper.ToRadians( Angle - sideDeg ) ) ) * dist * 2.5F ), this, 16, gameTime, 2000 );
 			newFence.Initialize( Game );
 			Game.QueueEntity( newFence );
 		}
 
-		private void Shoot( TimeSpan gameTime )
+		public void Shoot( TimeSpan gameTime, bool force = false )
 		{
-			nextProjectile.Angle = Angle;
-			nextProjectile.Position = Forward( 20 * Scale );
-			NumberOfBullets++;
-			nextProjectile.Initialize( Game, gameTime );
-			Game.QueueEntity( nextProjectile );
-			nextProjectile = OriginalProjectile;
+			if ( force || Controller == null )
+			{
+				nextProjectile.Angle = Angle;
+				nextProjectile.Position = Forward( 20 * Scale );
+				NumberOfBullets++;
+				nextProjectile.Initialize( Game, gameTime );
+				Game.QueueEntity( nextProjectile );
+				nextProjectile = OriginalProjectile;
+			}
+			else Controller.Shoot( gameTime );
 		}
 
 		public override void Draw( TimeSpan gameTime, SpriteBatch spriteBatch )
@@ -294,10 +329,24 @@ namespace TanksDropTwo
 		/// <returns>True if the tank was killed, otherwise false.</returns>
 		public bool Hit( Projectile Hitter )
 		{
-			IsAlive = false;
-			return true;
+			if ( Controller == null || Controller.ProjectileHit( Hitter ) )
+			{
+				IsAlive = false;
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
+		/// <summary>
+		/// Returns a cropped texture data array from the full one.
+		/// </summary>
+		/// <param name="colorData">The texture data to crop.</param>
+		/// <param name="width">The width of the texture.</param>
+		/// <param name="rectangle">The rectangle to crop in texels.</param>
+		/// <returns>The cropped data.</returns>
 		Color[] GetImageData( Color[] colorData, int width, Rectangle rectangle )
 		{
 			Color[] color = new Color[ rectangle.Width * rectangle.Height ];
@@ -307,6 +356,11 @@ namespace TanksDropTwo
 			return color;
 		}
 
+		/// <summary>
+		/// Called when the tank should pick up a ProjectilePickup.
+		/// </summary>
+		/// <param name="proj">The projectile pickup.</param>
+		/// <returns>True if the projectile was picked up - otherwise false.</returns>
 		public bool PickupProjectile( ProjectilePickup proj )
 		{
 			if ( nextProjectile.GetType() == OriginalProjectile.GetType() )
@@ -317,7 +371,7 @@ namespace TanksDropTwo
 			return false;
 		}
 
-		public void Reset(bool proj = true)
+		public void Reset( bool proj = true )
 		{
 			Position = originalPosition;
 			Angle = originalAngle;
@@ -327,6 +381,30 @@ namespace TanksDropTwo
 			}
 			IsAlive = true;
 			NumberOfBullets = 0;
+			RemoveTankController( Controller );
+			Controllers = new HashSet<GameController>();
+		}
+
+		public bool PickupController( TankControllerPickup tankControllerPickup, TimeSpan gameTime )
+		{
+			if ( Controller == null )
+			{
+				TankController controller = tankControllerPickup.Carrier;
+				controller.Initialize( Game, this, gameTime );
+				Controllers.Add( controller );
+				Controller = controller;
+				return true;
+			}
+			else return false;
+		}
+
+		public void RemoveTankController( TankController tankController )
+		{
+			if ( tankController == Controller )
+			{
+				Controller = null;
+				Controllers.Remove( tankController );
+			}
 		}
 	}
 }

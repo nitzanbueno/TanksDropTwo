@@ -16,9 +16,14 @@ namespace TanksDropTwo
 	/// </summary>
 	public abstract class Pickup : GameEntity
 	{
+		public Pickup( int lifeTime )
+		{
+			this.lifeTime = lifeTime;
+		}
+
 		public override void Update( TimeSpan gameTime, HashSet<GameEntity> Entities, KeyboardState keyState )
 		{
-			CheckPickup( Entities );
+			CheckPickup( Entities, gameTime );
 			base.Update( gameTime, Entities, keyState );
 		}
 
@@ -32,15 +37,21 @@ namespace TanksDropTwo
 			base.LoadContent( Content, screenWidth, screenHeight );
 		}
 
-		public void CheckPickup( HashSet<GameEntity> Entities )
+		public void CheckPickup( HashSet<GameEntity> Entities, TimeSpan gameTime )
 		{
 			foreach ( GameEntity entity in Entities )
 			{
 				if ( entity is Tank && ( ( Tank )entity ).IsAlive && entity.CollidesWith( this ) )
 				{
-					TankPickup( ( Tank )entity );
+					TankPickup( ( Tank )entity, gameTime );
 				}
 			}
+		}
+
+		public void Initialize( TanksDrop game, TimeSpan spawnTime )
+		{
+			this.spawnTime = spawnTime;
+			this.Game = game;
 		}
 
 		/// <summary>
@@ -48,6 +59,6 @@ namespace TanksDropTwo
 		/// </summary>
 		/// <param name="tank">The tank that collided.</param>
 		/// <remarks>Used to have the tank get the pickup.</remarks>
-		protected abstract void TankPickup( Tank tank );
+		protected abstract void TankPickup( Tank tank, TimeSpan gameTime );
 	}
 }

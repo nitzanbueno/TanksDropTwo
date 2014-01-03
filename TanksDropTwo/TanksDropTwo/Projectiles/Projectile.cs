@@ -11,18 +11,6 @@ namespace TanksDropTwo
 	{
 		protected float speed;
 		protected Tank owner;
-		protected TimeSpan spawnTime;
-
-		/// <summary>
-		/// Gets a ProjectilePickup with this projectile in it.
-		/// </summary>
-		public ProjectilePickup Pickup
-		{
-			get
-			{
-				return new ProjectilePickup( this );
-			}
-		}
 
 		public Projectile( Tank Owner, TimeSpan gameTime )
 		{
