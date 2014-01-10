@@ -7,6 +7,9 @@ using Microsoft.Xna.Framework;
 
 namespace TanksDropTwo.Controllers
 {
+	/// <summary>
+	/// A TankController that causes the owner to be able to pass through bullets and fences.
+	/// </summary>
 	public class Ghost : TankController
 	{
 		public Ghost( Tank Owner, int LifeTime )
@@ -48,6 +51,10 @@ namespace TanksDropTwo.Controllers
 		public override bool AddEntity( GameEntity entity )
 		{
 			return false;
+		}
+
+		public override void StopControl()
+		{
 		}
 	}
 }

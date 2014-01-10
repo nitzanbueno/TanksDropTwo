@@ -6,6 +6,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TanksDropTwo.Controllers
 {
+	/// <summary>
+	/// A UseableController that causes all bullets to turn 180 degrees (Switch direction) when used.
+	/// </summary>
 	class Deflector : UseableController
 	{
 		public Deflector( Tank Owner )

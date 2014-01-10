@@ -56,5 +56,9 @@ namespace TanksDropTwo.Controllers
 		{
 			throw new NotImplementedException();
 		}
+
+		public override void StopControl()
+		{
+		}
 	}
 }

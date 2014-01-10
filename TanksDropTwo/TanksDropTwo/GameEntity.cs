@@ -212,6 +212,10 @@ namespace TanksDropTwo
 		public virtual void Draw( TimeSpan gameTime, SpriteBatch spriteBatch )
 		{
 			spriteBatch.Draw( Texture, Position, SourceRectangle, Color.White, AngleInRadians, Origin, Scale, SpriteEffects.None, 0.5F );
+			foreach ( GameController c in Controllers )
+			{
+				c.Draw( spriteBatch );
+			}
 		}
 
 		/// <summary>

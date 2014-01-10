@@ -26,8 +26,7 @@ namespace TanksDropTwo
 		public virtual void Initialize( TanksDrop game, Tank Owner, TimeSpan spawnTime )
 		{
 			this.spawnTime = spawnTime;
-			this.Owner = Owner;
-			Initialize( game );
+			Initialize( game, Owner );
 		}
 
 		public virtual void Initialize( TanksDrop game, Tank Owner )
@@ -43,6 +42,7 @@ namespace TanksDropTwo
 			if ( control == Owner && ( gameTime - spawnTime ).TotalMilliseconds > lifeTime )
 			{
 				Owner.RemoveTankController( this );
+				StopControl();
 			}
 			return true;
 		}
@@ -80,5 +80,10 @@ namespace TanksDropTwo
 		/// </summary>
 		/// <returns>true if the tank should place the fence, false if it shouldn't.</returns>
 		public abstract bool OnPlaceFence();
+
+		/// <summary>
+		/// Called when the TankController is released from its owner.
+		/// </summary>
+		public abstract void StopControl();
 	}
 }

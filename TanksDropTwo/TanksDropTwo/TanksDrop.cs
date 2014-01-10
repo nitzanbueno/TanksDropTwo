@@ -38,8 +38,11 @@ namespace TanksDropTwo
 		};
 		TankController[] AvailableControllers = new TankController[]
 		{
-			new Ghost( Tank.blank, 10000 ),
-			new Deflector( Tank.blank ),
+			//new Ghost( Tank.blank, 10000 ),
+			//new Deflector( Tank.blank ),
+			//new Minimize( Tank.blank, 10000 ),
+			//new Switcher( Tank.blank ),
+			new ForceField( Tank.blank, 10000 )
 		};
 		Random r = new Random();
 
@@ -240,7 +243,7 @@ namespace TanksDropTwo
 		{
 			Pickup p = null;
 
-			bool Projectile = r.Next( 2 ) == 0;
+			bool Projectile = r.Next( 2 ) == 0 && false;
 
 			p = Projectile ? new ProjectilePickup( AvailableProjectiles[ r.Next( AvailableProjectiles.Length ) ], PickupLifetime ) : ( Pickup )new TankControllerPickup( AvailableControllers[ r.Next( AvailableControllers.Length ) ], PickupLifetime );
 
