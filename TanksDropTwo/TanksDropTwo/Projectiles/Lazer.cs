@@ -43,7 +43,7 @@ namespace TanksDropTwo
 						select e;
 			}
 
-			for ( int i = 0; i < 10; i++ )
+			for ( int i = 0; i < 100; i++ )
 			{
 				if ( ( Helpers.Count >= 200 || hasCollided ) && Helpers.Count > 0 )
 				{

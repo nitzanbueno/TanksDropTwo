@@ -140,7 +140,8 @@ namespace TanksDropTwo
 				new SpeedBoost( Tank.blank, LoadPositiveSetting( "SpeedBoostTime", ControllerTime ), LoadSetting( "SpeedBoostFactor", 2F ) ),
 				new Minimize( Tank.blank, LoadPositiveSetting( "MinimizeTime", ControllerTime ) ),
 				new Switcher( Tank.blank ),
-				new ForceField( Tank.blank, LoadPositiveSetting( "ForceFieldTime", ControllerTime ) )
+				new ForceField( Tank.blank, LoadPositiveSetting( "ForceFieldTime", ControllerTime ) ),
+				new Tripler( Tank.blank, LoadPositiveSetting( "TriplerTime", ControllerTime ) ),
 			};
 
 			AvailableConEnts = new ControllerEntity[]
@@ -148,6 +149,7 @@ namespace TanksDropTwo
 				new Portal( LoadPositiveSetting( "PortalTime", ControllerTime ) ),
 				new BlackHole()
 			};
+			AvailableConEnts[ 1 ].Spawn( TimeSpan.Zero, this );
 			base.Initialize();
 		}
 

@@ -315,13 +315,9 @@ namespace TanksDropTwo
 			nextProjectile.Position = Forward( 20 * Scale );
 			NumberOfProjectiles++;
 			nextProjectile.Initialize( Game, gameTime, this );
-			if ( force || Controller == null )
+			if ( force || Controller == null || !Controller.Shoot( gameTime, nextProjectile ) )
 			{
 				Game.QueueEntity( nextProjectile );
-			}
-			else
-			{
-				Controller.Shoot( gameTime, nextProjectile );
 			}
 			nextProjectile = OriginalProjectile;
 		}

@@ -64,6 +64,7 @@ namespace TanksDropTwo.Controllers
 						// Thus I can explode.
 						shouldExplode = true;
 						master.Vanish();
+						Game.StopController( this );
 					}
 				}
 				return false;

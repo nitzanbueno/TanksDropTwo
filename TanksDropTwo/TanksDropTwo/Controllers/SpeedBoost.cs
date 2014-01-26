@@ -34,11 +34,12 @@ namespace TanksDropTwo.Controllers
 			return true;
 		}
 
-		public override void Shoot( TimeSpan gameTime, Projectile shot )
+		public override bool Shoot( TimeSpan gameTime, Projectile shot )
 		{
 			Projectile nextProjectile = shot.Clone();
 			nextProjectile.Speed *= factor;
 			Game.QueueEntity( nextProjectile );
+			return true;
 		}
 
 		public override bool Control( GameEntity control, TimeSpan gameTime )

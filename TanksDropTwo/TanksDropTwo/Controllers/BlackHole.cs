@@ -19,6 +19,7 @@ namespace TanksDropTwo.Controllers
 			hole.Position = new Vector2( r.Next( game.ScreenWidth ), r.Next( game.ScreenHeight ) );
 			Game = game;
 			hole.Controller = new BlackHoleController( hole.Position, hole );
+			hole.Controller.Initialize( game );
 			hole.Initialize( game );
 			hole.LoadContent( game.Content, game.ScreenWidth, game.ScreenHeight );
 			hole.VacuumSpeed = 0;
