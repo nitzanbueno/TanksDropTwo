@@ -11,8 +11,17 @@ namespace TanksDropTwo
 		/// The projectile this pickup has.
 		/// </summary>
 		// You can think of it as what's inside the pickup box.
-		public TankController Carrier;
-
+		public TankController Carrier
+		{
+			get
+			{
+				return ( TankController )carrier;
+			}
+			set
+			{
+				carrier = value;
+			}
+		}
 
 		public TankControllerPickup( TankController carrier, int lifeTime )
 			: base( lifeTime )

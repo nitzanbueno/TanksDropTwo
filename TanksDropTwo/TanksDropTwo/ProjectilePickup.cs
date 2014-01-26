@@ -10,6 +10,22 @@ namespace TanksDropTwo
 	/// </summary>
 	public class ProjectilePickup : Pickup
 	{
+		/// <summary>
+		/// The projectile this pickup has.
+		/// </summary>
+		// You can think of it as what's inside the pickup box.
+		public Projectile Carrier
+		{
+			get
+			{
+				return ( Projectile )carrier;
+			}
+			set
+			{
+				carrier = value;
+			}
+		}
+
 		public ProjectilePickup( Projectile carrier, int lifeTime )
 			: base( lifeTime )
 		{
@@ -23,12 +39,6 @@ namespace TanksDropTwo
 			Scale = Carrier.Scale;
 			base.LoadContent( Content, screenWidth, screenHeight );
 		}
-
-		/// <summary>
-		/// The projectile this pickup has.
-		/// </summary>
-		// You can think of it as what's inside the pickup box.
-		public Projectile Carrier;
 
 		protected override void TankPickup( Tank tank, TimeSpan gameTime )
 		{

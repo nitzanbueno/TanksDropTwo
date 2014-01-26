@@ -54,7 +54,6 @@ namespace TanksDropTwo.Controllers
 
 		public override void Draw( SpriteBatch spriteBatch )
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void StopControl()

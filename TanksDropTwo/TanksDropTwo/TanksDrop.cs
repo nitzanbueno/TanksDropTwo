@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using TanksDropTwo.Controllers;
+using System.IO;
 
 namespace TanksDropTwo
 {
@@ -22,8 +23,8 @@ namespace TanksDropTwo
 		HashSet<GameEntity> Entities;
 		HashSet<GameController> MasterControllers;
 		TimeSpan currentGameTime;
-		int ScreenWidth;
-		int ScreenHeight;
+		public int ScreenWidth;
+		public int ScreenHeight;
 		int NumOfPlayers;
 
 		int PickupLifetime;
@@ -32,25 +33,24 @@ namespace TanksDropTwo
 		int FreezeMillisecs;
 		int SpawnMillisecs;
 
-		Projectile[] AvailableProjectiles = new Projectile[]
-		{
-			new HomingBullet( Tank.blank, 10, 5, TimeSpan.Zero, 1000 ),
-		};
-		TankController[] AvailableControllers = new TankController[]
-		{
-			//new Ghost( Tank.blank, 10000 ),
-			//new Deflector( Tank.blank ),
-			//new Minimize( Tank.blank, 10000 ),
-			//new Switcher( Tank.blank ),
-			new ForceField( Tank.blank, 10000 )
-		};
+		public float BlastRadius;
+
+		Projectile[] AvailableProjectiles;
+		TankController[] AvailableControllers;
+		ControllerEntity[] AvailableConEnts;
 		Random r = new Random();
+
+		Bullet defaultBullet;
+
+		StreamReader reader;
+		List<string> Lines;
 
 		public TanksDrop()
 		{
 			graphics = new GraphicsDeviceManager( this );
-			ScreenWidth = 1000;
-			ScreenHeight = 1000;
+			Read();
+			ScreenWidth = LoadSetting( "ScreenWidth", 1000 );
+			ScreenHeight = LoadSetting( "ScreenHeight", 1000 );
 			graphics.PreferredBackBufferWidth = ScreenWidth;
 			graphics.PreferredBackBufferHeight = ScreenHeight;
 			Content.RootDirectory = "Content";
@@ -64,12 +64,37 @@ namespace TanksDropTwo
 		/// </summary>
 		protected override void Initialize()
 		{
-			NumOfPlayers = 4;
-			WaitMillisecs = 3000;
-			FreezeMillisecs = 1000;
-			SpawnMillisecs = 1000;
+			NumOfPlayers = LoadSetting( "Players", 2 );
+			WaitMillisecs = LoadSetting( "EndingDelay", 3000 );
+			FreezeMillisecs = LoadSetting( "FreezeTime", 1000 );
+			SpawnMillisecs = LoadSetting( "PickupTime", 5000 );
+			PickupLifetime = LoadSetting( "PickupLifeTime", 10000 );
 
-			PickupLifetime = 10000;
+			BlastRadius = LoadSetting( "BlastRadius", 10.0F );
+
+			KeySet p1keys = LoadSetting( "Player1Keys", new KeySet( Keys.Up, Keys.Down, Keys.Left, Keys.Right, Keys.Z, Keys.X ) );
+			KeySet p2keys = LoadSetting( "Player2Keys", new KeySet( Keys.W, Keys.S, Keys.A, Keys.D, Keys.Q, Keys.E ) );
+			KeySet p3keys = LoadSetting( "Player3Keys", new KeySet( Keys.T, Keys.G, Keys.F, Keys.H, Keys.V, Keys.B ) );
+			KeySet p4keys = LoadSetting( "Player4Keys", new KeySet( Keys.NumPad5, Keys.NumPad2, Keys.NumPad1, Keys.NumPad3, Keys.NumPad7, Keys.NumPad8 ) );
+
+			Colors p1Color = LoadSetting( "Player1Color", Colors.Green );
+			Colors p2Color = LoadSetting( "Player2Color", Colors.Purple );
+			Colors p3Color = LoadSetting( "Player3Color", Colors.Blue );
+			Colors p4Color = LoadSetting( "Player4Color", Colors.Orange );
+
+			int ProjectileTime = LoadSetting( "ProjectileTime", 10000 );
+			int ProjectileSpeed = LoadSetting( "ProjectileSpeed", 10 );
+			int ControllerTime = LoadSetting( "ControllerTime", 10000 );
+			int FenceTime = LoadSetting( "FenceTime", 10000 );
+			int TankSpeed = LoadSetting( "TankSpeed", 5 );
+			int BulletLifeTime = LoadPositiveSetting( "BulletLifeTime", ProjectileTime );
+
+			float TankScale = LoadSetting( "TankScale", 2F );
+
+			defaultBullet = new Bullet( LoadPositiveSetting( "BulletSpeed", ProjectileSpeed ), Tank.blank, TimeSpan.Zero, BulletLifeTime );
+
+			int FenceLimit = LoadSetting( "FenceLimit", 10 );
+			int ProjectileLimit = LoadSetting( "ProjectileLimit", 3 );
 
 			// Shows mouse
 			IsMouseVisible = true;
@@ -79,19 +104,19 @@ namespace TanksDropTwo
 			Entities = new HashSet<GameEntity>();
 
 			// Player 1
-			Entities.Add( new Tank( "Player 1", new Vector2( 50, 50 ), 45, new KeySet( Keys.Up, Keys.Down, Keys.Left, Keys.Right, Keys.Z, Keys.X ), Colors.Green, 5 ) );
+			Entities.Add( new Tank( "Player 1", new Vector2( 50, 50 ), 45, p1keys, p1Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale ) );
 
 			// Player 2
-			Entities.Add( new Tank( "Player 2", new Vector2( ScreenWidth - 50, ScreenHeight - 50 ), 225, new KeySet( Keys.W, Keys.S, Keys.A, Keys.D, Keys.Q, Keys.E ), Colors.Red, 5 ) );
+			Entities.Add( new Tank( "Player 2", new Vector2( ScreenWidth - 50, ScreenHeight - 50 ), 225, p2keys, p2Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale ) );
 
 			if ( NumOfPlayers >= 3 )
 			{
-				Entities.Add( new Tank( "Player 3", new Vector2( ScreenWidth - 50, 50 ), 135, new KeySet( Keys.T, Keys.G, Keys.F, Keys.H, Keys.V, Keys.B ), Colors.Blue, 5 ) );
+				Entities.Add( new Tank( "Player 3", new Vector2( ScreenWidth - 50, 50 ), 135, p3keys, p3Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale ) );
 			}
 
 			if ( NumOfPlayers >= 4 )
 			{
-				Entities.Add( new Tank( "Player 4", new Vector2( 50, ScreenHeight - 50 ), 315, new KeySet( Keys.NumPad5, Keys.NumPad2, Keys.NumPad1, Keys.NumPad3, Keys.NumPad7, Keys.NumPad8 ), Colors.Yellow, 5 ) );
+				Entities.Add( new Tank( "Player 4", new Vector2( 50, ScreenHeight - 50 ), 315, p4keys, p4Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale ) );
 			}
 
 			foreach ( GameEntity entity in Entities )
@@ -99,6 +124,26 @@ namespace TanksDropTwo
 				entity.Initialize( this );
 			}
 
+			AvailableProjectiles = new Projectile[]
+			{
+				new HomingBullet( Tank.blank, LoadPositiveSetting( "HomingBulletSpeed", ProjectileSpeed ), LoadPositiveSetting( "HomingBulletTurnSpeed", 5 ), TimeSpan.Zero, LoadPositiveSetting( "HomingBulletNoticeTime", 1000 ), LoadPositiveSetting( "HomingBulletTime", ProjectileTime ) ),
+				new Missile( Tank.blank, LoadPositiveSetting( "MissileSpeed", ProjectileSpeed ), LoadPositiveSetting( "MissileTime", ProjectileTime ) ),
+			};
+
+			AvailableControllers = new TankController[]
+			{
+				//new Ghost( Tank.blank, LoadPositiveSetting( "GhostTime", ControllerTime ) ),
+				new Deflector( Tank.blank ),
+				//new Minimize( Tank.blank, LoadPositiveSetting( "MinimizeTime", ControllerTime ) ),
+				//new Switcher( Tank.blank ),
+				//new ForceField( Tank.blank, LoadPositiveSetting( "ForceFieldTime", ControllerTime ) )
+			};
+
+			AvailableConEnts = new ControllerEntity[]
+			{
+				//new Portal( LoadPositiveSetting( "PortalTime", ControllerTime ) ),
+				//new BlackHole()
+			};
 			base.Initialize();
 		}
 
@@ -131,6 +176,148 @@ namespace TanksDropTwo
 			// TODO: Unload any non ContentManager content here
 		}
 
+		#region Setting Functions
+		private void Read()
+		{
+			Lines = new List<string>();
+			try
+			{
+				reader = new StreamReader( File.OpenRead( "settings.ini" ) );
+			}
+			catch ( Exception )
+			{
+				return;
+			}
+			while ( !reader.EndOfStream )
+			{
+				try
+				{
+					Lines.Add( reader.ReadLine() );
+				}
+				catch ( Exception )
+				{
+					break;
+				}
+			}
+		}
+
+		private Colors LoadSetting( string setting, Colors defaultSetting )
+		{
+			string color = LoadSetting( setting );
+			try
+			{
+				return ( Colors )Enum.Parse( typeof( Colors ), color );
+			}
+			catch ( Exception ) { return defaultSetting; }
+		}
+
+		private KeySet LoadSetting( string setting, KeySet defaultSetting )
+		{
+			string keystr = LoadSetting( setting );
+			if ( keystr == "" ) return defaultSetting;
+			string[] keys = keystr.Replace( " ", string.Empty ).Split( ',' );
+			return new KeySet(
+			LoadKey( keys, 0, defaultSetting.KeyForward ),
+			LoadKey( keys, 2, defaultSetting.KeyBackward ),
+			LoadKey( keys, 1, defaultSetting.KeyLeft ),
+			LoadKey( keys, 3, defaultSetting.KeyRight ),
+			LoadKey( keys, 4, defaultSetting.KeyPlace ),
+			LoadKey( keys, 5, defaultSetting.KeyShoot ) );
+		}
+
+		private Keys LoadKey( string[] keys, int index, Keys defaultKey )
+		{
+			try
+			{
+				return ( Keys )Enum.Parse( typeof( Keys ), keys[ index ] );
+			}
+			catch ( Exception )
+			{
+				return defaultKey;
+			}
+		}
+
+		private string LoadSetting( string setting )
+		{
+			foreach ( string l in Lines )
+			{
+				if ( l != "" && l[ 0 ] != '#' && l[ 0 ] != '[' )
+				{
+					string[] Line = l.Split( '=' );
+					if ( Line[ 0 ].ToLower() == setting.ToLower() )
+					{
+						try
+						{
+							return Line[ 1 ];
+						}
+						catch ( Exception ) { }
+					}
+				}
+			}
+			return "";
+		}
+
+		private string LoadSetting( string setting, string defaultSetting )
+		{
+			string s = LoadSetting( setting );
+			return s == "" ? defaultSetting : s;
+		}
+
+		private int LoadSetting( string setting, int defaultSetting )
+		{
+			try
+			{
+				return Int32.Parse( LoadSetting( setting ) );
+			}
+			catch ( Exception )
+			{
+				return defaultSetting;
+			}
+		}
+
+		private double LoadSetting( string setting, double defaultSetting )
+		{
+			try
+			{
+				return Double.Parse( LoadSetting( setting ) );
+			}
+			catch ( Exception )
+			{
+				return defaultSetting;
+			}
+		}
+
+		private float LoadSetting( string setting, float defaultSetting )
+		{
+			try
+			{
+				return float.Parse( LoadSetting( setting ) );
+			}
+			catch ( Exception )
+			{
+				return defaultSetting;
+			}
+		}
+
+		private int LoadPositiveSetting( string setting, int defaultSetting )
+		{
+			try
+			{
+				int set = Int32.Parse( LoadSetting( setting ) );
+				if ( set <= 0 )
+				{
+					return defaultSetting;
+				}
+				return set;
+			}
+			catch ( Exception )
+			{
+				return defaultSetting;
+			}
+		}
+
+		#endregion
+
 		// This TimeSpan is not null only when the game is waiting to go to the next round, and it represents the time when it started waiting.
 		TimeSpan? BeganWait;
 
@@ -155,14 +342,14 @@ namespace TanksDropTwo
 
 			KeyboardState keyState = Keyboard.GetState();
 
-			if ( keyState.IsKeyDown( Keys.R ) )
-			{
-				Initialize();
-			}
-
 			if ( keyState.IsKeyDown( Keys.Escape ) )
 			{
 				this.Exit();
+			}
+
+			if ( keyState.IsKeyDown( Keys.R ) )
+			{
+				NewRound();
 			}
 
 			HashSet<GameEntity> EntitiesCopy = new HashSet<GameEntity>( Entities );
@@ -225,7 +412,7 @@ namespace TanksDropTwo
 		protected override void Draw( GameTime gameTime )
 		{
 			GraphicsDevice.Clear( Color.CornflowerBlue );
-			spriteBatch.Begin();
+			spriteBatch.Begin( SpriteSortMode.BackToFront, BlendState.AlphaBlend );
 
 			foreach ( GameEntity entity in Entities )
 			{
@@ -241,19 +428,25 @@ namespace TanksDropTwo
 		/// </summary>
 		protected void SpawnPickup( TimeSpan gameTime )
 		{
-			Pickup p = null;
+			int ProjLen = AvailableProjectiles.Length;
+			int ConLen = AvailableControllers.Length;
+			int ConEntLen = AvailableConEnts.Length;
+			int Category = r.Next( ProjLen + ConLen + ConEntLen );
 
-			bool Projectile = r.Next( 2 ) == 0 && false;
-
-			p = Projectile ? new ProjectilePickup( AvailableProjectiles[ r.Next( AvailableProjectiles.Length ) ], PickupLifetime ) : ( Pickup )new TankControllerPickup( AvailableControllers[ r.Next( AvailableControllers.Length ) ], PickupLifetime );
-
-			p.Position = new Vector2( r.Next( ScreenWidth ), r.Next( ScreenHeight ) );
-			p.Initialize( this, gameTime );
-			if ( p is TankControllerPickup )
+			if ( Category < ProjLen + ConLen )
 			{
-				( ( TankControllerPickup )p ).Carrier.LoadTexture( Content );
+				Pickup p = null;
+
+				p = Category < AvailableProjectiles.Length ? new ProjectilePickup( AvailableProjectiles[ Category ], PickupLifetime ) : ( Pickup )new TankControllerPickup( AvailableControllers[ Category - ProjLen ], PickupLifetime );
+
+				p.Position = new Vector2( r.Next( ScreenWidth ), r.Next( ScreenHeight ) );
+				p.Initialize( this, gameTime );
+				QueueEntity( p );
 			}
-			QueueEntity( p );
+			else
+			{
+				AvailableConEnts[ Category - ProjLen - ConLen ].Spawn( gameTime, this );
+			}
 		}
 
 		/// <summary>
@@ -261,22 +454,26 @@ namespace TanksDropTwo
 		/// </summary>
 		/// <param name="entity">The entity to add. LoadContent is called within the function.</param>
 		/// <returns>true if the entity was added, false if it already existed.</returns>
-		public bool QueueEntity( GameEntity entity )
+		public bool QueueEntity( params GameEntity[] entities )
 		{
-			entity.LoadContent( Content, ScreenWidth, ScreenHeight );
-			if ( Entities.Contains( entity ) )
+			bool b = true;
+			foreach ( GameEntity entity in entities )
 			{
-				return false;
-			}
-			foreach ( GameController controller in MasterControllers )
-			{
-				if ( controller.AddEntity( entity ) )
+				entity.LoadContent( Content, ScreenWidth, ScreenHeight );
+				if ( Entities.Contains( entity ) )
 				{
-					entity.AppendController( controller );
+					b = false;
 				}
+				foreach ( GameController controller in MasterControllers )
+				{
+					if ( controller.AddEntity( entity ) )
+					{
+						entity.AppendController( controller );
+					}
+				}
+				Entities.Add( entity );
 			}
-			Entities.Add( entity );
-			return true;
+			return b;
 		}
 
 		/// <summary>

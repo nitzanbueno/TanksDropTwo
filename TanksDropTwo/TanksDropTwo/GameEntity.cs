@@ -62,6 +62,10 @@ namespace TanksDropTwo
 		{
 			get
 			{
+				if ( SourceRectangle.HasValue )
+				{
+					return ( int )( SourceRectangle.Value.Width * Scale );
+				}
 				return ( int )( Texture.Width * Scale );
 			}
 		}
@@ -73,6 +77,10 @@ namespace TanksDropTwo
 		{
 			get
 			{
+				if ( SourceRectangle.HasValue )
+				{
+					return ( int )( SourceRectangle.Value.Height * Scale );
+				}
 				return ( int )( Texture.Height * Scale );
 			}
 		}
@@ -118,6 +126,8 @@ namespace TanksDropTwo
 		/// <param name="game">The current game the entity exists in.</param>
 		public virtual void Initialize( TanksDrop game )
 		{
+			ScreenWidth = game.ScreenWidth;
+			ScreenHeight = game.ScreenHeight;
 			Game = game;
 		}
 
@@ -156,6 +166,21 @@ namespace TanksDropTwo
 			return Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( Angle ) ), ( float )Math.Sin( MathHelper.ToRadians( Angle ) ) ) * speed );
 		}
 
+		public void Move( float speed, float angle )
+		{
+			Position = Forward( speed, angle );
+		}
+
+		/// <summary>
+		/// Returns the entity's position moved forward the given amount of pixels in its angle's direction.
+		/// </summary>
+		/// <param name="speed">The amount of pixels to move</param>
+		/// <returns>The moved position.</returns>
+		protected Vector2 Forward( float speed, float angle )
+		{
+			return Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( angle ) ), ( float )Math.Sin( MathHelper.ToRadians( angle ) ) ) * speed );
+		}
+
 		// The previous key state, used to check key presses.
 		private KeyboardState prevKey;
 
@@ -190,7 +215,7 @@ namespace TanksDropTwo
 			prevKey = keyState;
 			if ( lifeTime > 0 && ( gameTime - spawnTime ).TotalMilliseconds > lifeTime )
 			{
-				Game.RemoveEntity( this );
+				Destroy( gameTime );
 			}
 		}
 
@@ -211,7 +236,7 @@ namespace TanksDropTwo
 		/// <param name="spriteBatch">The SpriteBatch to draw on. Already begun.</param>
 		public virtual void Draw( TimeSpan gameTime, SpriteBatch spriteBatch )
 		{
-			spriteBatch.Draw( Texture, Position, SourceRectangle, Color.White, AngleInRadians, Origin, Scale, SpriteEffects.None, 0.5F );
+			spriteBatch.Draw( Texture, Position, SourceRectangle, Color.White, AngleInRadians, Origin, Scale, SpriteEffects.None, 0 );
 			foreach ( GameController c in Controllers )
 			{
 				c.Draw( spriteBatch );
@@ -518,6 +543,11 @@ namespace TanksDropTwo
 				return true;
 			}
 			return false;
+		}
+
+		public virtual void Destroy( TimeSpan gameTime )
+		{
+			Game.RemoveEntity( this );
 		}
 	}
 }

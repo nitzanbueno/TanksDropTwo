@@ -27,8 +27,14 @@ namespace TanksDropTwo
 
 		public void Initialize( TanksDrop game, TimeSpan gameTime )
 		{
-			Game = game;
 			spawnTime = gameTime;
+			Initialize( game );
+		}
+
+		public void Initialize( TanksDrop game, TimeSpan gameTime, Tank owner )
+		{
+			this.owner = owner;
+			Initialize( game, gameTime );
 		}
 
 		/// <summary>
@@ -37,7 +43,7 @@ namespace TanksDropTwo
 		/// </summary>
 		/// <param name="Entities">The list of entities.</param>
 		/// <param name="CheckFences">True if should mirror angle when hits a fence, otherwise false.</param>
-		protected void CheckHits( HashSet<GameEntity> Entities, bool CheckFences = true )
+		protected void CheckHits( TimeSpan gameTime, HashSet<GameEntity> Entities, bool CheckFences = true )
 		{
 			foreach ( GameEntity entity in Entities )
 			{
@@ -50,7 +56,7 @@ namespace TanksDropTwo
 						Tank HitTank = ( Tank )entity;
 						if ( HitTank.IsAlive && HitTank.Hit( this ) )
 						{
-							Game.RemoveEntity( this );
+							Destroy( gameTime );
 							break;
 						}
 					}
@@ -68,14 +74,6 @@ namespace TanksDropTwo
 			}
 		}
 
-		protected void CheckDestruction( TimeSpan gameTime, int destructionMillisecs )
-		{
-			if ( ( gameTime - spawnTime ).TotalMilliseconds >= destructionMillisecs )
-			{
-				Destroy();
-			}
-		}
-
 		protected void CheckBounces()
 		{
 			if ( Position.X > ScreenWidth || Position.X < 0 )
@@ -88,9 +86,9 @@ namespace TanksDropTwo
 			}
 		}
 
-		protected void Destroy()
+		public override void Destroy( TimeSpan gameTime )
 		{
-			owner.NumberOfBullets--;
+			owner.NumberOfProjectiles--;
 			Game.RemoveEntity( this );
 		}
 

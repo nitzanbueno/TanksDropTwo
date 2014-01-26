@@ -15,7 +15,7 @@ namespace TanksDropTwo
 		public Texture2D Texture;
 		public Vector2 Origin;
 		public TimeSpan spawnTime;
-		private int lifeTime;
+		protected int lifeTime;
 
 		public TankController( Tank Owner, int LifeTime )
 		{
@@ -39,7 +39,7 @@ namespace TanksDropTwo
 
 		public override bool Control( GameEntity control, TimeSpan gameTime )
 		{
-			if ( control == Owner && ( gameTime - spawnTime ).TotalMilliseconds > lifeTime )
+			if ( control == Owner && ( gameTime - spawnTime ).TotalMilliseconds > lifeTime && lifeTime > 0 )
 			{
 				Owner.RemoveTankController( this );
 				StopControl();
@@ -85,5 +85,7 @@ namespace TanksDropTwo
 		/// Called when the TankController is released from its owner.
 		/// </summary>
 		public abstract void StopControl();
+
+		public abstract GameController Clone();
 	}
 }

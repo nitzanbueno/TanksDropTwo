@@ -34,5 +34,13 @@ namespace TanksDropTwo.Controllers
 		{
 			return entity is Projectile;
 		}
+
+		public override GameController Clone()
+		{
+			Deflector d = new Deflector( Owner );
+			d.Initialize( game );
+			d.LoadTexture( game.Content );
+			return d;
+		}
 	}
 }

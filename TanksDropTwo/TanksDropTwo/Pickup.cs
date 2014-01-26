@@ -16,6 +16,8 @@ namespace TanksDropTwo
 	/// </summary>
 	public abstract class Pickup : GameEntity
 	{
+		protected object carrier;
+
 		public Pickup( int lifeTime )
 		{
 			this.lifeTime = lifeTime;
@@ -52,6 +54,7 @@ namespace TanksDropTwo
 		{
 			this.spawnTime = spawnTime;
 			this.Game = game;
+			InitializeCarrier( game );
 		}
 
 		/// <summary>
@@ -60,5 +63,18 @@ namespace TanksDropTwo
 		/// <param name="tank">The tank that collided.</param>
 		/// <remarks>Used to have the tank get the pickup.</remarks>
 		protected abstract void TankPickup( Tank tank, TimeSpan gameTime );
+
+		public void InitializeCarrier( TanksDrop game )
+		{
+			if ( carrier is TankController )
+			{
+				( ( TankController )carrier ).Initialize( game );
+				( ( TankController )carrier ).LoadTexture( game.Content );
+			}
+			else if ( carrier is Projectile )
+			{
+				( ( Projectile )carrier ).Initialize( game );
+			}
+		}
 	}
 }

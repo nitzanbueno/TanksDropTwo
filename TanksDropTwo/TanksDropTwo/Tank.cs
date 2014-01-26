@@ -53,9 +53,14 @@ namespace TanksDropTwo
 		public bool IsAlive;
 
 		/// <summary>
-		/// The number of bullets owned by this tank currently on the screen.
+		/// The number of projectiles owned by this tank currently on the screen.
 		/// </summary>
-		public int NumberOfBullets;
+		public int NumberOfProjectiles;
+
+		/// <summary>
+		/// The number of fences owned by this tank currently on the screen.
+		/// </summary>
+		public int NumberOfFences;
 
 		/// <summary>
 		/// The number of times this tank has won the round.
@@ -101,6 +106,8 @@ namespace TanksDropTwo
 		/// </summary>
 		public TankController Controller;
 
+		public int FenceLifeTime;
+
 		public static Tank blank = new Tank();
 
 		public Color Color
@@ -131,14 +138,23 @@ namespace TanksDropTwo
 			}
 		}
 
-		private Tank() { }
+		public bool IsGoingBackwards;
 
-		public Tank( string name, Vector2 startPosition, float startAngle, KeySet keys, Colors color, float speed, Projectile originalProjectile )
+		public float RelativeAngle
 		{
-			Construct( name, startPosition, startAngle, keys, color, speed, originalProjectile );
+			get
+			{
+				return IsGoingBackwards ? ( Angle + 180 ) % 360 : Angle;
+			}
 		}
 
-		private void Construct( string name, Vector2 startPosition, float startAngle, KeySet keys, Colors color, float speed, Projectile originalProjectile )
+		private Tank() { }
+
+		public int ProjectileLimit;
+
+		public int FenceLimit;
+
+		public Tank( string name, Vector2 startPosition, float startAngle, KeySet keys, Colors color, float speed, Projectile originalProjectile, int BulletLimit, int FenceLimit, int FenceTime, float Scale )
 		{
 			Name = name;
 			Speed = speed;
@@ -149,12 +165,12 @@ namespace TanksDropTwo
 			Scale = 2;
 			Origin = new Vector2( 16, 16 );
 			this.originalProjectile = originalProjectile;
-			Reset( false );
-		}
 
-		public Tank( string name, Vector2 startPosition, float startAngle, KeySet keys, Colors color, float speed )
-		{
-			Construct( name, startPosition, startAngle, keys, color, speed, new Bullet( 10, this, TimeSpan.Zero ) );
+			this.ProjectileLimit = BulletLimit;
+			this.FenceLimit = FenceLimit;
+			this.Scale = Scale;
+			this.FenceLifeTime = FenceTime;
+			Reset( false );
 		}
 
 		// The timeSpan in which the frame was updated.
@@ -197,6 +213,11 @@ namespace TanksDropTwo
 				// Move backward
 				newPosition = Forward( -Speed );
 				newPosition = BoundTank( newPosition );
+				IsGoingBackwards = true;
+			}
+			else
+			{
+				IsGoingBackwards = false;
 			}
 
 			if ( keyState.IsKeyDown( keys.KeyLeft ) )
@@ -255,39 +276,59 @@ namespace TanksDropTwo
 			base.Update( gameTime, Entities, keyState );
 		}
 
+		/// <summary>
+		/// Places fence if the controller doesn't do anything.
+		/// </summary>
+		/// <param name="gameTime">The current game time.</param>
 		private void CheckPlaceFence( TimeSpan gameTime )
 		{
-			if ( ( Controller == null || Controller.OnPlaceFence() ) && IsAlive )
+			if ( ( Controller == null || Controller.OnPlaceFence() ) && IsAlive && ( NumberOfFences < FenceLimit || FenceLimit <= 0 ) )
 			{
 				PlaceFence( gameTime );
 			}
 		}
 
+		/// <summary>
+		/// Places a new fence on the board.
+		/// </summary>
+		/// <param name="gameTime">The current game time.</param>
 		private void PlaceFence( TimeSpan gameTime )
 		{
 			float dist = Vector2.Distance( Vector2.Zero, Origin );
 			float sideDeg = 40F;
 			Fence newFence = new Fence(
 				Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( Angle + sideDeg ) ), ( float )Math.Sin( MathHelper.ToRadians( Angle + sideDeg ) ) ) * dist * 2.5F ),
-				Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( Angle - sideDeg ) ), ( float )Math.Sin( MathHelper.ToRadians( Angle - sideDeg ) ) ) * dist * 2.5F ), this, 16, gameTime, 2000 );
+				Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( Angle - sideDeg ) ), ( float )Math.Sin( MathHelper.ToRadians( Angle - sideDeg ) ) ) * dist * 2.5F ), this, 16, gameTime, FenceLifeTime );
 			newFence.Initialize( Game );
+			NumberOfFences++;
 			Game.QueueEntity( newFence );
 		}
 
+		/// <summary>
+		/// Shoots the pending bullet if either the controller allows, or force is true.
+		/// </summary>
+		/// <param name="gameTime">The current game time.</param>
+		/// <param name="force">True if the tank must shoot, otherwise false.</param>
 		public void Shoot( TimeSpan gameTime, bool force = false )
 		{
+			if ( NumberOfProjectiles >= ProjectileLimit && ProjectileLimit > 0 ) return;
 			if ( force || Controller == null )
 			{
 				nextProjectile.Angle = Angle;
 				nextProjectile.Position = Forward( 20 * Scale );
-				NumberOfBullets++;
-				nextProjectile.Initialize( Game, gameTime );
+				NumberOfProjectiles++;
+				nextProjectile.Initialize( Game, gameTime, this );
 				Game.QueueEntity( nextProjectile );
-				nextProjectile = OriginalProjectile;
+				nextProjectile = OriginalProjectile.Clone();
 			}
 			else Controller.Shoot( gameTime );
 		}
 
+		/// <summary>
+		/// Draws the tank.
+		/// </summary>
+		/// <param name="gameTime">The current game time.</param>
+		/// <param name="spriteBatch">The SpriteBatch to draw on.</param>
 		public override void Draw( TimeSpan gameTime, SpriteBatch spriteBatch )
 		{
 			if ( IsAlive )
@@ -296,6 +337,11 @@ namespace TanksDropTwo
 			}
 		}
 
+		/// <summary>
+		/// Gives the position of the tank when bounded to the dimensions of the screen.
+		/// </summary>
+		/// <param name="Pos">The current position.</param>
+		/// <returns>The bounded position.</returns>
 		public Vector2 BoundTank( Vector2 Pos )
 		{
 			Pos.X = Tools.Mod( Pos.X + 50, ScreenWidth + 100 ) - 50;
@@ -365,31 +411,42 @@ namespace TanksDropTwo
 		{
 			if ( nextProjectile.GetType() == OriginalProjectile.GetType() )
 			{
-				nextProjectile = proj.Carrier;
+				nextProjectile = proj.Carrier.Clone();
 				return true;
 			}
 			return false;
 		}
 
+		/// <summary>
+		/// Resets the tank to the original form.
+		/// </summary>
+		/// <param name="proj">Whether or not to reset the projectile.</param>
 		public void Reset( bool proj = true )
 		{
 			Position = originalPosition;
 			Angle = originalAngle;
 			if ( proj )
 			{
-				nextProjectile = OriginalProjectile;
+				nextProjectile = OriginalProjectile.Clone();
 			}
 			IsAlive = true;
-			NumberOfBullets = 0;
+			NumberOfProjectiles = 0;
+			NumberOfFences = 0;
 			RemoveTankController( Controller );
 			Controllers = new HashSet<GameController>();
 		}
 
+		/// <summary>
+		/// Called when the tank collides with a TankControllerPickup.
+		/// </summary>
+		/// <param name="tankControllerPickup">The pickup the tank collided with.</param>
+		/// <param name="gameTime">The current game time.</param>
+		/// <returns>Whether ot not the tank picked up the controller.</returns>
 		public bool PickupController( TankControllerPickup tankControllerPickup, TimeSpan gameTime )
 		{
 			if ( Controller == null )
 			{
-				TankController controller = tankControllerPickup.Carrier;
+				TankController controller = ( TankController )tankControllerPickup.Carrier.Clone();
 				controller.Initialize( Game, this, gameTime );
 				Controllers.Add( controller );
 				Controller = controller;
@@ -398,6 +455,10 @@ namespace TanksDropTwo
 			else return false;
 		}
 
+		/// <summary>
+		/// Removes the tank controller if is the current tank controller.
+		/// </summary>
+		/// <param name="tankController">The tank controller to remove.</param>
 		public void RemoveTankController( TankController tankController )
 		{
 			if ( tankController == Controller )
@@ -405,6 +466,11 @@ namespace TanksDropTwo
 				Controller = null;
 				Controllers.Remove( tankController );
 			}
+		}
+
+		public override void Destroy( TimeSpan gameTime )
+		{
+			IsAlive = false;
 		}
 	}
 }

@@ -44,6 +44,10 @@ namespace TanksDropTwo
 			base.LoadContent( Content, screenWidth, screenHeight );
 		}
 
-
+		public override void Destroy( TimeSpan gameTime )
+		{
+			owner.NumberOfFences--;
+			base.Destroy( gameTime );
+		}
 	}
 }

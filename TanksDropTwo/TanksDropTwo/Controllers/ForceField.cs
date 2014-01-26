@@ -10,9 +10,9 @@ namespace TanksDropTwo.Controllers
 	/// <summary>
 	/// A TankController that causes the owner to be able to pass through bullets and fences.
 	/// </summary>
-	public class Ghost : TankController
+	public class ForceField : TankController
 	{
-		public Ghost( Tank Owner, int LifeTime )
+		public ForceField( Tank Owner, int LifeTime )
 			: base( Owner, LifeTime )
 		{
 		}
@@ -24,23 +24,29 @@ namespace TanksDropTwo.Controllers
 
 		public override bool HitFence( Fence hitter )
 		{
-			return true;
+			hitter.Move( Owner.Speed, Owner.RelativeAngle );
+			return false;
 		}
 
 		public override bool ProjectileHit( Projectile hitter )
 		{
+			if ( hitter is Bullet )
+			{
+				hitter.Angle += 180;
+			}
 			return false;
 		}
 
 		public override void LoadTexture( Microsoft.Xna.Framework.Content.ContentManager content )
 		{
-			Texture = content.Load<Texture2D>( "Sprites\\Ghost" );
+			Texture = content.Load<Texture2D>( "Sprites\\ForceField" );
 			Origin = new Vector2( 16, 16 );
 			Scale = 2;
 		}
 
 		public override void Draw( SpriteBatch spriteBatch )
 		{
+			spriteBatch.Draw( Texture, Owner.Position, null, Color.White, 0, Origin, Owner.Scale * 1.5F, SpriteEffects.None, 1 );
 		}
 
 		public override bool OnPlaceFence()
@@ -59,10 +65,10 @@ namespace TanksDropTwo.Controllers
 
 		public override GameController Clone()
 		{
-			Ghost g = new Ghost( Owner, lifeTime );
-			g.Initialize( game );
-			g.LoadTexture( game.Content );
-			return g;
+			ForceField f = new ForceField( Owner, lifeTime );
+			f.Initialize( game );
+			f.LoadTexture( game.Content );
+			return f;
 		}
 	}
 }
