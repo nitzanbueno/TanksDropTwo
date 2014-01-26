@@ -60,8 +60,8 @@ namespace TanksDropTwo.Controllers
 		public override GameController Clone()
 		{
 			Ghost g = new Ghost( Owner, lifeTime );
-			g.Initialize( game );
-			g.LoadTexture( game.Content );
+			g.Initialize( Game );
+			g.LoadTexture( Game.Content );
 			return g;
 		}
 	}

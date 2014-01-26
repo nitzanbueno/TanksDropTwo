@@ -17,17 +17,17 @@ namespace TanksDropTwo
 		public Bullet( float Speed, Tank Owner, TimeSpan gameTime, int lifeTime )
 			: base( Owner, gameTime )
 		{
-			speed = Speed;
+			this.Speed = Speed;
 			Scale = 0.25F;
 			Origin = new Vector2( 16, 16 );
 			this.lifeTime = lifeTime;
 		}
 
-		protected Bullet( float speed ) { this.speed = speed; }
+		protected Bullet( float speed ) { this.Speed = speed; }
 
 		public override void Update( TimeSpan gameTime, HashSet<GameEntity> Entities, KeyboardState keyState )
 		{
-			Move( speed );
+			Move( Speed );
 			CheckBounces();
 			CheckHits( gameTime, Entities );
 			base.Update( gameTime, Entities, keyState );
@@ -41,8 +41,9 @@ namespace TanksDropTwo
 
 		public override Projectile Clone()
 		{
-			Bullet b = new Bullet( speed, owner, spawnTime, lifeTime );
+			Bullet b = new Bullet( Speed, owner, spawnTime, lifeTime );
 			b.Initialize( Game );
+			b.Angle = Angle;
 			b.Position = Position;
 			b.LoadContent( Game.Content, ScreenWidth, ScreenHeight );
 			return b;

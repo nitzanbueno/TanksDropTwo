@@ -165,7 +165,6 @@ namespace TanksDropTwo
 			Scale = 2;
 			Origin = new Vector2( 16, 16 );
 			this.originalProjectile = originalProjectile;
-
 			this.ProjectileLimit = BulletLimit;
 			this.FenceLimit = FenceLimit;
 			this.Scale = Scale;
@@ -312,16 +311,19 @@ namespace TanksDropTwo
 		public void Shoot( TimeSpan gameTime, bool force = false )
 		{
 			if ( NumberOfProjectiles >= ProjectileLimit && ProjectileLimit > 0 ) return;
+			nextProjectile.Angle = Angle;
+			nextProjectile.Position = Forward( 20 * Scale );
+			NumberOfProjectiles++;
+			nextProjectile.Initialize( Game, gameTime, this );
 			if ( force || Controller == null )
 			{
-				nextProjectile.Angle = Angle;
-				nextProjectile.Position = Forward( 20 * Scale );
-				NumberOfProjectiles++;
-				nextProjectile.Initialize( Game, gameTime, this );
 				Game.QueueEntity( nextProjectile );
-				nextProjectile = OriginalProjectile.Clone();
 			}
-			else Controller.Shoot( gameTime );
+			else
+			{
+				Controller.Shoot( gameTime, nextProjectile );
+			}
+			nextProjectile = OriginalProjectile;
 		}
 
 		/// <summary>
@@ -335,6 +337,7 @@ namespace TanksDropTwo
 			{
 				base.Draw( gameTime, spriteBatch );
 			}
+			spriteBatch.DrawString( Game.Score, Score.ToString(), originalPosition, Color.White, 0, new Vector2( 16, 16 ), 1, 0, 1 );
 		}
 
 		/// <summary>
@@ -463,6 +466,7 @@ namespace TanksDropTwo
 		{
 			if ( tankController == Controller )
 			{
+				if ( Controller != null ) Controller.StopControl();
 				Controller = null;
 				Controllers.Remove( tankController );
 			}

@@ -114,6 +114,7 @@
     <Compile Include="Controllers\Deflector.cs" />
     <Compile Include="Controllers\Minimize.cs" />
     <Compile Include="Controllers\Portal.cs" />
+    <Compile Include="Controllers\SpeedBoost.cs" />
     <Compile Include="Controllers\Switcher.cs" />
     <Compile Include="Controllers\UseableController.cs" />
     <Compile Include="Controllers\Ghost.cs" />
@@ -125,6 +126,7 @@
     <Compile Include="Fence.cs" />
     <Compile Include="GameEntity.cs" />
     <Compile Include="Projectiles\HomingBullet.cs" />
+    <Compile Include="Projectiles\Lazer.cs" />
     <Compile Include="Projectiles\Missile.cs" />
     <Compile Include="Projectiles\Projectile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

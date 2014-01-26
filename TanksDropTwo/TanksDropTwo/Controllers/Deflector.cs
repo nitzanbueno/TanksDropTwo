@@ -38,8 +38,8 @@ namespace TanksDropTwo.Controllers
 		public override GameController Clone()
 		{
 			Deflector d = new Deflector( Owner );
-			d.Initialize( game );
-			d.LoadTexture( game.Content );
+			d.Initialize( Game );
+			d.LoadTexture( Game.Content );
 			return d;
 		}
 	}

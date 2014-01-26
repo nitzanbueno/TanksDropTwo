@@ -20,7 +20,7 @@ namespace TanksDropTwo
 		public HomingBullet( Tank Owner, float Speed, float TurnSpeed, TimeSpan gameTime, int NoticeTime, int lifeTime )
 			: base( Owner, gameTime )
 		{
-			speed = Speed;
+			this.Speed = Speed;
 			turnSpeed = TurnSpeed;
 			noticeTime = NoticeTime;
 			this.lifeTime = lifeTime;
@@ -32,7 +32,7 @@ namespace TanksDropTwo
 			{
 				Home( Entities, turnSpeed );
 			}
-			Move( speed );
+			Move( Speed );
 			CheckHits( gameTime, Entities );
 			CheckBounces();
 			base.Update( gameTime, Entities, keyState );
@@ -95,7 +95,7 @@ namespace TanksDropTwo
 
 		public override Projectile Clone()
 		{
-			HomingBullet h = new HomingBullet( owner, speed, turnSpeed, spawnTime, noticeTime, lifeTime );
+			HomingBullet h = new HomingBullet( owner, Speed, turnSpeed, spawnTime, noticeTime, lifeTime );
 			h.Initialize( Game );
 			h.Position = Position;
 			h.LoadContent( Game.Content, ScreenWidth, ScreenHeight );

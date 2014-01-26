@@ -77,8 +77,8 @@ namespace TanksDropTwo.Controllers
 		public override GameController Clone()
 		{
 			Minimize m = new Minimize( Owner, lifeTime );
-			m.Initialize( game );
-			m.LoadTexture( game.Content );
+			m.Initialize( Game );
+			m.LoadTexture( Game.Content );
 			return m;
 		}
 	}

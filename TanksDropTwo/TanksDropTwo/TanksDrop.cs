@@ -40,7 +40,9 @@ namespace TanksDropTwo
 		ControllerEntity[] AvailableConEnts;
 		Random r = new Random();
 
-		Bullet defaultBullet;
+		public SpriteFont Score;
+
+		Projectile defaultBullet;
 
 		StreamReader reader;
 		List<string> Lines;
@@ -128,21 +130,23 @@ namespace TanksDropTwo
 			{
 				new HomingBullet( Tank.blank, LoadPositiveSetting( "HomingBulletSpeed", ProjectileSpeed ), LoadPositiveSetting( "HomingBulletTurnSpeed", 5 ), TimeSpan.Zero, LoadPositiveSetting( "HomingBulletNoticeTime", 1000 ), LoadPositiveSetting( "HomingBulletTime", ProjectileTime ) ),
 				new Missile( Tank.blank, LoadPositiveSetting( "MissileSpeed", ProjectileSpeed ), LoadPositiveSetting( "MissileTime", ProjectileTime ) ),
+				new Lazer( Tank.blank ),
 			};
 
 			AvailableControllers = new TankController[]
 			{
-				//new Ghost( Tank.blank, LoadPositiveSetting( "GhostTime", ControllerTime ) ),
+				new Ghost( Tank.blank, LoadPositiveSetting( "GhostTime", ControllerTime ) ),
 				new Deflector( Tank.blank ),
-				//new Minimize( Tank.blank, LoadPositiveSetting( "MinimizeTime", ControllerTime ) ),
-				//new Switcher( Tank.blank ),
-				//new ForceField( Tank.blank, LoadPositiveSetting( "ForceFieldTime", ControllerTime ) )
+				new SpeedBoost( Tank.blank, LoadPositiveSetting( "SpeedBoostTime", ControllerTime ), LoadSetting( "SpeedBoostFactor", 2F ) ),
+				new Minimize( Tank.blank, LoadPositiveSetting( "MinimizeTime", ControllerTime ) ),
+				new Switcher( Tank.blank ),
+				new ForceField( Tank.blank, LoadPositiveSetting( "ForceFieldTime", ControllerTime ) )
 			};
 
 			AvailableConEnts = new ControllerEntity[]
 			{
-				//new Portal( LoadPositiveSetting( "PortalTime", ControllerTime ) ),
-				//new BlackHole()
+				new Portal( LoadPositiveSetting( "PortalTime", ControllerTime ) ),
+				new BlackHole()
 			};
 			base.Initialize();
 		}
@@ -155,6 +159,8 @@ namespace TanksDropTwo
 		{
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch( GraphicsDevice );
+
+			Score = Content.Load<SpriteFont>( "Score" );
 
 			foreach ( GameEntity entity in Entities )
 			{
@@ -304,7 +310,7 @@ namespace TanksDropTwo
 			try
 			{
 				int set = Int32.Parse( LoadSetting( setting ) );
-				if ( set <= 0 )
+				if ( set == 0 )
 				{
 					return defaultSetting;
 				}
@@ -349,7 +355,7 @@ namespace TanksDropTwo
 
 			if ( keyState.IsKeyDown( Keys.R ) )
 			{
-				NewRound();
+				NewRound( false );
 			}
 
 			HashSet<GameEntity> EntitiesCopy = new HashSet<GameEntity>( Entities );
@@ -385,7 +391,7 @@ namespace TanksDropTwo
 			base.Update( gameTime );
 		}
 
-		private void NewRound()
+		private void NewRound( bool Score = true )
 		{
 			HashSet<GameEntity> OldEntities = new HashSet<GameEntity>( Entities );
 			Entities = new HashSet<GameEntity>();
@@ -395,7 +401,7 @@ namespace TanksDropTwo
 				if ( entity is Tank )
 				{
 					Tank t = ( Tank )entity;
-					if ( t.IsAlive )
+					if ( t.IsAlive && Score )
 					{
 						t.Score++;
 					}
@@ -418,6 +424,7 @@ namespace TanksDropTwo
 			{
 				entity.Draw( currentGameTime, spriteBatch );
 			}
+
 			spriteBatch.End();
 
 			base.Draw( gameTime );

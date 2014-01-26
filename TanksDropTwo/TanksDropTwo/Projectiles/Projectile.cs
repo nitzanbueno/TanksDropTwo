@@ -9,7 +9,7 @@ namespace TanksDropTwo
 {
 	public abstract class Projectile : GameEntity
 	{
-		protected float speed;
+		public float Speed;
 		protected Tank owner;
 
 		public Projectile( Tank Owner, TimeSpan gameTime )

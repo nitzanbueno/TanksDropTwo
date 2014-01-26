@@ -14,7 +14,7 @@ namespace TanksDropTwo
 		public Missile( Tank Owner, float speed, int lifeTime )
 			: base( Owner )
 		{
-			this.speed = speed;
+			this.Speed = speed;
 			this.lifeTime = lifeTime;
 		}
 
@@ -30,7 +30,7 @@ namespace TanksDropTwo
 
 		public override void Update( TimeSpan gameTime, HashSet<GameEntity> Entities, Microsoft.Xna.Framework.Input.KeyboardState keyState )
 		{
-			Move( speed );
+			Move( Speed );
 			CheckBounces();
 			CheckHits( gameTime, Entities, true );
 			base.Update( gameTime, Entities, keyState );
@@ -73,7 +73,7 @@ namespace TanksDropTwo
 			m.Position = Position;
 			m.Angle = Angle;
 			m.Initialize( Game );
-			m.speed = speed;
+			m.Speed = Speed;
 			m.LoadContent( Game.Content, Game.ScreenWidth, Game.ScreenHeight );
 			return m;
 		}

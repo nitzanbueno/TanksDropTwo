@@ -58,7 +58,7 @@ namespace TanksDropTwo
 		/// Called when the tank wants to shoot a bullet.
 		/// </summary>
 		/// <param name="gameTime">The current game time.</param>
-		public virtual void Shoot( TimeSpan gameTime )
+		public virtual void Shoot( TimeSpan gameTime, Projectile shot )
 		{
 			Owner.Shoot( gameTime, true );
 		}

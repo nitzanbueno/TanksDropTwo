@@ -31,7 +31,7 @@ namespace TanksDropTwo.Controllers
 		{
 			isDestructed = true;
 			Owner.RemoveTankController( this );
-			game.StopController( this );
+			Game.StopController( this );
 			return false;
 		}
 

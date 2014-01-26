@@ -22,6 +22,8 @@ namespace TanksDropTwo.Controllers
 			hole.Initialize( game );
 			hole.LoadContent( game.Content, game.ScreenWidth, game.ScreenHeight );
 			hole.VacuumSpeed = 0;
+			hole.spawnTime = gameTime;
+			hole.lifeTime = 10000;
 			Game.AppendController( hole.Controller );
 			Game.QueueEntity( hole );
 		}
@@ -42,6 +44,17 @@ namespace TanksDropTwo.Controllers
 		public override void OnCollision( GameEntity otherEntity )
 		{
 			// Nothing
+		}
+
+		public void Vanish()
+		{
+			Game.RemoveEntity( this );
+		}
+
+		public override void Destroy( TimeSpan gameTime )
+		{
+			Game.RemoveController( Controller, x => true );
+			base.Destroy( gameTime );
 		}
 	}
 }

@@ -11,7 +11,7 @@ namespace TanksDropTwo
 	/// </summary>
 	public abstract class GameController
 	{
-		protected TanksDrop game;
+		protected TanksDrop Game;
 
 		/// <summary>
 		/// Makes changes to the entity according to what is required.
@@ -23,7 +23,7 @@ namespace TanksDropTwo
 
 		public virtual void Initialize( TanksDrop game )
 		{
-			this.game = game;
+			this.Game = game;
 		}
 
 		/// <summary>

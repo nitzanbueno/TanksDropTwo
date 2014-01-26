@@ -30,9 +30,10 @@ namespace TanksDropTwo.Controllers
 
 		public override bool ProjectileHit( Projectile hitter )
 		{
-			if ( hitter is Bullet )
+			if ( hitter is Bullet || hitter is LazerHelper )
 			{
 				hitter.Angle += 180;
+				hitter.Move( 2 );
 			}
 			return false;
 		}
@@ -66,8 +67,8 @@ namespace TanksDropTwo.Controllers
 		public override GameController Clone()
 		{
 			ForceField f = new ForceField( Owner, lifeTime );
-			f.Initialize( game );
-			f.LoadTexture( game.Content );
+			f.Initialize( Game );
+			f.LoadTexture( Game.Content );
 			return f;
 		}
 	}

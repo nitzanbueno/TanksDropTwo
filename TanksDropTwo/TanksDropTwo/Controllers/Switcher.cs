@@ -62,8 +62,8 @@ namespace TanksDropTwo.Controllers
 		public override GameController Clone()
 		{
 			Switcher s = new Switcher( Owner );
-			s.Initialize( game );
-			s.LoadTexture( game.Content );
+			s.Initialize( Game );
+			s.LoadTexture( Game.Content );
 			return s;
 		}
 	}
