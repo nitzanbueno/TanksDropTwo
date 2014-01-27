@@ -11,6 +11,7 @@ namespace TanksDropTwo.Controllers
 	{
 		BlackHoleController Controller;
 		public float VacuumSpeed;
+		private const float MaxVacuum = 100;
 
 		public override void Spawn( TimeSpan gameTime, TanksDrop game )
 		{
@@ -38,7 +39,7 @@ namespace TanksDropTwo.Controllers
 
 		public override void Update( TimeSpan gameTime, HashSet<GameEntity> Entities, Microsoft.Xna.Framework.Input.KeyboardState keyState )
 		{
-			VacuumSpeed = Math.Min( VacuumSpeed + 0.1F, 30 );
+			VacuumSpeed = Math.Min( VacuumSpeed + 0.5F, MaxVacuum );
 			base.Update( gameTime, Entities, keyState );
 		}
 
