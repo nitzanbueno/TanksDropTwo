@@ -53,19 +53,19 @@ namespace TanksDropTwo.Controllers
 					// If I do a cycle and all projectiles are inside me, then I reach the SAME projectile, that means ALL projectiles are inside me, as the control has completed a full cycle.
 					// Then I can explode.
 					if ( !isLastOneInside )
-					{ 
+					{
 						// So here, I set the projectile to begin the cycle with, since the previous projectile was outside.
 						LastOneInside = control;
 						isLastOneInside = true;
 					}
 					else // If the previous projectile was already inside, I am in the middle of a cycle.
 						if ( control == LastOneInside ) // And if the projectile I began with is now the control, I have completed the cycle.
-					{
-						// Thus I can explode.
-						shouldExplode = true;
-						master.Vanish();
-						Game.StopController( this );
-					}
+						{
+							// Thus I can explode.
+							shouldExplode = true;
+							master.Vanish();
+							Game.StopController( this );
+						}
 				}
 				return false;
 			}
@@ -79,7 +79,7 @@ namespace TanksDropTwo.Controllers
 
 		public override bool AddEntity( GameEntity entity )
 		{
-			if ( entity is Projectile )
+			if ( entity is Projectile && !( entity is Lazer || entity is LazerHelper ) )
 			{
 				return true;
 			}
