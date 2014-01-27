@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using TanksDropTwo.Controllers;
 using System.IO;
+using TanksDropTwo.Menus;
 
 namespace TanksDropTwo
 {
@@ -40,9 +41,21 @@ namespace TanksDropTwo
 		ControllerEntity[] AvailableConEnts;
 		Random r = new Random();
 
+		public Menu CurrentMenu;
+
 		public SpriteFont Score;
 
 		Projectile defaultBullet;
+
+		public Texture2D Blank;
+
+		public Rectangle BoundingBox
+		{
+			get
+			{
+				return new Rectangle( 0, 0, ScreenWidth, ScreenHeight );
+			}
+		}
 
 		StreamReader reader;
 		List<string> Lines;
@@ -149,7 +162,6 @@ namespace TanksDropTwo
 				new Portal( LoadPositiveSetting( "PortalTime", ControllerTime ) ),
 				new BlackHole()
 			};
-			AvailableConEnts[ 1 ].Spawn( TimeSpan.Zero, this );
 			base.Initialize();
 		}
 
@@ -163,6 +175,9 @@ namespace TanksDropTwo
 			spriteBatch = new SpriteBatch( GraphicsDevice );
 
 			Score = Content.Load<SpriteFont>( "Score" );
+
+			Blank = new Texture2D( GraphicsDevice, 1, 1 );
+			Blank.SetData( new Color[] { Color.White } );
 
 			foreach ( GameEntity entity in Entities )
 			{
@@ -339,6 +354,20 @@ namespace TanksDropTwo
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Update( GameTime gameTime )
 		{
+			KeyboardState keyState = Keyboard.GetState();
+			MouseState mouseState = Mouse.GetState();
+
+			if ( keyState.IsKeyDown( Keys.Escape ) )
+			{
+				this.Exit();
+			}
+
+			if ( CurrentMenu != null )
+			{
+				CurrentMenu.Update( currentGameTime, keyState, mouseState );
+				return;
+			}
+
 			if ( currentGameTime == null )
 			{
 				currentGameTime = gameTime.TotalGameTime;
@@ -347,17 +376,13 @@ namespace TanksDropTwo
 			{
 				currentGameTime += gameTime.ElapsedGameTime;
 			}
-
-			KeyboardState keyState = Keyboard.GetState();
-
-			if ( keyState.IsKeyDown( Keys.Escape ) )
-			{
-				this.Exit();
-			}
-
 			if ( keyState.IsKeyDown( Keys.R ) )
 			{
 				NewRound( false );
+			}
+			if ( keyState.IsKeyDown( Keys.P ) )
+			{
+				CurrentMenu = new PauseMenu( this );
 			}
 
 			HashSet<GameEntity> EntitiesCopy = new HashSet<GameEntity>( Entities );
@@ -425,6 +450,11 @@ namespace TanksDropTwo
 			foreach ( GameEntity entity in Entities )
 			{
 				entity.Draw( currentGameTime, spriteBatch );
+			}
+
+			if ( CurrentMenu != null )
+			{
+				CurrentMenu.Draw( spriteBatch, currentGameTime );
 			}
 
 			spriteBatch.End();
