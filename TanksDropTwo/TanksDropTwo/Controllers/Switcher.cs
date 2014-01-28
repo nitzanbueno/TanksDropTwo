@@ -29,12 +29,15 @@ namespace TanksDropTwo.Controllers
 			Vector2 OwnerPos = Owner.Position;
 			float OwnerScale = Owner.Scale;
 			float OwnerAngle = Owner.Angle;
+			bool OwnerAlive = Owner.IsAlive;
 			Owner.Position = switchedTank.Position;
 			Owner.Scale = switchedTank.Scale;
 			Owner.Angle = switchedTank.Angle;
+			Owner.IsAlive = switchedTank.IsAlive;
 			switchedTank.Position = OwnerPos;
 			switchedTank.Angle = OwnerAngle;
 			switchedTank.Scale = OwnerScale;
+			switchedTank.IsAlive = OwnerAlive;
 		}
 
 		public override void LoadTexture( Microsoft.Xna.Framework.Content.ContentManager content )

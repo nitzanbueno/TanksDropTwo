@@ -28,7 +28,7 @@ namespace TanksDropTwo.Controllers
 			return false;
 		}
 
-		public override bool ProjectileHit( Projectile hitter )
+		public override bool ProjectileHit( Projectile hitter, TimeSpan gameTime )
 		{
 			if ( hitter is Bullet || hitter is LazerHelper )
 			{
@@ -37,7 +37,7 @@ namespace TanksDropTwo.Controllers
 			}
 			return false;
 		}
-
+			
 		public override void LoadTexture( Microsoft.Xna.Framework.Content.ContentManager content )
 		{
 			Texture = content.Load<Texture2D>( "Sprites\\ForceField" );
@@ -70,6 +70,11 @@ namespace TanksDropTwo.Controllers
 			f.Initialize( Game );
 			f.LoadTexture( Game.Content );
 			return f;
+		}
+
+		public override bool Hit( TimeSpan gameTime )
+		{
+			return false;
 		}
 	}
 }

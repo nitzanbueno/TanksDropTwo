@@ -123,6 +123,7 @@
     <Compile Include="Controllers\BlackHole.cs" />
     <Compile Include="Controllers\BlackHoleController.cs" />
     <Compile Include="Controllers\ControllerEntity.cs" />
+    <Compile Include="Controllers\ExtraLife.cs" />
     <Compile Include="Controllers\ForceField.cs" />
     <Compile Include="Controllers\Deflector.cs" />
     <Compile Include="Controllers\Minimize.cs" />

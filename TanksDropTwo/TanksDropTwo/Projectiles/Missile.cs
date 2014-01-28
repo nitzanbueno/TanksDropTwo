@@ -18,10 +18,6 @@ namespace TanksDropTwo
 			this.lifeTime = lifeTime;
 		}
 
-		private Missile()
-		{
-		}
-
 		public override void Initialize( TanksDrop game )
 		{
 			hasExploded = false;
@@ -68,12 +64,10 @@ namespace TanksDropTwo
 
 		public override Projectile Clone()
 		{
-			Missile m = new Missile();
-			m.owner = owner;
+			Missile m = new Missile( owner, Speed, lifeTime );
 			m.Position = Position;
 			m.Angle = Angle;
 			m.Initialize( Game );
-			m.Speed = Speed;
 			m.LoadContent( Game.Content, Game.ScreenWidth, Game.ScreenHeight );
 			return m;
 		}

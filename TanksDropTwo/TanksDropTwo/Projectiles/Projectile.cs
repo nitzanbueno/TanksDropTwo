@@ -54,7 +54,7 @@ namespace TanksDropTwo
 					{
 						// The projectile hit a tank.
 						Tank HitTank = ( Tank )entity;
-						if ( HitTank.IsAlive && HitTank.Hit( this ) )
+						if ( HitTank.IsAlive && HitTank.ProjectileHit( this, gameTime ) )
 						{
 							Destroy( gameTime );
 							break;

@@ -27,7 +27,12 @@ namespace TanksDropTwo.Controllers
 			return true;
 		}
 
-		public override bool ProjectileHit( Projectile hitter )
+		public override bool ProjectileHit( Projectile hitter, TimeSpan gameTime )
+		{
+			return false;
+		}
+
+		public override bool Hit( TimeSpan gameTime )
 		{
 			return false;
 		}

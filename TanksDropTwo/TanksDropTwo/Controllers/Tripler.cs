@@ -19,7 +19,12 @@ namespace TanksDropTwo.Controllers
 			Scale = 2.0F;
 		}
 
-		public override bool ProjectileHit( Projectile hitter )
+		public override bool ProjectileHit( Projectile hitter, TimeSpan gameTime )
+		{
+			return true;
+		}
+
+		public override bool Hit( TimeSpan gameTime )
 		{
 			return true;
 		}

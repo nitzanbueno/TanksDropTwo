@@ -27,7 +27,7 @@ namespace TanksDropTwo
 		public override void Initialize( TanksDrop game )
 		{
 			Helpers = new List<LazerHelper>();
-			lastHelper = new LazerHelper( Position, Angle, game );
+			lastHelper = new LazerHelper( Position, Angle, game, owner );
 			hasCollided = false;
 			Tanks = null;
 			//lifeTime = 2000;
@@ -53,16 +53,26 @@ namespace TanksDropTwo
 				{
 					foreach ( GameEntity e in Tanks )
 					{
-						if ( e.CollidesWith( lastHelper ) && ( ( Tank )e ).IsAlive && ( ( Tank )e ).Hit( lastHelper ) )
+						if ( e.CollidesWith( lastHelper ) && ( ( Tank )e ).IsAlive )
 						{
-							hasCollided = true;
-							break;
+							if ( ( ( Tank )e ).ProjectileHit( lastHelper, gameTime ) )
+							{
+								hasCollided = true;
+								break;
+							}
 						}
+					}
+					if ( lastHelper.Destroyed )
+					{
+						hasCollided = true;
+						break;
 					}
 					LazerHelper nextHelper = ( LazerHelper )lastHelper.Clone();
 					Helpers.Add( lastHelper );
 					nextHelper.Move( Entities );
+					Game.RemoveEntity( lastHelper );
 					lastHelper = nextHelper;
+					Game.QueueEntity( lastHelper );
 				}
 			}
 			base.Update( gameTime, Entities, keyState );
@@ -94,15 +104,17 @@ namespace TanksDropTwo
 
 	public class LazerHelper : Projectile
 	{
-		public LazerHelper( Vector2 Position, float Angle, TanksDrop Game )
+		public bool Destroyed;
+
+		public LazerHelper( Vector2 Position, float Angle, TanksDrop Game, Tank Owner )
+			: base( Owner )
 		{
 			this.Position = Position;
 			this.Angle = Angle;
 			Initialize( Game );
 			LoadContent( Game.Content, Game.ScreenWidth, Game.ScreenHeight );
+			this.Destroyed = false;
 		}
-
-		private LazerHelper() { }
 
 		public void Move( HashSet<GameEntity> Entities )
 		{
@@ -130,8 +142,15 @@ namespace TanksDropTwo
 
 		public override Projectile Clone()
 		{
-			return new LazerHelper( Position, Angle, Game );
+			return new LazerHelper( Position, Angle, Game, owner );
 		}
+
+		public override void Destroy( TimeSpan gameTime )
+		{
+			Destroyed = true;
+			base.Destroy( gameTime );
+		}
+
 	}
 
 }

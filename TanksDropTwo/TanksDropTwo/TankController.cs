@@ -35,7 +35,7 @@ namespace TanksDropTwo
 			Initialize( game );
 		}
 
-		public abstract void LoadTexture( ContentManager content );
+		public abstract void LoadTexture( ContentManager Content );
 
 		public override bool Control( GameEntity control, TimeSpan gameTime )
 		{
@@ -52,7 +52,14 @@ namespace TanksDropTwo
 		/// </summary>
 		/// <param name="hitter">The projectile that hit the tank.</param>
 		/// <returns>true if the tank should die, otherwise false.</returns>
-		public abstract bool ProjectileHit( Projectile hitter );
+		public abstract bool ProjectileHit( Projectile hitter, TimeSpan gameTime );
+
+		/// <summary>
+		/// Called when the tank is hit by a mystical force.
+		/// </summary>
+		/// <param name="gameTime">The current game time.</param>
+		/// <returns>True if the tank should die - otherwise false.</returns>
+		public abstract bool Hit( TimeSpan gameTime );
 
 		/// <summary>
 		/// Called when the tank wants to shoot a bullet.

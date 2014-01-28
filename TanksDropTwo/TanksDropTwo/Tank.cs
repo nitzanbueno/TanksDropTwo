@@ -372,9 +372,9 @@ namespace TanksDropTwo
 		/// </summary>
 		/// <param name="Hitter">The projectile that hit the tank.</param>
 		/// <returns>True if the tank was killed, otherwise false.</returns>
-		public bool Hit( Projectile Hitter )
+		public bool ProjectileHit( Projectile Hitter, TimeSpan gameTime )
 		{
-			if ( Controller == null || Controller.ProjectileHit( Hitter ) )
+			if ( Controller == null || Controller.ProjectileHit( Hitter, gameTime ) )
 			{
 				IsAlive = false;
 				return true;
@@ -470,7 +470,10 @@ namespace TanksDropTwo
 
 		public override void Destroy( TimeSpan gameTime )
 		{
-			IsAlive = false;
+			if ( Controller == null || Controller.Hit( gameTime ) )
+			{
+				IsAlive = false;
+			}
 		}
 	}
 }

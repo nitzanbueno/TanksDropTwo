@@ -155,6 +155,7 @@ namespace TanksDropTwo
 				new Switcher( Tank.blank ),
 				new ForceField( Tank.blank, LoadPositiveSetting( "ForceFieldTime", ControllerTime ) ),
 				new Tripler( Tank.blank, LoadPositiveSetting( "TriplerTime", ControllerTime ) ),
+				new ExtraLife( Tank.blank ),
 			};
 
 			AvailableConEnts = new ControllerEntity[]
@@ -465,7 +466,7 @@ namespace TanksDropTwo
 		/// <summary>
 		/// Spawns a new pickup on the screen.
 		/// </summary>
-		protected void SpawnPickup( TimeSpan gameTime )
+		protected void SpawnPickup( TimeSpan gameTime, bool blackHole = false )
 		{
 			int ProjLen = AvailableProjectiles.Length;
 			int ConLen = AvailableControllers.Length;
@@ -484,7 +485,20 @@ namespace TanksDropTwo
 			}
 			else
 			{
-				AvailableConEnts[ Category - ProjLen - ConLen ].Spawn( gameTime, this );
+				ControllerEntity e = AvailableConEnts[ Category - ProjLen - ConLen ];
+
+				// Make black holes rarer by doing the function one more time if a black hole was chosen.
+				// Black holes are now 1/(ProjLen + ConLen + ConEntLen)^2 rare.
+				// Note this only calls the function ONCE if a black hole was chosen.
+				// If the black hole gets chosen twice, it gets spawned.
+				if ( !( e is BlackHole ) || blackHole )
+				{
+					e.Spawn( gameTime, this );
+				}
+				else
+				{
+					SpawnPickup( gameTime, true );
+				}
 			}
 		}
 
