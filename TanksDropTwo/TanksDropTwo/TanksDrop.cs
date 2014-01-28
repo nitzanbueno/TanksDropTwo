@@ -163,10 +163,11 @@ namespace TanksDropTwo
 				new SpeedBoost(LoadPositiveSetting( "SpeedBoostTime", ControllerTime ), LoadSetting( "SpeedBoostFactor", 2F ) ),
 				new Minimize( LoadPositiveSetting( "MinimizeTime", ControllerTime ) ),
 				new Switcher(),
-				new ForceField ( LoadPositiveSetting( "ForceFieldTime", ControllerTime ) ),
+				new ForceField( LoadPositiveSetting( "ForceFieldTime", ControllerTime ) ),
 				new Tripler( LoadPositiveSetting( "TriplerTime", ControllerTime ) ),
 				new ExtraLife(),
 				new Shockwave(),
+				new Roulette(),
 			};
 
 			AvailableConEnts = new ControllerEntity[]
@@ -253,7 +254,8 @@ namespace TanksDropTwo
 		{
 			KeySet set;
 			string keystr = LoadSetting( setting );
-			if ( keystr == "" ) return defaultSetting;
+			if ( keystr == "" )
+				return defaultSetting;
 			string[] keys = keystr.Replace( " ", string.Empty ).Split( ',' );
 			set = new KeySet(
 			LoadKey( keys[ 0 ], defaultSetting.KeyForward ),
@@ -378,8 +380,9 @@ namespace TanksDropTwo
 
 		#endregion
 
-		// This TimeSpan is not null only when the game is waiting to go to the next round, and it represents the time when it started waiting.
-		TimeSpan? BeganWait;
+		// This bool represents whether the round is over or not.
+		// It can be incorrect by the time the reset function is called so the reset function uses the check boolean to check if it is correct.
+		bool HasBeganWait;
 
 		// This is the TimeSpan used when checking for pickup spawns.
 		TimeSpan timeSinceLastPickup;
@@ -403,11 +406,13 @@ namespace TanksDropTwo
 
 			if ( ScheduledTasks.Count > 0 )
 			{
-				foreach ( var task in ScheduledTasks )
+				HashSet<Tuple<TimeSpan, int, Action>> ScheduledTasksCopy = new HashSet<Tuple<TimeSpan, int, Action>>( ScheduledTasks );
+				foreach ( var task in ScheduledTasksCopy )
 				{
 					if ( ( currentGameTime - task.Item1 ).TotalMilliseconds >= task.Item2 )
 					{
 						task.Item3();
+						ScheduledTasks.Remove( task );
 					}
 				}
 			}
@@ -428,7 +433,7 @@ namespace TanksDropTwo
 			}
 			if ( keyState.IsKeyDown( Keys.R ) )
 			{
-				NewRound( false );
+				NewRound( false, false, false );
 			}
 			if ( keyState.IsKeyDown( Keys.P ) )
 			{
@@ -454,23 +459,30 @@ namespace TanksDropTwo
 
 			if ( NumberOfLivingTanks <= 1 )
 			{
-				if ( !BeganWait.HasValue )
+				if ( !HasBeganWait )
 				{
-					BeganWait = currentGameTime;
-				}
-				else if ( ( currentGameTime - BeganWait.Value ).TotalMilliseconds >= WaitMillisecs )
-				{
-					System.Threading.Thread.Sleep( FreezeMillisecs );
-					NewRound();
-					BeganWait = null;
+					ScheduleTask( currentGameTime, WaitMillisecs, NewRound );
+					HasBeganWait = true;
 				}
 			}
 			int x = Entities.Count( r => r is Projectile );
 			base.Update( gameTime );
 		}
 
-		private void NewRound( bool Score = true )
+		private void NewRound()
 		{
+			NewRound( true, true, true );
+		}
+
+		private void NewRound( bool Score, bool sleep, bool check )
+		{
+			HasBeganWait = false;
+			if ( check && Entities.Count( x => x is Tank && ( ( Tank )x ).IsAlive ) > 1 )
+				return;
+			if ( sleep )
+			{
+				System.Threading.Thread.Sleep( FreezeMillisecs );
+			}
 			CurrentID = 1;
 			HashSet<GameEntity> OldEntities = new HashSet<GameEntity>( Entities );
 			Entities = new HashSet<GameEntity>();
@@ -524,11 +536,12 @@ namespace TanksDropTwo
 			int ConEntLen = AvailableConEnts.Length;
 			int Category = r.Next( ProjLen + ConLen + ConEntLen );
 
-			if ( Category < ProjLen + ConLen )
+			if ( Category < ProjLen + ConLen || r.Next( 3 ) > 0 ) // Low probability for the controller entities
 			{
 				Pickup p = null;
-
+				Category %= ( ProjLen + ConLen );
 				p = Category < AvailableProjectiles.Length ? new ProjectilePickup( AvailableProjectiles[ Category ], PickupLifetime ) : ( Pickup )new TankControllerPickup( AvailableControllers[ Category - ProjLen ], PickupLifetime );
+				// Picks a random pickup using the category integer.
 
 				p.Position = new Vector2( r.Next( ScreenWidth ), r.Next( ScreenHeight ) );
 				p.Initialize( this, gameTime );
@@ -537,19 +550,7 @@ namespace TanksDropTwo
 			else
 			{
 				ControllerEntity e = AvailableConEnts[ Category - ProjLen - ConLen ];
-
-				// Make black holes rarer by doing the function one more time if a black hole was chosen.
-				// Black holes are now 1/(ProjLen + ConLen + ConEntLen)^2 rare.
-				// Note this only calls the function ONCE if a black hole was chosen.
-				// If the black hole gets chosen twice, it gets spawned.
-				if ( !( e is BlackHole ) || blackHole || r.Next( 5 ) == 1 )
-				{
-					e.Spawn( gameTime, this );
-				}
-				else
-				{
-					SpawnPickup( gameTime, true );
-				}
+				e.Spawn( gameTime, this );
 			}
 		}
 

@@ -9,8 +9,7 @@ namespace TanksDropTwo.Controllers
 {
 	class Switcher : UseableController
 	{
-		bool isTankApplied;
-		Tank switchedTank;
+		List<Tank> switchableTanks;
 
 		public Switcher()
 			: base()
@@ -19,13 +18,15 @@ namespace TanksDropTwo.Controllers
 
 		public override void Initialize( TanksDrop game )
 		{
-			isTankApplied = false;
+			switchableTanks = new List<Tank>();
 			base.Initialize( game );
 		}
 
 		public override void InstantControl( GameEntity control, TimeSpan gameTime )
 		{
-			if ( !isTankApplied ) return;
+			Random r = new Random();
+			if ( switchableTanks.Count <= 0 ) return;
+			Tank switchedTank = switchableTanks[ r.Next( switchableTanks.Count ) ];
 			Vector2 OwnerPos = Owner.Position;
 			float OwnerScale = Owner.Scale;
 			float OwnerAngle = Owner.Angle;
@@ -49,15 +50,9 @@ namespace TanksDropTwo.Controllers
 
 		public override bool AddEntity( GameEntity entity )
 		{
-			if ( entity is Tank )
+			if ( entity is Tank && entity != Owner && ( ( Tank )entity ).IsAlive )
 			{
-				Tank t = ( Tank )entity;
-				if ( t.IsAlive && t != Owner && !isTankApplied )
-				{
-					isTankApplied = true;
-					switchedTank = t;
-					return true;
-				}
+				switchableTanks.Add( ( Tank )entity );
 			}
 			return false;
 		}

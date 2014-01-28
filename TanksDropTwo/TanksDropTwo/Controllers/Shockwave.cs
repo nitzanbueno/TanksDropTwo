@@ -78,15 +78,21 @@ namespace TanksDropTwo.Controllers
 		private const string currentdistString = "KnockbackCurrentDistance";
 		private const string speedString = "KnockbackCurrentSpeed";
 		private const string angleString = "KnockbackAngle";
-		private const float speedFactor = 0.87F;
+		private float speedFactor = 0.87F;
 
 		public Knockback( Tank Owner, float MaxDistance )
-			: base()
+			: this( Owner, MaxDistance, 0.87F )
+		{
+			
+		}
+
+		public Knockback( Tank Owner, float MaxDistance, float SpeedFactor ) : base()
 		{
 			this.owner = Owner;
 			this.position = Owner.Position;
 			this.maxdist = MaxDistance;
 			this.startspeed = MaxDistance * ( 1 - speedFactor );
+			this.speedFactor = SpeedFactor;
 		}
 
 		public override bool Control( GameEntity control, TimeSpan gameTime )

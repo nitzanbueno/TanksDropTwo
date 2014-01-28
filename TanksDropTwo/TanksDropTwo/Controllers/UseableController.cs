@@ -17,9 +17,9 @@ namespace TanksDropTwo.Controllers
 
 		public override void Initialize( TanksDrop game )
 		{
+			base.Initialize( game );
 			game.AppendController( this );
 			isDestructed = false;
-			base.Initialize( game );
 		}
 
 		public override bool ProjectileHit( Projectile hitter, TimeSpan gameTime )
