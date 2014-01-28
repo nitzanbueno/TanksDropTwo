@@ -8,8 +8,8 @@ namespace TanksDropTwo.Controllers
 {
 	public class Tripler : TankController
 	{
-		public Tripler( Tank Owner, int lifeTime )
-			: base( Owner, lifeTime )
+		public Tripler( int lifeTime )
+			: base( lifeTime )
 		{
 		}
 
@@ -29,7 +29,7 @@ namespace TanksDropTwo.Controllers
 			return true;
 		}
 
-		public override bool OnPlaceFence()
+		public override bool OnPlaceFence( TimeSpan gameTime )
 		{
 			return true;
 		}
@@ -40,8 +40,8 @@ namespace TanksDropTwo.Controllers
 
 		public override GameController Clone()
 		{
-			Tripler t = new Tripler( Owner, lifeTime );
-			t.Initialize( Game );
+			Tripler t = new Tripler( lifeTime );
+			t.Initialize( Game, Owner );
 			t.LoadTexture( Game.Content );
 			return t;
 		}
@@ -53,7 +53,7 @@ namespace TanksDropTwo.Controllers
 
 		public override void Draw( Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch )
 		{
-			
+
 		}
 
 		public override bool Shoot( TimeSpan gameTime, Projectile shot )

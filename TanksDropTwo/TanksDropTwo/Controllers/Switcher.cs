@@ -12,8 +12,8 @@ namespace TanksDropTwo.Controllers
 		bool isTankApplied;
 		Tank switchedTank;
 
-		public Switcher( Tank Owner )
-			: base( Owner )
+		public Switcher()
+			: base()
 		{
 		}
 
@@ -64,8 +64,8 @@ namespace TanksDropTwo.Controllers
 
 		public override GameController Clone()
 		{
-			Switcher s = new Switcher( Owner );
-			s.Initialize( Game );
+			Switcher s = new Switcher();
+			s.Initialize( Game, Owner );
 			s.LoadTexture( Game.Content );
 			return s;
 		}

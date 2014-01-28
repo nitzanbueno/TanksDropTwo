@@ -57,6 +57,11 @@ namespace TanksDropTwo
 		public Rectangle? SourceRectangle;
 
 		/// <summary>
+		/// Allows controllers to store individual variables inside the entity.
+		/// </summary>
+		public Dictionary<string, object> Variables;
+
+		/// <summary>
 		/// The texture, as a color array.
 		/// </summary>
 		public Color[] TextureData;
@@ -145,6 +150,7 @@ namespace TanksDropTwo
 			Game = game;
 			ID = Game.CurrentID;
 			Game.CurrentID++;
+			Variables = new Dictionary<string, object>();
 		}
 
 		/// <summary>

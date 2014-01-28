@@ -12,8 +12,8 @@ namespace TanksDropTwo.Controllers
 	/// </summary>
 	public class ForceField : TankController
 	{
-		public ForceField( Tank Owner, int LifeTime )
-			: base( Owner, LifeTime )
+		public ForceField( int LifeTime )
+			: base( LifeTime )
 		{
 		}
 
@@ -37,7 +37,7 @@ namespace TanksDropTwo.Controllers
 			}
 			return false;
 		}
-			
+
 		public override void LoadTexture( Microsoft.Xna.Framework.Content.ContentManager content )
 		{
 			Texture = content.Load<Texture2D>( "Sprites\\ForceField" );
@@ -50,7 +50,7 @@ namespace TanksDropTwo.Controllers
 			spriteBatch.Draw( Texture, Owner.Position, null, Color.White, 0, Origin, Owner.Scale * 1.5F, SpriteEffects.None, 1 );
 		}
 
-		public override bool OnPlaceFence()
+		public override bool OnPlaceFence( TimeSpan gameTime )
 		{
 			return true;
 		}
@@ -66,8 +66,8 @@ namespace TanksDropTwo.Controllers
 
 		public override GameController Clone()
 		{
-			ForceField f = new ForceField( Owner, lifeTime );
-			f.Initialize( Game );
+			ForceField f = new ForceField( lifeTime );
+			f.Initialize( Game, Owner );
 			f.LoadTexture( Game.Content );
 			return f;
 		}

@@ -11,8 +11,8 @@ namespace TanksDropTwo.Controllers
 	{
 		float Rotation;
 
-		public ExtraLife( Tank Owner )
-			: base( Owner, -1 )
+		public ExtraLife()
+			: base( -1 )
 		{
 			Rotation = 0;
 		}
@@ -38,7 +38,7 @@ namespace TanksDropTwo.Controllers
 			return false;
 		}
 
-		public override bool OnPlaceFence()
+		public override bool OnPlaceFence( TimeSpan gameTime )
 		{
 			return true;
 		}
@@ -49,8 +49,8 @@ namespace TanksDropTwo.Controllers
 
 		public override GameController Clone()
 		{
-			ExtraLife e = new ExtraLife( Owner );
-			e.Initialize( Game );
+			ExtraLife e = new ExtraLife();
+			e.Initialize( Game, Owner );
 			e.LoadTexture( Game.Content );
 			return e;
 		}

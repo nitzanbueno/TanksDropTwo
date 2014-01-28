@@ -12,8 +12,8 @@ namespace TanksDropTwo.Controllers
 	/// </summary>
 	public class Ghost : TankController
 	{
-		public Ghost( Tank Owner, int LifeTime )
-			: base( Owner, LifeTime )
+		public Ghost( int LifeTime )
+			: base( LifeTime )
 		{
 		}
 
@@ -48,7 +48,7 @@ namespace TanksDropTwo.Controllers
 		{
 		}
 
-		public override bool OnPlaceFence()
+		public override bool OnPlaceFence( TimeSpan gameTime )
 		{
 			return true;
 		}
@@ -64,8 +64,8 @@ namespace TanksDropTwo.Controllers
 
 		public override GameController Clone()
 		{
-			Ghost g = new Ghost( Owner, lifeTime );
-			g.Initialize( Game );
+			Ghost g = new Ghost( lifeTime );
+			g.Initialize( Game, Owner );
 			g.LoadTexture( Game.Content );
 			return g;
 		}

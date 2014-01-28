@@ -250,7 +250,8 @@ namespace TanksDropTwo
 					// However, due to the ghost controller and other tanks, I may be stuck IN a fence.
 					// In that case, I should be able to go outside of it.
 					toMove = toMove || CollidesWith( entity );
-					if ( !toMove ) break;
+					if ( !toMove )
+						break;
 				}
 			}
 
@@ -280,7 +281,7 @@ namespace TanksDropTwo
 		/// <param name="gameTime">The current game time.</param>
 		private void CheckPlaceFence( TimeSpan gameTime )
 		{
-			if ( ( Controller == null || Controller.OnPlaceFence() ) && IsAlive && ( NumberOfFences < FenceLimit || FenceLimit <= 0 ) )
+			if ( ( Controller == null || Controller.OnPlaceFence( gameTime ) ) && IsAlive && ( NumberOfFences < FenceLimit || FenceLimit <= 0 ) )
 			{
 				PlaceFence( gameTime );
 			}
@@ -309,7 +310,8 @@ namespace TanksDropTwo
 		/// <param name="force">True if the tank must shoot, otherwise false.</param>
 		public void Shoot( TimeSpan gameTime, bool force = false )
 		{
-			if ( NumberOfProjectiles >= ProjectileLimit && ProjectileLimit > 0 ) return;
+			if ( NumberOfProjectiles >= ProjectileLimit && ProjectileLimit > 0 )
+				return;
 			nextProjectile.Angle = Angle;
 			nextProjectile.Position = Forward( 20 * Scale );
 			NumberOfProjectiles++;
@@ -450,7 +452,8 @@ namespace TanksDropTwo
 				Controller = controller;
 				return true;
 			}
-			else return false;
+			else
+				return false;
 		}
 
 		/// <summary>
@@ -461,7 +464,8 @@ namespace TanksDropTwo
 		{
 			if ( tankController == Controller )
 			{
-				if ( Controller != null ) Controller.StopControl();
+				if ( Controller != null )
+					Controller.StopControl();
 				Controller = null;
 				Controllers.Remove( tankController );
 			}

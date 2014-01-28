@@ -11,8 +11,8 @@ namespace TanksDropTwo.Controllers
 		float OriginalSpeed;
 		float factor;
 
-		public SpeedBoost( Tank Owner, int lifeTime, float factor )
-			: base( Owner, lifeTime )
+		public SpeedBoost( int lifeTime, float factor )
+			: base( lifeTime )
 		{
 			this.factor = factor;
 		}
@@ -53,7 +53,7 @@ namespace TanksDropTwo.Controllers
 			return base.Control( control, gameTime );
 		}
 
-		public override bool OnPlaceFence()
+		public override bool OnPlaceFence( TimeSpan gameTime )
 		{
 			return true;
 		}
@@ -65,7 +65,9 @@ namespace TanksDropTwo.Controllers
 
 		public override GameController Clone()
 		{
-			return new SpeedBoost( Owner, lifeTime, factor );
+			SpeedBoost s = new SpeedBoost( lifeTime, factor );
+			s.Initialize( Game, Owner );
+			return s;
 		}
 
 		public override bool AddEntity( GameEntity entity )

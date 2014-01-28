@@ -24,6 +24,8 @@ namespace TanksDropTwo
 		{
 		}
 
+		public Lazer() : this( Tank.blank ) { }
+
 		public override void Initialize( TanksDrop game )
 		{
 			Helpers = new List<LazerHelper>();

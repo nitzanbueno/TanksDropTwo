@@ -18,13 +18,15 @@ namespace TanksDropTwo
 		private int noticeTime;
 
 		public HomingBullet( Tank Owner, float Speed, float TurnSpeed, TimeSpan gameTime, int NoticeTime, int lifeTime )
-			: base( Owner, gameTime )
+			: base( gameTime )
 		{
 			this.Speed = Speed;
 			turnSpeed = TurnSpeed;
 			noticeTime = NoticeTime;
 			this.lifeTime = lifeTime;
 		}
+
+		public HomingBullet( float Speed, float TurnSpeed, TimeSpan gameTime, int NoticeTime, int lifeTime ) : this( Tank.blank, Speed, TurnSpeed, gameTime, NoticeTime, lifeTime ) { }
 
 		public override void Update( TimeSpan gameTime, HashSet<GameEntity> Entities, KeyboardState keyState )
 		{

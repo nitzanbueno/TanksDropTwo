@@ -17,9 +17,9 @@ namespace TanksDropTwo
 		public TimeSpan spawnTime;
 		protected int lifeTime;
 
-		public TankController( Tank Owner, int LifeTime )
+		public TankController( int LifeTime )
 		{
-			this.Owner = Owner;
+			this.Owner = Tank.blank;
 			lifeTime = LifeTime;
 		}
 
@@ -86,7 +86,7 @@ namespace TanksDropTwo
 		/// Returns true if it should, false if it shouldn't.
 		/// </summary>
 		/// <returns>true if the tank should place the fence, false if it shouldn't.</returns>
-		public abstract bool OnPlaceFence();
+		public abstract bool OnPlaceFence( TimeSpan gameTime );
 
 		/// <summary>
 		/// Called when the TankController is released from its owner.

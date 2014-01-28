@@ -128,6 +128,7 @@
     <Compile Include="Controllers\Deflector.cs" />
     <Compile Include="Controllers\Minimize.cs" />
     <Compile Include="Controllers\Portal.cs" />
+    <Compile Include="Controllers\Shockwave.cs" />
     <Compile Include="Controllers\SpeedBoost.cs" />
     <Compile Include="Controllers\Switcher.cs" />
     <Compile Include="Controllers\Tripler.cs" />

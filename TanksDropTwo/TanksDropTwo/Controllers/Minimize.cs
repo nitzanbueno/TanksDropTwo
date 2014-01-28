@@ -15,8 +15,8 @@ namespace TanksDropTwo.Controllers
 
 		bool isDone;
 
-		public Minimize( Tank Owner, int LifeTime )
-			: base( Owner, LifeTime )
+		public Minimize( int LifeTime )
+			: base( LifeTime )
 		{
 			SetOwner( Owner );
 		}
@@ -51,7 +51,7 @@ namespace TanksDropTwo.Controllers
 			return true;
 		}
 
-		public override bool OnPlaceFence()
+		public override bool OnPlaceFence( TimeSpan gameTime )
 		{
 			return true;
 		}
@@ -61,7 +61,7 @@ namespace TanksDropTwo.Controllers
 			return false;
 		}
 
-		public override void Draw( Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch ) {}
+		public override void Draw( Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch ) { }
 
 		public override bool Control( GameEntity control, TimeSpan gameTime )
 		{
@@ -81,8 +81,8 @@ namespace TanksDropTwo.Controllers
 
 		public override GameController Clone()
 		{
-			Minimize m = new Minimize( Owner, lifeTime );
-			m.Initialize( Game );
+			Minimize m = new Minimize( lifeTime );
+			m.Initialize( Game, Owner );
 			m.LoadTexture( Game.Content );
 			return m;
 		}

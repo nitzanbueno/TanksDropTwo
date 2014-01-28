@@ -34,6 +34,8 @@ namespace TanksDropTwo
 		int FreezeMillisecs;
 		int SpawnMillisecs;
 
+		private HashSet<Tuple<TimeSpan, int, Action>> ScheduledTasks;
+
 		public int CurrentID;
 
 		Projectile[] AvailableProjectiles;
@@ -117,11 +119,13 @@ namespace TanksDropTwo
 			int FenceLimit = LoadSetting( "FenceLimit", 10 );
 			int ProjectileLimit = LoadSetting( "ProjectileLimit", 3 );
 
+			LoadSetting( "ShockwaveRadius", 200.0F );
+
 			// Shows mouse
 			IsMouseVisible = true;
 
 			MasterControllers = new HashSet<GameController>();
-
+			ScheduledTasks = new HashSet<Tuple<TimeSpan, int, Action>>();
 			Entities = new HashSet<GameEntity>();
 
 			// Player 1
@@ -147,21 +151,22 @@ namespace TanksDropTwo
 
 			AvailableProjectiles = new Projectile[]
 			{
-				new HomingBullet( Tank.blank, LoadPositiveSetting( "HomingBulletSpeed", ProjectileSpeed ), LoadPositiveSetting( "HomingBulletTurnSpeed", 5 ), TimeSpan.Zero, LoadPositiveSetting( "HomingBulletNoticeTime", 1000 ), LoadPositiveSetting( "HomingBulletTime", ProjectileTime ) ),
-				new Missile( Tank.blank, LoadPositiveSetting( "MissileSpeed", ProjectileSpeed ), LoadPositiveSetting( "MissileTime", ProjectileTime ) ),
-				new Lazer( Tank.blank ),
+				new HomingBullet( LoadPositiveSetting( "HomingBulletSpeed", ProjectileSpeed ), LoadPositiveSetting( "HomingBulletTurnSpeed", 5 ), TimeSpan.Zero, LoadPositiveSetting( "HomingBulletNoticeTime", 1000 ), LoadPositiveSetting( "HomingBulletTime", ProjectileTime ) ),
+				new Missile( LoadPositiveSetting( "MissileSpeed", ProjectileSpeed ), LoadPositiveSetting( "MissileTime", ProjectileTime ) ),
+				new Lazer(),
 			};
 
 			AvailableControllers = new TankController[]
 			{
-				new Ghost( Tank.blank, LoadPositiveSetting( "GhostTime", ControllerTime ) ),
-				new Deflector( Tank.blank ),
-				new SpeedBoost( Tank.blank, LoadPositiveSetting( "SpeedBoostTime", ControllerTime ), LoadSetting( "SpeedBoostFactor", 2F ) ),
-				new Minimize( Tank.blank, LoadPositiveSetting( "MinimizeTime", ControllerTime ) ),
-				new Switcher( Tank.blank ),
-				new ForceField( Tank.blank, LoadPositiveSetting( "ForceFieldTime", ControllerTime ) ),
-				new Tripler( Tank.blank, LoadPositiveSetting( "TriplerTime", ControllerTime ) ),
-				new ExtraLife( Tank.blank ),
+				new Ghost( LoadPositiveSetting( "GhostTime", ControllerTime ) ),
+				new Deflector(),
+				new SpeedBoost(LoadPositiveSetting( "SpeedBoostTime", ControllerTime ), LoadSetting( "SpeedBoostFactor", 2F ) ),
+				new Minimize( LoadPositiveSetting( "MinimizeTime", ControllerTime ) ),
+				new Switcher(),
+				new ForceField ( LoadPositiveSetting( "ForceFieldTime", ControllerTime ) ),
+				new Tripler( LoadPositiveSetting( "TriplerTime", ControllerTime ) ),
+				new ExtraLife(),
+				new Shockwave(),
 			};
 
 			AvailableConEnts = new ControllerEntity[]
@@ -396,6 +401,17 @@ namespace TanksDropTwo
 				this.Exit();
 			}
 
+			if ( ScheduledTasks.Count > 0 )
+			{
+				foreach ( var task in ScheduledTasks )
+				{
+					if ( ( currentGameTime - task.Item1 ).TotalMilliseconds >= task.Item2 )
+					{
+						task.Item3();
+					}
+				}
+			}
+
 			if ( CurrentMenu != null )
 			{
 				CurrentMenu.Update( currentGameTime, keyState, mouseState );
@@ -591,6 +607,22 @@ namespace TanksDropTwo
 		}
 
 		/// <summary>
+		/// Adds the controller to all entities in the game that satisfy the AddEntity condition.
+		/// Doesn't add to newly spawned entities.
+		/// </summary>
+		/// <param name="controller">The controller to add.</param>
+		public void PutController( GameController controller )
+		{
+			foreach ( GameEntity entity in Entities )
+			{
+				if ( controller.AddEntity( entity ) )
+				{
+					entity.AppendController( controller );
+				}
+			}
+		}
+
+		/// <summary>
 		/// Stops sticking the given controller to future entities.
 		/// </summary>
 		/// <param name="controller">The controller to stop.</param>
@@ -613,6 +645,11 @@ namespace TanksDropTwo
 				}
 			}
 			MasterControllers.Remove( controller );
+		}
+
+		public void ScheduleTask( TimeSpan gameTime, int millisecs, Action function )
+		{
+			ScheduledTasks.Add( Tuple.Create( gameTime, millisecs, function ) );
 		}
 	}
 }

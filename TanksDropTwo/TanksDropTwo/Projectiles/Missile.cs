@@ -10,6 +10,8 @@ namespace TanksDropTwo
 	class Missile : Projectile
 	{
 		bool hasExploded;
+		private int p;
+		private int p_2;
 
 		public Missile( Tank Owner, float speed, int lifeTime )
 			: base( Owner )
@@ -17,6 +19,8 @@ namespace TanksDropTwo
 			this.Speed = speed;
 			this.lifeTime = lifeTime;
 		}
+
+		public Missile( float speed, int lifeTime ) : this( Tank.blank, speed, lifeTime ) { }
 
 		public override void Initialize( TanksDrop game )
 		{

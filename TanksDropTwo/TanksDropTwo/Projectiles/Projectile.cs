@@ -18,6 +18,8 @@ namespace TanksDropTwo
 			spawnTime = gameTime;
 		}
 
+		public Projectile( TimeSpan gameTime ) : this( Tank.blank, gameTime ) { }
+
 		public Projectile( Tank Owner )
 		{
 			owner = Owner;

@@ -23,6 +23,8 @@ namespace TanksDropTwo
 			this.lifeTime = lifeTime;
 		}
 
+		public Bullet( float Speed, TimeSpan gameTime, int lifeTime ) : this( Speed, Tank.blank, gameTime, lifeTime ) { }
+
 		protected Bullet( float speed ) { this.Speed = speed; }
 
 		public override void Update( TimeSpan gameTime, HashSet<GameEntity> Entities, KeyboardState keyState )

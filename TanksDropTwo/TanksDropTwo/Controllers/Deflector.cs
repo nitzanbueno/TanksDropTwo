@@ -11,8 +11,8 @@ namespace TanksDropTwo.Controllers
 	/// </summary>
 	class Deflector : UseableController
 	{
-		public Deflector( Tank Owner )
-			: base( Owner )
+		public Deflector()
+			: base()
 		{
 		}
 
@@ -37,8 +37,8 @@ namespace TanksDropTwo.Controllers
 
 		public override GameController Clone()
 		{
-			Deflector d = new Deflector( Owner );
-			d.Initialize( Game );
+			Deflector d = new Deflector();
+			d.Initialize( Game, Owner );
 			d.LoadTexture( Game.Content );
 			return d;
 		}

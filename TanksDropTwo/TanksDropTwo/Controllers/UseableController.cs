@@ -10,8 +10,8 @@ namespace TanksDropTwo.Controllers
 	{
 		private bool isDestructed;
 
-		public UseableController( Tank Owner )
-			: base( Owner, -1 )
+		public UseableController()
+			: base( -1 )
 		{
 		}
 
@@ -32,7 +32,7 @@ namespace TanksDropTwo.Controllers
 			return true;
 		}
 
-		public override bool OnPlaceFence()
+		public override bool OnPlaceFence( TimeSpan gameTime )
 		{
 			isDestructed = true;
 			Owner.RemoveTankController( this );
