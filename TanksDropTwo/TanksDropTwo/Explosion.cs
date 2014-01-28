@@ -21,7 +21,7 @@ namespace TanksDropTwo
 		public override void LoadContent( Microsoft.Xna.Framework.Content.ContentManager Content, int screenWidth, int screenHeight )
 		{
 			Texture = Content.Load<Texture2D>( "Sprites\\Boom" );
-			Scale = Game.BlastRadius;
+			Scale = ( float )Game.Settings[ "BlastRadius" ].Item2;
 			Origin = new Vector2( 32, 32 );
 			base.LoadContent( Content, screenWidth, screenHeight );
 		}

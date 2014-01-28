@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual C# Express 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TanksDropTwo", "TanksDropTwo\TanksDropTwo\TanksDropTwo.csproj", "{B71000D5-310A-4C0C-A9A5-A0826454E80E}"
 EndProject
-Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "TanksDropTwoContent", "TanksDropTwo\TanksDropTwoContent\TanksDropTwoContent.contentproj", "{512DFCBA-ECBD-463C-8D3B-7D27E90899FA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TanksDropTwoContent", "TanksDropTwo\TanksDropTwoContent\TanksDropTwoContent.contentproj", "{512DFCBA-ECBD-463C-8D3B-7D27E90899FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

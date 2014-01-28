@@ -55,6 +55,7 @@ namespace TanksDropTwo
 			this.spawnTime = spawnTime;
 			this.Game = game;
 			InitializeCarrier( game );
+			Initialize( game );
 		}
 
 		/// <summary>

@@ -34,7 +34,7 @@ namespace TanksDropTwo
 		int FreezeMillisecs;
 		int SpawnMillisecs;
 
-		public float BlastRadius;
+		public int CurrentID;
 
 		Projectile[] AvailableProjectiles;
 		TankController[] AvailableControllers;
@@ -49,6 +49,10 @@ namespace TanksDropTwo
 
 		public Texture2D Blank;
 
+		public Dictionary<string, Tuple<Type, object>> Settings;
+
+		public Dictionary<Tuple<int, int>, bool> Collisions;
+
 		public Rectangle BoundingBox
 		{
 			get
@@ -62,6 +66,7 @@ namespace TanksDropTwo
 
 		public TanksDrop()
 		{
+			Settings = new Dictionary<string, Tuple<Type, object>>();
 			graphics = new GraphicsDeviceManager( this );
 			Read();
 			ScreenWidth = LoadSetting( "ScreenWidth", 1000 );
@@ -80,12 +85,13 @@ namespace TanksDropTwo
 		protected override void Initialize()
 		{
 			NumOfPlayers = LoadSetting( "Players", 2 );
+			CurrentID = -NumOfPlayers;
 			WaitMillisecs = LoadSetting( "EndingDelay", 3000 );
 			FreezeMillisecs = LoadSetting( "FreezeTime", 1000 );
 			SpawnMillisecs = LoadSetting( "PickupTime", 5000 );
 			PickupLifetime = LoadSetting( "PickupLifeTime", 10000 );
 
-			BlastRadius = LoadSetting( "BlastRadius", 10.0F );
+			LoadSetting( "BlastRadius", 10.0F );
 
 			KeySet p1keys = LoadSetting( "Player1Keys", new KeySet( Keys.Up, Keys.Down, Keys.Left, Keys.Right, Keys.Z, Keys.X ) );
 			KeySet p2keys = LoadSetting( "Player2Keys", new KeySet( Keys.W, Keys.S, Keys.A, Keys.D, Keys.Q, Keys.E ) );
@@ -228,32 +234,44 @@ namespace TanksDropTwo
 		private Colors LoadSetting( string setting, Colors defaultSetting )
 		{
 			string color = LoadSetting( setting );
+			Colors set;
 			try
 			{
-				return ( Colors )Enum.Parse( typeof( Colors ), color );
+				set = ( Colors )Enum.Parse( typeof( Colors ), color );
 			}
-			catch ( Exception ) { return defaultSetting; }
+			catch ( Exception ) { set = defaultSetting; }
+			Settings.Add( setting, Tuple.Create<Type, object>( set.GetType(), set ) );
+			return set;
 		}
 
 		private KeySet LoadSetting( string setting, KeySet defaultSetting )
 		{
+			KeySet set;
 			string keystr = LoadSetting( setting );
 			if ( keystr == "" ) return defaultSetting;
 			string[] keys = keystr.Replace( " ", string.Empty ).Split( ',' );
-			return new KeySet(
-			LoadKey( keys, 0, defaultSetting.KeyForward ),
-			LoadKey( keys, 2, defaultSetting.KeyBackward ),
-			LoadKey( keys, 1, defaultSetting.KeyLeft ),
-			LoadKey( keys, 3, defaultSetting.KeyRight ),
-			LoadKey( keys, 4, defaultSetting.KeyPlace ),
-			LoadKey( keys, 5, defaultSetting.KeyShoot ) );
+			set = new KeySet(
+			LoadKey( keys[ 0 ], defaultSetting.KeyForward ),
+			LoadKey( keys[ 2 ], defaultSetting.KeyBackward ),
+			LoadKey( keys[ 1 ], defaultSetting.KeyLeft ),
+			LoadKey( keys[ 3 ], defaultSetting.KeyRight ),
+			LoadKey( keys[ 4 ], defaultSetting.KeyPlace ),
+			LoadKey( keys[ 5 ], defaultSetting.KeyShoot ) );
+			Settings.Add( setting, Tuple.Create<Type, object>( set.GetType(), set ) );
+			return set;
 		}
 
-		private Keys LoadKey( string[] keys, int index, Keys defaultKey )
+		/// <summary>
+		/// Turns the key given as a string into a Keys object.
+		/// </summary>
+		/// <param name="key">The key as a string.</param>
+		/// <param name="defaultKey">The key to return if the conversion fails.</param>
+		/// <returns>The key is a Keys.</returns>
+		private Keys LoadKey( string key, Keys defaultKey )
 		{
 			try
 			{
-				return ( Keys )Enum.Parse( typeof( Keys ), keys[ index ] );
+				return ( Keys )Enum.Parse( typeof( Keys ), key );
 			}
 			catch ( Exception )
 			{
@@ -283,61 +301,74 @@ namespace TanksDropTwo
 
 		private string LoadSetting( string setting, string defaultSetting )
 		{
-			string s = LoadSetting( setting );
-			return s == "" ? defaultSetting : s;
+			string set = LoadSetting( setting );
+			set = set == "" ? defaultSetting : set;
+			Settings.Add( setting, Tuple.Create<Type, object>( set.GetType(), set ) );
+			return set;
 		}
 
 		private int LoadSetting( string setting, int defaultSetting )
 		{
+			int set;
 			try
 			{
-				return Int32.Parse( LoadSetting( setting ) );
+				set = int.Parse( LoadSetting( setting ) );
 			}
 			catch ( Exception )
 			{
-				return defaultSetting;
+				set = defaultSetting;
 			}
+			Settings.Add( setting, Tuple.Create<Type, object>( set.GetType(), set ) );
+			return set;
 		}
 
 		private double LoadSetting( string setting, double defaultSetting )
 		{
+			double set;
 			try
 			{
-				return Double.Parse( LoadSetting( setting ) );
+				set = Double.Parse( LoadSetting( setting ) );
 			}
 			catch ( Exception )
 			{
-				return defaultSetting;
+				set = defaultSetting;
 			}
+			Settings.Add( setting, Tuple.Create<Type, object>( set.GetType(), set ) );
+			return set;
 		}
 
 		private float LoadSetting( string setting, float defaultSetting )
 		{
+			float set;
 			try
 			{
-				return float.Parse( LoadSetting( setting ) );
+				set = float.Parse( LoadSetting( setting ) );
 			}
 			catch ( Exception )
 			{
-				return defaultSetting;
+				set = defaultSetting;
 			}
+			Settings.Add( setting, Tuple.Create<Type, object>( set.GetType(), set ) );
+			return set;
 		}
 
 		private int LoadPositiveSetting( string setting, int defaultSetting )
 		{
+			int set;
 			try
 			{
-				int set = Int32.Parse( LoadSetting( setting ) );
+				set = Int32.Parse( LoadSetting( setting ) );
 				if ( set == 0 )
 				{
-					return defaultSetting;
+					set = defaultSetting;
 				}
-				return set;
 			}
 			catch ( Exception )
 			{
-				return defaultSetting;
+				set = defaultSetting;
 			}
+			Settings.Add( setting, Tuple.Create<Type, object>( set.GetType(), set ) );
+			return set;
 		}
 
 		#endregion
@@ -357,6 +388,8 @@ namespace TanksDropTwo
 		{
 			KeyboardState keyState = Keyboard.GetState();
 			MouseState mouseState = Mouse.GetState();
+
+			Collisions = new Dictionary<Tuple<int, int>, bool>();
 
 			if ( keyState.IsKeyDown( Keys.Escape ) )
 			{
@@ -416,11 +449,13 @@ namespace TanksDropTwo
 					BeganWait = null;
 				}
 			}
+			int x = Entities.Count( r => r is Projectile );
 			base.Update( gameTime );
 		}
 
 		private void NewRound( bool Score = true )
 		{
+			CurrentID = 1;
 			HashSet<GameEntity> OldEntities = new HashSet<GameEntity>( Entities );
 			Entities = new HashSet<GameEntity>();
 			MasterControllers = new HashSet<GameController>();
@@ -491,7 +526,7 @@ namespace TanksDropTwo
 				// Black holes are now 1/(ProjLen + ConLen + ConEntLen)^2 rare.
 				// Note this only calls the function ONCE if a black hole was chosen.
 				// If the black hole gets chosen twice, it gets spawned.
-				if ( !( e is BlackHole ) || blackHole )
+				if ( !( e is BlackHole ) || blackHole || r.Next( 5 ) == 1 )
 				{
 					e.Spawn( gameTime, this );
 				}

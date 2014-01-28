@@ -122,7 +122,7 @@ namespace TanksDropTwo
 			CheckBounces();
 			foreach ( GameEntity entity in Entities )
 			{
-				if ( entity != this && this.CollidesWith( entity ) && entity is Fence )
+				if ( entity is Fence && this.CollidesWith( entity ) )
 				{
 					Fence HitFence = ( Fence )entity;
 					float fangle = HitFence.Angle < 180 ? HitFence.Angle + 180 : HitFence.Angle;

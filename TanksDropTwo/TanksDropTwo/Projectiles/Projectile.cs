@@ -47,7 +47,7 @@ namespace TanksDropTwo
 		{
 			foreach ( GameEntity entity in Entities )
 			{
-				if ( entity != this && this.CollidesWith( entity ) )
+				if ( ( entity is Tank ^ ( entity is Fence && CheckFences ) ) && this.CollidesWith( entity ) )
 				{
 					// The projectile collided with an entity.
 					if ( entity is Tank )
@@ -60,7 +60,7 @@ namespace TanksDropTwo
 							break;
 						}
 					}
-					else if ( entity is Fence && CheckFences )
+					else
 					{
 						Fence HitFence = ( Fence )entity;
 						// The angle will always face upwards.

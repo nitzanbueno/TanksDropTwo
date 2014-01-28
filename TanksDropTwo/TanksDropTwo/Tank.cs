@@ -162,7 +162,6 @@ namespace TanksDropTwo
 			originalAngle = startAngle;
 			this.keys = keys;
 			this.color = color;
-			Scale = 2;
 			Origin = new Vector2( 16, 16 );
 			this.originalProjectile = originalProjectile;
 			this.ProjectileLimit = BulletLimit;

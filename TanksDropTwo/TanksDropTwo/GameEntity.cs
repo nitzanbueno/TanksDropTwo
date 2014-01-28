@@ -15,6 +15,11 @@ namespace TanksDropTwo
 	public abstract class GameEntity
 	{
 		/// <summary>
+		/// The ID of the entity, used for dictionaries.
+		/// </summary>
+		public int ID;
+
+		/// <summary>
 		/// The width of the screen.
 		/// </summary>
 		protected int ScreenWidth;
@@ -41,6 +46,9 @@ namespace TanksDropTwo
 		/// </summary>
 		protected HashSet<GameController> Controllers = new HashSet<GameController>();
 
+		/// <summary>
+		/// The current game this entity is in.
+		/// </summary>
 		protected TanksDrop Game;
 
 		/// <summary>
@@ -48,6 +56,9 @@ namespace TanksDropTwo
 		/// </summary>
 		public Rectangle? SourceRectangle;
 
+		/// <summary>
+		/// The texture, as a color array.
+		/// </summary>
 		public Color[] TextureData;
 
 		/// <summary>
@@ -112,6 +123,9 @@ namespace TanksDropTwo
 			}
 		}
 
+		/// <summary>
+		/// The angle of the entity in radians.
+		/// </summary>
 		public float AngleInRadians
 		{
 			get
@@ -129,6 +143,8 @@ namespace TanksDropTwo
 			ScreenWidth = game.ScreenWidth;
 			ScreenHeight = game.ScreenHeight;
 			Game = game;
+			ID = Game.CurrentID;
+			Game.CurrentID++;
 		}
 
 		/// <summary>
@@ -166,6 +182,11 @@ namespace TanksDropTwo
 			return Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( Angle ) ), ( float )Math.Sin( MathHelper.ToRadians( Angle ) ) ) * speed );
 		}
 
+		/// <summary>
+		/// Moves the entity forward in the given angle.
+		/// </summary>
+		/// <param name="speed">The speed of movement.</param>
+		/// <param name="angle">The angle of movement, in degrees..</param>
 		public void Move( float speed, float angle )
 		{
 			Position = Forward( speed, angle );
@@ -260,13 +281,28 @@ namespace TanksDropTwo
 			}
 		}
 
+		public bool CollidesWith( GameEntity otherEntity )
+		{
+			Tuple<int, int> key = Tuple.Create<int, int>( Math.Min( ID, otherEntity.ID ), Math.Max( ID, otherEntity.ID ) );
+			if ( Game.Collisions.ContainsKey( key ) )
+			{
+				return Game.Collisions[ key ];
+			}
+			else
+			{
+				bool result = CollisionCheck( otherEntity );
+				Game.Collisions[ key ] = result;
+				return result;
+			}
+		}
+
 		// Copied from the internet, and set to match criteria.
 		/// <summary>
 		/// Returns whether or not this entity and the given one collide, pixel-wise.
 		/// </summary>
 		/// <param name="otherEntity">The entity to check collision with.</param>
 		/// <returns>Whether or not the two entities touch.</returns>
-		public bool CollidesWith( GameEntity otherEntity )
+		public bool CollisionCheck( GameEntity otherEntity )
 		{
 			int thisWidth = Texture.Width;
 			int thisHeight = Texture.Height;
