@@ -12,7 +12,7 @@ namespace TanksDropTwo
 	/// <summary>
 	/// A projectile which is red and sets its angle to always aim at the closest tank to it, including its owner.
 	/// </summary>
-	class HomingBullet : Projectile
+	public class HomingBullet : Projectile
 	{
 		private float turnSpeed;
 		private int noticeTime;

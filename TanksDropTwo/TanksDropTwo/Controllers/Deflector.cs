@@ -42,5 +42,9 @@ namespace TanksDropTwo.Controllers
 			d.LoadTexture( Game.Content );
 			return d;
 		}
+
+		public override void InstantAction( TimeSpan gameTime )
+		{
+		}
 	}
 }

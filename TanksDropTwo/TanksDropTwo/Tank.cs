@@ -78,6 +78,11 @@ namespace TanksDropTwo
 		private float originalAngle;
 
 		/// <summary>
+		/// The original tank scale.
+		/// </summary>
+		private float originalScale;
+
+		/// <summary>
 		/// The projectile loaded in the tank currently.
 		/// Used for projectile pickups.
 		/// </summary>
@@ -166,6 +171,7 @@ namespace TanksDropTwo
 			this.originalProjectile = originalProjectile;
 			this.ProjectileLimit = BulletLimit;
 			this.FenceLimit = FenceLimit;
+			this.originalScale = Scale;
 			this.Scale = Scale;
 			this.FenceLifeTime = FenceTime;
 			Reset( false );
@@ -425,6 +431,7 @@ namespace TanksDropTwo
 		{
 			Position = originalPosition;
 			Angle = originalAngle;
+			Scale = originalScale;
 			if ( proj )
 			{
 				nextProjectile = OriginalProjectile.Clone();
@@ -432,7 +439,7 @@ namespace TanksDropTwo
 			IsAlive = true;
 			NumberOfProjectiles = 0;
 			NumberOfFences = 0;
-			RemoveTankController( Controller );
+			RemoveTankController();
 			Controllers = new HashSet<GameController>();
 		}
 
@@ -457,18 +464,14 @@ namespace TanksDropTwo
 		}
 
 		/// <summary>
-		/// Removes the tank controller if is the current tank controller.
+		/// Removes the current tank controller.
 		/// </summary>
-		/// <param name="tankController">The tank controller to remove.</param>
-		public void RemoveTankController( TankController tankController )
+		public void RemoveTankController()
 		{
-			if ( tankController == Controller )
-			{
-				if ( Controller != null )
-					Controller.StopControl();
-				Controller = null;
-				Controllers.Remove( tankController );
-			}
+			if ( Controller != null )
+				Controller.StopControl();
+			Controllers.Remove( Controller );
+			Controller = null;
 		}
 
 		public override void Destroy( TimeSpan gameTime )

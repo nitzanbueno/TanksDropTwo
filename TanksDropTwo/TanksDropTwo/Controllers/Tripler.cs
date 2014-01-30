@@ -58,8 +58,8 @@ namespace TanksDropTwo.Controllers
 
 		public override bool Shoot( TimeSpan gameTime, Projectile shot )
 		{
-			Projectile rightShot = shot.Clone();
-			Projectile leftShot = shot.Clone();
+			Projectile rightShot = shot.TriplerClone( gameTime );
+			Projectile leftShot = shot.TriplerClone( gameTime );
 			rightShot.Angle += 45;
 			leftShot.Angle -= 45;
 			Game.QueueEntity( shot, rightShot, leftShot );

@@ -128,6 +128,7 @@
     <Compile Include="Controllers\Deflector.cs" />
     <Compile Include="Controllers\Minimize.cs" />
     <Compile Include="Controllers\Portal.cs" />
+    <Compile Include="Controllers\Rider.cs" />
     <Compile Include="Controllers\Roulette.cs" />
     <Compile Include="Controllers\Shockwave.cs" />
     <Compile Include="Controllers\SpeedBoost.cs" />
@@ -139,6 +140,7 @@
     <Compile Include="GameController.cs" />
     <Compile Include="Menus\Menu.cs" />
     <Compile Include="Menus\PauseMenu.cs" />
+    <Compile Include="Menus\SettingsMenu.cs" />
     <Compile Include="Pickup.cs" />
     <Compile Include="ProjectilePickup.cs" />
     <Compile Include="Projectiles\Bullet.cs" />
@@ -150,6 +152,7 @@
     <Compile Include="Projectiles\Projectile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="SuddenDeaths\ShrinkyDeath.cs" />
     <Compile Include="Tank.cs" />
     <Compile Include="TankController.cs" />
     <Compile Include="TankControllerPickup.cs" />

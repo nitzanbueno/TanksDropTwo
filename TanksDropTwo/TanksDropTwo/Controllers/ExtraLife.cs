@@ -34,7 +34,7 @@ namespace TanksDropTwo.Controllers
 
 		public override bool Hit( TimeSpan gameTime )
 		{
-			Owner.RemoveTankController( this );
+			Owner.RemoveTankController();
 			return false;
 		}
 

@@ -11,29 +11,15 @@ namespace TanksDropTwo.Controllers
 	{
 		List<Tank> Tanks;
 		Tank chosenTank;
-		bool isObliterated;
 
 		public override void Initialize( TanksDrop game )
 		{
 			Tanks = new List<Tank>();
 			base.Initialize( game );
-			isObliterated = false;
 		}
 
 		public override void InstantControl( GameEntity control, TimeSpan gameTime )
 		{
-			if ( !isObliterated )
-			{
-				if ( chosenTank.IsAlive )
-				{
-					chosenTank.Destroy( gameTime );
-				}
-				else
-				{
-					chosenTank.IsAlive = true;
-				}
-				isObliterated = true;
-			}
 		}
 
 		public override void LoadTexture( Microsoft.Xna.Framework.Content.ContentManager Content )
@@ -52,14 +38,22 @@ namespace TanksDropTwo.Controllers
 			if ( entity is Tank )
 			{
 				Tanks.Add( ( Tank )entity );
-				if ( Tanks.Count >= ( int )Game.Settings[ "Players" ].Item2 )
-				{
-					Random r = new Random();
-					chosenTank = Tanks[ r.Next( Tanks.Count ) ];
-				}
-				return true;
 			}
 			return false;
+		}
+
+		public override void InstantAction( TimeSpan gameTime )
+		{
+			Random r = new Random();
+			chosenTank = Tanks[ r.Next( Tanks.Count ) ];
+			if ( chosenTank.IsAlive )
+			{
+				chosenTank.Destroy( gameTime );
+			}
+			else
+			{
+				chosenTank.IsAlive = true;
+			}
 		}
 	}
 }

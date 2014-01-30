@@ -13,6 +13,7 @@ namespace TanksDropTwo
 		LazerHelper lastHelper;
 		bool hasCollided;
 		IEnumerable<GameEntity> Tanks;
+		private int p;
 
 		public Lazer( Tank Owner )
 			: base( Owner )
@@ -25,6 +26,11 @@ namespace TanksDropTwo
 		}
 
 		public Lazer() : this( Tank.blank ) { }
+
+		public Lazer( int lifeTime ) : this()
+		{
+			this.lifeTime = lifeTime;
+		}
 
 		public override void Initialize( TanksDrop game )
 		{
@@ -49,7 +55,16 @@ namespace TanksDropTwo
 			{
 				if ( ( Helpers.Count >= 200 || hasCollided ) && Helpers.Count > 0 )
 				{
-					Helpers.RemoveAt( 0 );
+					try
+					{
+						Helpers.RemoveAt( 0 );
+					}
+					catch ( Exception ) { }
+				}
+				if ( Helpers.Count <= 2 && hasCollided )
+				{
+					Helpers = new List<LazerHelper>();
+					lastHelper.Destroy( gameTime );
 				}
 				if ( !hasCollided )
 				{
@@ -100,7 +115,14 @@ namespace TanksDropTwo
 			Lazer l = new Lazer( owner );
 			l.Angle = Angle;
 			l.Position = Position;
+			l.lifeTime = lifeTime;
 			return l;
+		}
+
+		public override void Destroy( TimeSpan gameTime )
+		{
+			lastHelper.Destroy( gameTime );
+			base.Destroy( gameTime );
 		}
 	}
 
@@ -116,6 +138,7 @@ namespace TanksDropTwo
 			Initialize( Game );
 			LoadContent( Game.Content, Game.ScreenWidth, Game.ScreenHeight );
 			this.Destroyed = false;
+			this.lifeTime = lifeTime;
 		}
 
 		public void Move( HashSet<GameEntity> Entities )

@@ -11,6 +11,7 @@ using Microsoft.Xna.Framework.Media;
 using TanksDropTwo.Controllers;
 using System.IO;
 using TanksDropTwo.Menus;
+using TanksDropTwo.SuddenDeaths;
 
 namespace TanksDropTwo
 {
@@ -41,6 +42,9 @@ namespace TanksDropTwo
 		Projectile[] AvailableProjectiles;
 		TankController[] AvailableControllers;
 		ControllerEntity[] AvailableConEnts;
+
+		GameController[] SuddenDeaths;
+
 		Random r = new Random();
 
 		public Menu CurrentMenu;
@@ -121,6 +125,10 @@ namespace TanksDropTwo
 
 			LoadSetting( "ShockwaveRadius", 200.0F );
 
+			LoadSetting( "SuddenDeathTime", 10000 );
+
+			LoadSetting( "RiderTwist", 5F );
+
 			// Shows mouse
 			IsMouseVisible = true;
 
@@ -153,7 +161,8 @@ namespace TanksDropTwo
 			{
 				new HomingBullet( LoadPositiveSetting( "HomingBulletSpeed", ProjectileSpeed ), LoadPositiveSetting( "HomingBulletTurnSpeed", 5 ), TimeSpan.Zero, LoadPositiveSetting( "HomingBulletNoticeTime", 1000 ), LoadPositiveSetting( "HomingBulletTime", ProjectileTime ) ),
 				new Missile( LoadPositiveSetting( "MissileSpeed", ProjectileSpeed ), LoadPositiveSetting( "MissileTime", ProjectileTime ) ),
-				new Lazer(),
+				new Lazer( LoadPositiveSetting( "LazerTime", ProjectileTime ) ),
+				new Rider( LoadPositiveSetting( "RiderSpeed", ProjectileSpeed ), LoadPositiveSetting( "RiderTime", ProjectileTime ),LoadSetting("RiderDeath").ToLower() == "true" ),
 			};
 
 			AvailableControllers = new TankController[]
@@ -175,6 +184,14 @@ namespace TanksDropTwo
 				new Portal( LoadPositiveSetting( "PortalTime", ControllerTime ) ),
 				new BlackHole()
 			};
+
+			SuddenDeaths = new GameController[]
+			{
+				new ShrinkyDeath(),
+			};
+
+			QueueSuddenDeath();
+
 			base.Initialize();
 		}
 
@@ -213,6 +230,9 @@ namespace TanksDropTwo
 		}
 
 		#region Setting Functions
+		/// <summary>
+		/// Sets the Lines list using the settings.ini.
+		/// </summary>
 		private void Read()
 		{
 			Lines = new List<string>();
@@ -237,6 +257,32 @@ namespace TanksDropTwo
 			}
 		}
 
+		private string LoadSetting( string setting )
+		{
+			foreach ( string l in Lines )
+			{
+				if ( l != "" && l[ 0 ] != '#' && l[ 0 ] != '[' )
+				{
+					string[] Line = l.Split( '=' );
+					if ( Line[ 0 ].ToLower() == setting.ToLower() )
+					{
+						try
+						{
+							return Line[ 1 ];
+						}
+						catch ( Exception ) { }
+					}
+				}
+			}
+			return "";
+		}
+
+		/// <summary>
+		/// Loads the Colors in the settings.ini with the given setting.
+		/// </summary>
+		/// <param name="setting">The setting to load the Colors from/</param>
+		/// <param name="defaultSetting">The default value in case of failure.</param>
+		/// <returns>The loaded color.</returns>
 		private Colors LoadSetting( string setting, Colors defaultSetting )
 		{
 			string color = LoadSetting( setting );
@@ -284,26 +330,6 @@ namespace TanksDropTwo
 			{
 				return defaultKey;
 			}
-		}
-
-		private string LoadSetting( string setting )
-		{
-			foreach ( string l in Lines )
-			{
-				if ( l != "" && l[ 0 ] != '#' && l[ 0 ] != '[' )
-				{
-					string[] Line = l.Split( '=' );
-					if ( Line[ 0 ].ToLower() == setting.ToLower() )
-					{
-						try
-						{
-							return Line[ 1 ];
-						}
-						catch ( Exception ) { }
-					}
-				}
-			}
-			return "";
 		}
 
 		private string LoadSetting( string setting, string defaultSetting )
@@ -374,7 +400,11 @@ namespace TanksDropTwo
 			{
 				set = defaultSetting;
 			}
-			Settings.Add( setting, Tuple.Create<Type, object>( set.GetType(), set ) );
+			try
+			{
+				Settings.Add( setting, Tuple.Create<Type, object>( set.GetType(), set ) );
+			}
+			catch ( Exception ) { }
 			return set;
 		}
 
@@ -500,6 +530,7 @@ namespace TanksDropTwo
 					Entities.Add( entity );
 				}
 			}
+			QueueSuddenDeath();
 		}
 
 		/// <summary>
@@ -529,7 +560,7 @@ namespace TanksDropTwo
 		/// <summary>
 		/// Spawns a new pickup on the screen.
 		/// </summary>
-		protected void SpawnPickup( TimeSpan gameTime, bool blackHole = false )
+		protected void SpawnPickup( TimeSpan gameTime )
 		{
 			int ProjLen = AvailableProjectiles.Length;
 			int ConLen = AvailableControllers.Length;
@@ -648,9 +679,32 @@ namespace TanksDropTwo
 			MasterControllers.Remove( controller );
 		}
 
+		/// <summary>
+		/// Allows a function to be executed after specific milliseconds of delay.
+		/// </summary>
+		/// <param name="gameTime">The game time from which the delay starts.</param>
+		/// <param name="millisecs">The delay in milliseconds.</param>
+		/// <param name="function">The function to be executed when the delay ends.</param>
 		public void ScheduleTask( TimeSpan gameTime, int millisecs, Action function )
 		{
 			ScheduledTasks.Add( Tuple.Create( gameTime, millisecs, function ) );
+		}
+
+		Tuple<TimeSpan, int, Action> SuddenDeathTask;
+
+		public void QueueSuddenDeath()
+		{
+			if ( ( int )Settings[ "SuddenDeathTime" ].Item2 > 0 )
+			{
+				ScheduledTasks.Remove( SuddenDeathTask );
+				SuddenDeathTask = Tuple.Create<TimeSpan, int, Action>( currentGameTime, ( int )Settings[ "SuddenDeathTime" ].Item2, SpawnSuddenDeath );
+				ScheduledTasks.Add( SuddenDeathTask );
+			}
+		}
+
+		public void SpawnSuddenDeath()
+		{
+			PutController( SuddenDeaths[ r.Next( SuddenDeaths.Length ) ] );
 		}
 	}
 }

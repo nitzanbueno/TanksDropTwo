@@ -30,11 +30,8 @@ namespace TanksDropTwo.Controllers
 
 		public override bool ProjectileHit( Projectile hitter, TimeSpan gameTime )
 		{
-			if ( hitter is Bullet || hitter is LazerHelper )
-			{
-				hitter.Angle += 180;
-				hitter.Move( 2 );
-			}
+			hitter.Angle += 180;
+			hitter.Move( 2 );
 			return false;
 		}
 

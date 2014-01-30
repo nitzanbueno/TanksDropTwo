@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 
 namespace TanksDropTwo
 {
-	class Missile : Projectile
+	public class Missile : Projectile
 	{
 		bool hasExploded;
 		private int p;

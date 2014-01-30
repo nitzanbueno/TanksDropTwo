@@ -35,7 +35,8 @@ namespace TanksDropTwo.Controllers
 		public override bool OnPlaceFence( TimeSpan gameTime )
 		{
 			isDestructed = true;
-			Owner.RemoveTankController( this );
+			Owner.RemoveTankController();
+			InstantAction( gameTime );
 			Game.StopController( this );
 			return false;
 		}
@@ -56,6 +57,12 @@ namespace TanksDropTwo.Controllers
 		/// <param name="control">The entity to change.</param>
 		/// <param name="gameTime">The current game time.</param>
 		public abstract void InstantControl( GameEntity control, TimeSpan gameTime );
+
+		/// <summary>
+		/// Called when the owner places a fence.
+		/// </summary>
+		/// <param name="gameTime">The current game time.</param>
+		public abstract void InstantAction( TimeSpan gameTime );
 
 		public override void Draw( SpriteBatch spriteBatch )
 		{

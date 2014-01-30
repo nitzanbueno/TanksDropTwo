@@ -41,7 +41,7 @@ namespace TanksDropTwo
 		{
 			if ( control == Owner && ( gameTime - spawnTime ).TotalMilliseconds > lifeTime && lifeTime > 0 )
 			{
-				Owner.RemoveTankController( this );
+				Owner.RemoveTankController();
 				StopControl();
 			}
 			return true;

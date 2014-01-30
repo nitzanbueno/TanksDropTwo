@@ -27,13 +27,13 @@ namespace TanksDropTwo
 
 		protected Projectile() { }
 
-		public void Initialize( TanksDrop game, TimeSpan gameTime )
+		public virtual void Initialize( TanksDrop game, TimeSpan gameTime )
 		{
 			spawnTime = gameTime;
 			Initialize( game );
 		}
 
-		public void Initialize( TanksDrop game, TimeSpan gameTime, Tank owner )
+		public virtual void Initialize( TanksDrop game, TimeSpan gameTime, Tank owner )
 		{
 			this.owner = owner;
 			Initialize( game, gameTime );
@@ -95,5 +95,10 @@ namespace TanksDropTwo
 		}
 
 		public abstract Projectile Clone();
+
+		public virtual Projectile TriplerClone( TimeSpan gameTime )
+		{
+			return Clone();
+		}
 	}
 }

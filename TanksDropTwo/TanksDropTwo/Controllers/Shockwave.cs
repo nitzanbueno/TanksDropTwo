@@ -51,7 +51,7 @@ namespace TanksDropTwo.Controllers
 			controller = new Knockback( Owner, ( float )Game.Settings[ "ShockwaveRadius" ].Item2 );
 			Game.AppendController( controller );
 			Game.ScheduleTask( gameTime, 500, Stop );
-			Owner.RemoveTankController( this );
+			Owner.RemoveTankController();
 			return false;
 		}
 
@@ -97,6 +97,11 @@ namespace TanksDropTwo.Controllers
 
 		public override bool Control( GameEntity control, TimeSpan gameTime )
 		{
+			if ( control is Projectile )
+			{
+				control.Angle = ( float )control.Variables[ angleString ];
+			}
+
 			float speed = ( float )control.Variables[ speedString ];
 			float currentdist = ( float )control.Variables[ currentdistString ];
 			speed *= speedFactor;

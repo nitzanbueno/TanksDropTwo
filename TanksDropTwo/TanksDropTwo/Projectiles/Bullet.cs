@@ -12,7 +12,7 @@ namespace TanksDropTwo
 	/// <summary>
 	/// A projectile which is black and kills the tank it first hits, including its owner.
 	/// </summary>
-	class Bullet : Projectile
+	public class Bullet : Projectile
 	{
 		public Bullet( float Speed, Tank Owner, TimeSpan gameTime, int lifeTime )
 			: base( Owner, gameTime )

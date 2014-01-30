@@ -302,20 +302,25 @@ namespace TanksDropTwo
 			}
 		}
 
+		public bool CollisionCheck( GameEntity otherEntity )
+		{
+			return CollisionCheck( otherEntity, Texture, TextureData, SourceRectangle );
+		}
+
 		// Copied from the internet, and set to match criteria.
 		/// <summary>
 		/// Returns whether or not this entity and the given one collide, pixel-wise.
 		/// </summary>
 		/// <param name="otherEntity">The entity to check collision with.</param>
 		/// <returns>Whether or not the two entities touch.</returns>
-		public bool CollisionCheck( GameEntity otherEntity )
+		public bool CollisionCheck( GameEntity otherEntity, Texture2D Tex, Color[] TexD, Rectangle? sr )
 		{
-			int thisWidth = Texture.Width;
-			int thisHeight = Texture.Height;
-			if ( SourceRectangle.HasValue )
+			int thisWidth = Tex.Width;
+			int thisHeight = Tex.Height;
+			if ( sr.HasValue )
 			{
-				thisWidth = SourceRectangle.Value.Width;
-				thisHeight = SourceRectangle.Value.Height;
+				thisWidth = sr.Value.Width;
+				thisHeight = sr.Value.Height;
 			}
 
 			int otherWidth = otherEntity.Texture.Width;
@@ -351,7 +356,7 @@ namespace TanksDropTwo
 			{
 				// Check collision with entity
 				return IntersectPixels( thisTransform, thisWidth,
-									thisHeight, TextureData,
+									thisHeight, TexD,
 									otherTransform, otherWidth,
 									otherHeight, otherEntity.TextureData );
 			}
