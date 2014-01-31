@@ -209,14 +209,14 @@ namespace TanksDropTwo
 			if ( keyState.IsKeyDown( keys.KeyForward ) )
 			{
 				// Move forward
-				newPosition = BoundTank( Forward( Speed ) );
+				newPosition = Bound( Forward( Speed ) );
 			}
 
 			if ( keyState.IsKeyDown( keys.KeyBackward ) )
 			{
 				// Move backward
 				newPosition = Forward( -Speed );
-				newPosition = BoundTank( newPosition );
+				newPosition = Bound( newPosition );
 				IsGoingBackwards = true;
 			}
 			else
@@ -341,18 +341,6 @@ namespace TanksDropTwo
 				base.Draw( gameTime, spriteBatch );
 			}
 			spriteBatch.DrawString( Game.Score, Score.ToString(), originalPosition, Color.White, 0, new Vector2( 16, 16 ), 1, 0, 1 );
-		}
-
-		/// <summary>
-		/// Gives the position of the tank when bounded to the dimensions of the screen.
-		/// </summary>
-		/// <param name="Pos">The current position.</param>
-		/// <returns>The bounded position.</returns>
-		public Vector2 BoundTank( Vector2 Pos )
-		{
-			Pos.X = Tools.Mod( Pos.X + 50, ScreenWidth + 100 ) - 50;
-			Pos.Y = Tools.Mod( Pos.Y + 50, ScreenHeight + 100 ) - 50;
-			return Pos;
 		}
 
 		public override void LoadContent( ContentManager Content, int ScreenWidth, int ScreenHeight )

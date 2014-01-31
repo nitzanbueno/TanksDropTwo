@@ -9,10 +9,27 @@ using TanksDropTwo.Controllers;
 
 namespace TanksDropTwo
 {
+	/// <summary>
+	/// A projectile that turns the user INTO the projectile!
+	/// </summary>
 	public class Rider : Projectile
 	{
+		/// <summary>
+		/// Did the tank kill another tank.
+		/// Used to know whether to kill the tank in the end or not.
+		/// </summary>
 		public bool didDestroyTank;
+
+		/// <summary>
+		/// The rider controller.
+		/// Essentially useless but makes the tank lose control during flight.
+		/// </summary>
 		RiderCon Controller;
+
+		/// <summary>
+		/// True if the tank's controller is a tripler.
+		/// Used to triple the rider.
+		/// </summary>
 		bool ControllerIsTripler;
 		List<Rider> otherRiders;
 		public bool isOtherRider;

@@ -49,8 +49,10 @@ namespace TanksDropTwo.Controllers
 		public override bool OnPlaceFence( TimeSpan gameTime )
 		{
 			controller = new Knockback( Owner, ( float )Game.Settings[ "ShockwaveRadius" ].Item2 );
+			controller.Initialize( Game );
 			Game.AppendController( controller );
 			Game.ScheduleTask( gameTime, 500, Stop );
+			Game.ScheduleTask( gameTime, 2000, Remove );
 			Owner.RemoveTankController();
 			return false;
 		}
@@ -58,6 +60,11 @@ namespace TanksDropTwo.Controllers
 		public void Stop()
 		{
 			Game.StopController( controller );
+		}
+
+		public void Remove()
+		{
+			Game.RemoveController( controller, x => true );
 		}
 
 		public override void StopControl()
@@ -79,14 +86,16 @@ namespace TanksDropTwo.Controllers
 		private const string speedString = "KnockbackCurrentSpeed";
 		private const string angleString = "KnockbackAngle";
 		private float speedFactor = 0.87F;
+		private const float epsilon = 0.1F;
 
 		public Knockback( Tank Owner, float MaxDistance )
 			: this( Owner, MaxDistance, 0.87F )
 		{
-			
+
 		}
 
-		public Knockback( Tank Owner, float MaxDistance, float SpeedFactor ) : base()
+		public Knockback( Tank Owner, float MaxDistance, float SpeedFactor )
+			: base()
 		{
 			this.owner = Owner;
 			this.position = Owner.Position;
@@ -104,19 +113,36 @@ namespace TanksDropTwo.Controllers
 
 			float speed = ( float )control.Variables[ speedString ];
 			float currentdist = ( float )control.Variables[ currentdistString ];
+			float ang = ( float )control.Variables[ angleString ];
 			speed *= speedFactor;
 			currentdist += speed;
 			float dist = Vector2.Distance( position, control.Position );
 			if ( dist <= currentdist )
 			{
-				control.Move( speed, ( float )control.Variables[ angleString ] );
+				control.Move( speed, ang );
+				control.Position = control.Bound( control.Position );
 				dist += speed;
+			}
+
+			if ( control is Tank && ( ( Tank )control ).Controller != null )
+			{
+				TankController t = ( TankController )( ( Tank )control ).Controller.Clone();
+				( ( Tank )control ).RemoveTankController();
+				TankControllerPickup p = new TankControllerPickup( t, 3000 );
+				float d = maxdist;
+				p.Position = control.Bound( control.Forward( d, ang ) );
+				p.Initialize( Game, gameTime );
+				p.Variables[ speedString ] = speed;
+				p.Variables[ currentdistString ] = currentdist + d;
+				p.Variables[ angleString ] = ang;
+				p.AppendController( this );
+				Game.QueueEntity( p );
 			}
 
 			control.Variables[ speedString ] = speed;
 			control.Variables[ currentdistString ] = currentdist;
 
-			if ( currentdist > maxdist || speed == 0 )
+			if ( currentdist >= maxdist - epsilon || speed <= epsilon )
 			{
 				control.Variables.Remove( angleString );
 				control.Variables.Remove( speedString );

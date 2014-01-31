@@ -154,6 +154,18 @@ namespace TanksDropTwo
 		}
 
 		/// <summary>
+		/// Gives the position of the entity when bounded to the dimensions of the screen.
+		/// </summary>
+		/// <param name="Pos">The current position.</param>
+		/// <returns>The bounded position.</returns>
+		public Vector2 Bound( Vector2 Pos )
+		{
+			Pos.X = Tools.Mod( Pos.X + 50, ScreenWidth + 100 ) - 50;
+			Pos.Y = Tools.Mod( Pos.Y + 50, ScreenHeight + 100 ) - 50;
+			return Pos;
+		}
+
+		/// <summary>
 		/// The scale in relation to the texture.
 		/// </summary>
 		public float Scale = 1;
@@ -203,7 +215,7 @@ namespace TanksDropTwo
 		/// </summary>
 		/// <param name="speed">The amount of pixels to move</param>
 		/// <returns>The moved position.</returns>
-		protected Vector2 Forward( float speed, float angle )
+		public Vector2 Forward( float speed, float angle )
 		{
 			return Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( angle ) ), ( float )Math.Sin( MathHelper.ToRadians( angle ) ) ) * speed );
 		}
