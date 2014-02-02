@@ -70,10 +70,15 @@ namespace TanksDropTwo
 
 		public override void Update( TimeSpan gameTime, HashSet<GameEntity> Entities, Microsoft.Xna.Framework.Input.KeyboardState keyState )
 		{
-			owner.Angle += ( float )( Game.Settings[ "RiderTwist" ].Item2 );
+			float a = ( float )( Game.Settings[ "RiderTwist" ].Item2 );
+			owner.Angle += a;
 			Move( Speed );
 			owner.Position = Position;
 			CheckBounces();
+			if ( ( Position.Y < -1 || Position.X < -1 || Position.Y > ScreenHeight + 1 || Position.X > ScreenWidth + 1 ) && bAxis == 0 )
+			{
+				Position = RandomPosition();
+			}
 			foreach ( GameEntity entity in Entities )
 			{
 				if ( entity != owner && !( entity is Rider ) && CollisionCheck( entity, owner.Texture, owner.TextureData, owner.SourceRectangle ) )
@@ -82,6 +87,14 @@ namespace TanksDropTwo
 					{
 						didDestroyTank = true;
 						( ( Tank )entity ).ProjectileHit( this, gameTime );
+					}
+					else if ( entity is Fence )
+					{
+						Fence HitFence = ( Fence )entity;
+						float fangle = HitFence.Angle < 180 ? HitFence.Angle + 180 : HitFence.Angle;
+						// Reflects the projectile from the fence magically.
+						Angle = ( 2 * fangle ) - Angle;
+						Move( Speed );
 					}
 					else
 					{

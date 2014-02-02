@@ -79,7 +79,7 @@ namespace TanksDropTwo.Controllers
 
 		public override bool AddEntity( GameEntity entity )
 		{
-			if ( entity is Projectile && !( entity is Lazer || entity is LazerHelper ) )
+			if ( entity is Projectile && !( entity is Rider || entity is Lazer || entity is LazerHelper ) )
 			{
 				return true;
 			}

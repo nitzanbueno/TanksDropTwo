@@ -17,12 +17,12 @@ namespace TanksDropTwo.Controllers
 		{
 			Random r = new Random();
 			BlackHole hole = new BlackHole();
-			hole.Position = new Vector2( r.Next( game.ScreenWidth ), r.Next( game.ScreenHeight ) );
 			Game = game;
-			hole.Controller = new BlackHoleController( hole.Position, hole );
-			hole.Controller.Initialize( game );
 			hole.Initialize( game );
 			hole.LoadContent( game.Content, game.ScreenWidth, game.ScreenHeight );
+			hole.Position = hole.RandomPosition();
+			hole.Controller = new BlackHoleController( hole.Position, hole );
+			hole.Controller.Initialize( game );
 			hole.VacuumSpeed = 0;
 			hole.spawnTime = gameTime;
 			hole.lifeTime = 10000;

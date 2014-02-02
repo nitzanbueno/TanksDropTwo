@@ -4,11 +4,17 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
 
 namespace TanksDropTwo
 {
 	public abstract class Projectile : GameEntity
 	{
+		/// <summary>
+		/// Bounce axis.
+		/// </summary>
+		protected int bAxis;
+
 		public float Speed;
 		protected Tank owner;
 
@@ -67,10 +73,16 @@ namespace TanksDropTwo
 						Fence HitFence = ( Fence )entity;
 						// The angle will always face upwards.
 						float fangle = HitFence.Angle < 180 ? HitFence.Angle + 180 : HitFence.Angle;
-						// Reflects the projectile from the fence magically.
+						// Reflects the projectile from the fence.
 						Angle = ( 2 * fangle ) - Angle;
-						// I actually thought of this line myself, but I have no idea how it works.
-						// It just does and I don't care.
+						// This line works on the following concept:
+						// I need a symmetrical angle to my current one.
+						// So, I will solve the following equation:
+						// fangle - Angle = NewAngle - fangle
+						// That's also why the angle has to face upwards.
+						// The result is: NewAngle = 2 * fangle - Angle.
+						Move( Speed );
+						// Makes sure that the projectile doesn't get stuck inside.
 					}
 				}
 			}
@@ -78,13 +90,21 @@ namespace TanksDropTwo
 
 		protected void CheckBounces()
 		{
+			int olda = bAxis;
+			bAxis = 0;
+			if ( olda > 0 )
+			{
+				return;
+			}
 			if ( Position.X > ScreenWidth || Position.X < 0 )
 			{
 				Angle = 540 - Angle;
+				bAxis += 1;
 			}
 			if ( Position.Y > ScreenHeight || Position.Y < 0 )
 			{
 				Angle = 360 - Angle;
+				bAxis += 2;
 			}
 		}
 

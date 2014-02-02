@@ -604,6 +604,12 @@ namespace TanksDropTwo
 			return false;
 		}
 
+		public Vector2 RandomPosition()
+		{
+			Random r = new Random();
+			return new Vector2( r.Next( ScreenWidth ), r.Next( ScreenHeight ) );
+		}
+
 		public virtual void Destroy( TimeSpan gameTime )
 		{
 			Game.RemoveEntity( this );

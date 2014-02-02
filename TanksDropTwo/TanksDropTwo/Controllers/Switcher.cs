@@ -7,6 +7,9 @@ using Microsoft.Xna.Framework;
 
 namespace TanksDropTwo.Controllers
 {
+	/// <summary>
+	/// A UseableController that switches the user with a random living tank.
+	/// </summary>
 	class Switcher : UseableController
 	{
 		List<Tank> switchableTanks;
@@ -59,17 +62,20 @@ namespace TanksDropTwo.Controllers
 			if ( switchableTanks.Count <= 0 )
 				return;
 			Tank switchedTank = switchableTanks[ r.Next( switchableTanks.Count ) ];
+			if ( !switchedTank.IsAlive )
+			{
+				switchableTanks.Remove( switchedTank );
+				InstantAction( gameTime );
+				return;
+			}
 			Vector2 OwnerPos = Owner.Position;
-			float OwnerScale = Owner.Scale;
 			float OwnerAngle = Owner.Angle;
 			bool OwnerAlive = Owner.IsAlive;
 			Owner.Position = switchedTank.Position;
-			Owner.Scale = switchedTank.Scale;
 			Owner.Angle = switchedTank.Angle;
 			Owner.IsAlive = switchedTank.IsAlive;
 			switchedTank.Position = OwnerPos;
 			switchedTank.Angle = OwnerAngle;
-			switchedTank.Scale = OwnerScale;
 			switchedTank.IsAlive = OwnerAlive;
 			switchableTanks = new List<Tank>();
 		}
