@@ -138,6 +138,8 @@ namespace TanksDropTwo
 		{
 			Rider r = new Rider( Speed, lifeTime, die );
 			r.owner = owner;
+			r.Angle = Angle;
+			r.Position = Position;
 			r.spawnTime = spawnTime;
 			r.LoadContent( Game.Content, Game.ScreenWidth, Game.ScreenHeight );
 			r.Initialize( Game );
