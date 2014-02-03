@@ -83,6 +83,11 @@ namespace TanksDropTwo
 		private float originalScale;
 
 		/// <summary>
+		/// The original tank speed.
+		/// </summary>
+		private float originalSpeed;
+
+		/// <summary>
 		/// The projectile loaded in the tank currently.
 		/// Used for projectile pickups.
 		/// </summary>
@@ -161,13 +166,14 @@ namespace TanksDropTwo
 
 		public Tank( string name, Vector2 startPosition, float startAngle, KeySet keys, Colors color, float speed, Projectile originalProjectile, int BulletLimit, int FenceLimit, int FenceTime, float Scale )
 		{
-			Name = name;
-			Speed = speed;
-			originalPosition = startPosition;
-			originalAngle = startAngle;
+			this.Name = name;
+			this.Speed = speed;
+			this.originalSpeed = speed;
+			this.originalPosition = startPosition;
+			this.originalAngle = startAngle;
 			this.keys = keys;
 			this.color = color;
-			Origin = new Vector2( 16, 16 );
+			this.Origin = new Vector2( 16, 16 );
 			this.originalProjectile = originalProjectile;
 			this.ProjectileLimit = BulletLimit;
 			this.FenceLimit = FenceLimit;
@@ -302,8 +308,8 @@ namespace TanksDropTwo
 			float dist = Vector2.Distance( Vector2.Zero, Origin );
 			float sideDeg = 40F;
 			Fence newFence = new Fence(
-				Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( Angle + sideDeg ) ), ( float )Math.Sin( MathHelper.ToRadians( Angle + sideDeg ) ) ) * dist * 2.5F ),
-				Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( Angle - sideDeg ) ), ( float )Math.Sin( MathHelper.ToRadians( Angle - sideDeg ) ) ) * dist * 2.5F ), this, 16, gameTime, FenceLifeTime );
+				Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( Angle + sideDeg ) ), ( float )Math.Sin( MathHelper.ToRadians( Angle + sideDeg ) ) ) * dist * Scale * 1.5F ),
+				Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( Angle - sideDeg ) ), ( float )Math.Sin( MathHelper.ToRadians( Angle - sideDeg ) ) ) * dist * Scale * 1.5F ), this, 16, gameTime, FenceLifeTime );
 			newFence.Initialize( Game );
 			NumberOfFences++;
 			Game.QueueEntity( newFence );
@@ -420,6 +426,7 @@ namespace TanksDropTwo
 			Position = originalPosition;
 			Angle = originalAngle;
 			Scale = originalScale;
+			Speed = originalSpeed;
 			if ( proj )
 			{
 				nextProjectile = OriginalProjectile.Clone();
