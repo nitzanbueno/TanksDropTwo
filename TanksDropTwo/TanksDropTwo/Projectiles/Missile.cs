@@ -4,23 +4,38 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 
 namespace TanksDropTwo
 {
+	/// <summary>
+	/// A missile that blows up with an explosion after the tank presses the shoot button or destroyed.
+	/// </summary>
 	public class Missile : Projectile
 	{
 		bool hasExploded;
-		private int p;
-		private int p_2;
 
-		public Missile( Tank Owner, float speed, int lifeTime )
+		MissileController con;
+
+		Keys keyShoot;
+
+		public Missile( Tank Owner, float speed )
 			: base( Owner )
 		{
 			this.Speed = speed;
-			this.lifeTime = lifeTime;
+			this.lifeTime = -1;
 		}
 
-		public Missile( float speed, int lifeTime ) : this( Tank.blank, speed, lifeTime ) { }
+		public Missile( float speed ) : this( Tank.blank, speed ) { }
+
+		public override void Initialize( TanksDrop game, TimeSpan gameTime, Tank owner )
+		{
+			keyShoot = owner.Keys.KeyShoot;
+			con = new MissileController( owner, this, keyShoot );
+			owner.Keys.KeyShoot = Keys.None;
+			owner.AppendController( con );
+			base.Initialize( game, gameTime, owner );
+		}
 
 		public override void Initialize( TanksDrop game )
 		{
@@ -46,13 +61,14 @@ namespace TanksDropTwo
 				explod.LoadContent( Game.Content, ScreenWidth, ScreenHeight );
 				Game.QueueEntity( explod );
 				hasExploded = true;
+				con.conCount = 1;
 			}
 			base.Destroy( gameTime );
 		}
 
 		public override void Draw( TimeSpan gameTime, SpriteBatch spriteBatch )
 		{
-			spriteBatch.Draw( Texture, Position, SourceRectangle, Color.White, AngleInRadians + (float)Math.PI / 2, Origin, Scale, SpriteEffects.None, 0 );
+			spriteBatch.Draw( Texture, Position, SourceRectangle, Color.White, AngleInRadians + ( float )Math.PI / 2, Origin, Scale, SpriteEffects.None, 0 );
 			foreach ( GameController c in Controllers )
 			{
 				c.Draw( spriteBatch );
@@ -68,12 +84,61 @@ namespace TanksDropTwo
 
 		public override Projectile Clone()
 		{
-			Missile m = new Missile( owner, Speed, lifeTime );
+			Missile m = new Missile( owner, Speed );
 			m.Position = Position;
 			m.Angle = Angle;
 			m.Initialize( Game );
 			m.LoadContent( Game.Content, Game.ScreenWidth, Game.ScreenHeight );
 			return m;
+		}
+	}
+
+	/// <summary>
+	/// The missile helper controller.
+	/// </summary>
+	public class MissileController : GameController
+	{
+		Missile missile;
+		Tank owner;
+		KeyboardState prevKeyState;
+		Keys shoot;
+		public int conCount;
+
+		public MissileController( Tank owner, Missile missile, Keys keyShoot )
+		{
+			this.owner = owner;
+			this.missile = missile;
+			this.shoot = keyShoot;
+			this.prevKeyState = new KeyboardState( keyShoot );
+			this.conCount = 0;
+		}
+
+		public override bool Control( GameEntity control, TimeSpan gameTime, KeyboardState keyState )
+		{
+			if ( keyState.IsKeyDown( shoot ) && prevKeyState.IsKeyUp( shoot ) )
+			{
+				missile.Destroy( gameTime );
+			}
+			prevKeyState = keyState;
+			if ( conCount != 0 )
+			{
+				conCount++;
+			}
+			if ( conCount > 5 )
+			{
+				control.RemoveController( this );
+				owner.Keys.KeyShoot = shoot;
+			}
+			return true;
+		}
+
+		public override bool AddEntity( GameEntity entity )
+		{
+			return entity == owner;
+		}
+
+		public override void Draw( SpriteBatch spriteBatch )
+		{
 		}
 	}
 }

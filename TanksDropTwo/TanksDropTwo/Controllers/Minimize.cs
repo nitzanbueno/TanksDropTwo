@@ -63,13 +63,13 @@ namespace TanksDropTwo.Controllers
 
 		public override void Draw( Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch ) { }
 
-		public override bool Control( GameEntity control, TimeSpan gameTime )
+		public override bool Control( GameEntity control, TimeSpan gameTime, Microsoft.Xna.Framework.Input.KeyboardState keyState )
 		{
 			if ( control == Owner && !isDone )
 			{
 				Owner.Scale = MiniTankScale;
 			}
-			base.Control( control, gameTime );
+			base.Control( control, gameTime, keyState );
 			return true;
 		}
 

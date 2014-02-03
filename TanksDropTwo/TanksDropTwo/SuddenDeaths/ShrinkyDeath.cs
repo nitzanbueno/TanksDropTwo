@@ -7,7 +7,7 @@ namespace TanksDropTwo.SuddenDeaths
 {
 	public class ShrinkyDeath : GameController
 	{
-		public override bool Control( GameEntity control, TimeSpan gameTime )
+		public override bool Control( GameEntity control, TimeSpan gameTime, Microsoft.Xna.Framework.Input.KeyboardState keyState )
 		{
 			Tank tank = ( Tank )control;
 			tank.RemoveTankController();

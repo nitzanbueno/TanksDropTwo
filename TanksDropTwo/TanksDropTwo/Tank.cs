@@ -34,7 +34,7 @@ namespace TanksDropTwo
 		/// <summary>
 		/// The keys of the tank.
 		/// </summary>
-		private KeySet keys;
+		public KeySet Keys;
 
 		/// <summary>
 		/// The color of the tank.
@@ -171,7 +171,7 @@ namespace TanksDropTwo
 			this.originalSpeed = speed;
 			this.originalPosition = startPosition;
 			this.originalAngle = startAngle;
-			this.keys = keys;
+			this.Keys = keys;
 			this.color = color;
 			this.Origin = new Vector2( 16, 16 );
 			this.originalProjectile = originalProjectile;
@@ -212,13 +212,13 @@ namespace TanksDropTwo
 			Vector2 newPosition = Position;
 			float newAngle = Angle;
 
-			if ( keyState.IsKeyDown( keys.KeyForward ) )
+			if ( keyState.IsKeyDown( Keys.KeyForward ) )
 			{
 				// Move forward
 				newPosition = Bound( Forward( Speed ) );
 			}
 
-			if ( keyState.IsKeyDown( keys.KeyBackward ) )
+			if ( keyState.IsKeyDown( Keys.KeyBackward ) )
 			{
 				// Move backward
 				newPosition = Forward( -Speed );
@@ -230,13 +230,13 @@ namespace TanksDropTwo
 				IsGoingBackwards = false;
 			}
 
-			if ( keyState.IsKeyDown( keys.KeyLeft ) )
+			if ( keyState.IsKeyDown( Keys.KeyLeft ) )
 			{
 				// Turn left
 				newAngle -= 5;
 			}
 
-			if ( keyState.IsKeyDown( keys.KeyRight ) )
+			if ( keyState.IsKeyDown( Keys.KeyRight ) )
 			{
 				// Turn right
 				newAngle += 5;
@@ -274,12 +274,12 @@ namespace TanksDropTwo
 				Angle = newAngle;
 			}
 
-			if ( isKeyPressed( keyState, keys.KeyShoot ) && IsAlive )
+			if ( isKeyPressed( keyState, Keys.KeyShoot ) && IsAlive )
 			{
 				Shoot( gameTime );
 			}
 
-			if ( isKeyPressed( keyState, keys.KeyPlace ) )
+			if ( isKeyPressed( keyState, Keys.KeyPlace ) )
 			{
 				CheckPlaceFence( gameTime );
 			}

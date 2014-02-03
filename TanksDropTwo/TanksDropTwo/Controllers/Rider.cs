@@ -158,7 +158,7 @@ namespace TanksDropTwo
 
 	public class RiderCon : GameController
 	{
-		public override bool Control( GameEntity control, TimeSpan gameTime )
+		public override bool Control( GameEntity control, TimeSpan gameTime, Microsoft.Xna.Framework.Input.KeyboardState keyState )
 		{
 			return false;
 		}

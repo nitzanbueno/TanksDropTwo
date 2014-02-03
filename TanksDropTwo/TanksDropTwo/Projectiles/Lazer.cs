@@ -13,7 +13,6 @@ namespace TanksDropTwo
 		LazerHelper lastHelper;
 		bool hasCollided;
 		IEnumerable<GameEntity> Tanks;
-		private int p;
 
 		public Lazer( Tank Owner )
 			: base( Owner )

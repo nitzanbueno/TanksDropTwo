@@ -37,7 +37,7 @@ namespace TanksDropTwo
 
 		public abstract void LoadTexture( ContentManager Content );
 
-		public override bool Control( GameEntity control, TimeSpan gameTime )
+		public override bool Control( GameEntity control, TimeSpan gameTime, Microsoft.Xna.Framework.Input.KeyboardState keyState )
 		{
 			if ( control == Owner && ( gameTime - spawnTime ).TotalMilliseconds > lifeTime && lifeTime > 0 )
 			{

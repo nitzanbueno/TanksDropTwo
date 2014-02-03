@@ -104,7 +104,7 @@ namespace TanksDropTwo.Controllers
 			this.speedFactor = SpeedFactor;
 		}
 
-		public override bool Control( GameEntity control, TimeSpan gameTime )
+		public override bool Control( GameEntity control, TimeSpan gameTime, Microsoft.Xna.Framework.Input.KeyboardState keyState )
 		{
 			if ( control is Projectile )
 			{

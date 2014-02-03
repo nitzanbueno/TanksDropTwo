@@ -47,10 +47,10 @@ namespace TanksDropTwo.Controllers
 			return true;
 		}
 
-		public override bool Control( GameEntity control, TimeSpan gameTime )
+		public override bool Control( GameEntity control, TimeSpan gameTime, Microsoft.Xna.Framework.Input.KeyboardState keyState )
 		{
 			Owner.Speed = OriginalSpeed * factor;
-			return base.Control( control, gameTime );
+			return base.Control( control, gameTime, keyState );
 		}
 
 		public override bool OnPlaceFence( TimeSpan gameTime )

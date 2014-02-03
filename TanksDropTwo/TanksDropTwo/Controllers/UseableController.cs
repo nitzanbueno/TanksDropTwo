@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace TanksDropTwo.Controllers
 {
@@ -41,7 +42,7 @@ namespace TanksDropTwo.Controllers
 			return false;
 		}
 
-		public override bool Control( GameEntity control, TimeSpan gameTime )
+		public override bool Control( GameEntity control, TimeSpan gameTime, KeyboardState keyState )
 		{
 			if ( isDestructed )
 			{

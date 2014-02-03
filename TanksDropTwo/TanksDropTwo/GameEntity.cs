@@ -235,7 +235,7 @@ namespace TanksDropTwo
 			HashSet<GameController> ControllersCopy = new HashSet<GameController>( Controllers );
 			foreach ( GameController controller in ControllersCopy )
 			{
-				ShouldUpdate = ShouldUpdate && controller.Control( this, gameTime );
+				ShouldUpdate = ShouldUpdate && controller.Control( this, gameTime, keyState );
 			}
 			if ( ShouldUpdate )
 			{
