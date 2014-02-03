@@ -15,12 +15,17 @@ namespace TanksDropTwo
 		/// </summary>
 		protected int bAxis;
 
+		/// <summary>
+		/// Determines whether or not to remove a tank's bullet number when destroyed.
+		/// </summary>
+		public bool doesCountAsTankProjectile;
+
 		public float Speed;
 		protected Tank owner;
 
 		public Projectile( Tank Owner, TimeSpan gameTime )
+			: this( Owner )
 		{
-			owner = Owner;
 			spawnTime = gameTime;
 		}
 
@@ -29,6 +34,7 @@ namespace TanksDropTwo
 		public Projectile( Tank Owner )
 		{
 			owner = Owner;
+			doesCountAsTankProjectile = true;
 		}
 
 		protected Projectile() { }
@@ -110,7 +116,10 @@ namespace TanksDropTwo
 
 		public override void Destroy( TimeSpan gameTime )
 		{
-			owner.NumberOfProjectiles--;
+			if ( doesCountAsTankProjectile )
+			{
+				owner.NumberOfProjectiles--;
+			}
 			Game.RemoveEntity( this );
 		}
 
@@ -118,7 +127,9 @@ namespace TanksDropTwo
 
 		public virtual Projectile TriplerClone( TimeSpan gameTime )
 		{
-			return Clone();
+			Projectile p = Clone();
+			p.doesCountAsTankProjectile = false;
+			return p;
 		}
 	}
 }
