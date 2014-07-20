@@ -74,6 +74,11 @@ namespace TanksDropTwo.Controllers
 		public override void Draw( SpriteBatch spriteBatch )
 		{
 		}
+
+		public override bool PickupProjectile( ProjectilePickup proj )
+		{
+			return true;
+		}
 	}
 
 	public class Knockback : GameController

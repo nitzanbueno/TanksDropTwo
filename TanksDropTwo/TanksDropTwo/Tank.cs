@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
+using TanksDropTwo.Controllers;
 
 namespace TanksDropTwo
 {
@@ -18,12 +19,12 @@ namespace TanksDropTwo
 		/// <summary>
 		/// Since this is an animated entity, the texture datas for each frame.
 		/// </summary>
-		private Color[][] texDatas;
+		private Color[ , ][] texDatas;
 
 		/// <summary>
 		/// Since this is an animated entity, the source rectangles for each frame.
 		/// </summary>
-		private Rectangle[] TankSourceRects;
+		private Rectangle[ , ] TankSourceRects;
 
 		/// <summary>
 		/// The name of the tank.
@@ -39,7 +40,7 @@ namespace TanksDropTwo
 		/// <summary>
 		/// The color of the tank.
 		/// </summary>
-		private Colors color;
+		public Colors TankColor;
 
 		/// <summary>
 		/// The speed of the tank.
@@ -112,6 +113,13 @@ namespace TanksDropTwo
 		}
 
 		/// <summary>
+		/// The original tank color.
+		/// </summary>
+		public Colors OriginalColor;
+
+		public KeySet OriginalKeys;
+
+		/// <summary>
 		/// This tank's controller, if exists.
 		/// </summary>
 		public TankController Controller;
@@ -124,7 +132,7 @@ namespace TanksDropTwo
 		{
 			get
 			{
-				switch ( color )
+				switch ( TankColor )
 				{
 					case Colors.Aqua:
 						return Color.Aqua;
@@ -148,6 +156,8 @@ namespace TanksDropTwo
 			}
 		}
 
+		private Random r;
+
 		public bool IsGoingBackwards;
 
 		public float RelativeAngle
@@ -164,7 +174,11 @@ namespace TanksDropTwo
 
 		public int FenceLimit;
 
-		public Tank( string name, Vector2 startPosition, float startAngle, KeySet keys, Colors color, float speed, Projectile originalProjectile, int BulletLimit, int FenceLimit, int FenceTime, float Scale )
+		private float TurnSpeed;
+
+		private bool AI;
+
+		public Tank( string name, Vector2 startPosition, float startAngle, KeySet keys, Colors color, float speed, Projectile originalProjectile, int BulletLimit, int FenceLimit, int FenceTime, float Scale, bool AI )
 		{
 			this.Name = name;
 			this.Speed = speed;
@@ -172,7 +186,9 @@ namespace TanksDropTwo
 			this.originalPosition = startPosition;
 			this.originalAngle = startAngle;
 			this.Keys = keys;
-			this.color = color;
+			this.OriginalKeys = keys;
+			this.TankColor = color;
+			this.OriginalColor = color;
 			this.Origin = new Vector2( 16, 16 );
 			this.originalProjectile = originalProjectile;
 			this.ProjectileLimit = BulletLimit;
@@ -180,6 +196,9 @@ namespace TanksDropTwo
 			this.originalScale = Scale;
 			this.Scale = Scale;
 			this.FenceLifeTime = FenceTime;
+			this.TurnSpeed = 5;
+			this.AI = AI;
+			this.r = new Random( 10 );
 			Reset( false );
 		}
 
@@ -205,9 +224,12 @@ namespace TanksDropTwo
 				frame++;
 				frame %= 8;
 				timeSinceLastFrameUpdate = gameTime;
-				SourceRectangle = TankSourceRects[ frame ];
-				TextureData = texDatas[ frame ];
+				SourceRectangle = TankSourceRects[ frame, ( int )TankColor ];
+				TextureData = texDatas[ frame, ( int )TankColor ];
 			}
+
+			if ( AI && IsAlive )
+				DoAI( Entities, gameTime );
 
 			Vector2 newPosition = Position;
 			float newAngle = Angle;
@@ -233,13 +255,13 @@ namespace TanksDropTwo
 			if ( keyState.IsKeyDown( Keys.KeyLeft ) )
 			{
 				// Turn left
-				newAngle -= 5;
+				newAngle -= TurnSpeed;
 			}
 
 			if ( keyState.IsKeyDown( Keys.KeyRight ) )
 			{
 				// Turn right
-				newAngle += 5;
+				newAngle += TurnSpeed;
 			}
 
 			Matrix Transformation =
@@ -285,6 +307,98 @@ namespace TanksDropTwo
 			}
 
 			base.Update( gameTime, Entities, keyState );
+		}
+
+		//int AIFencePart = 0;
+
+		TimeSpan lastShot = TimeSpan.Zero;
+
+		public void DoAI( HashSet<GameEntity> Entities, TimeSpan gameTime )
+		{
+			GameEntity ClosestEntity = null;
+			double ClosestDistance = ScreenHeight + ScreenWidth;
+			foreach ( GameEntity entity in Entities )
+			{
+				double dist = Vector2.Distance( Position, entity.Position );
+				if ( ( ClosestEntity == null || dist < ClosestDistance ) && entity != this && !( entity is Fence )
+					&& ( !( entity is Projectile ) || ( !Tools.IsGoingTowardsMe( Position, entity.Angle, entity.Position ) && dist < 300 ) )
+					&& ( !( entity is ProjectilePickup ) || nextProjectile.GetType() == originalProjectile.GetType() )
+					&& ( !( entity is TankControllerPickup ) || Controller == null )
+					&& ( !( entity is Tank ) || ( ( Tank )entity ).IsAlive ) )
+				{
+					ClosestDistance = dist;
+					ClosestEntity = entity;
+				}
+			}
+
+			if ( ClosestEntity == null )
+				return;
+
+			if ( Controller is UseableController && r.Next( 100 ) <= 5 )
+			{
+				CheckPlaceFence( gameTime );
+			}
+
+			if ( ClosestEntity is Tank )
+			{
+				float ang = Home( ClosestEntity.Position );
+				if ( ang == 0 || Math.Abs( Tools.Mod( MathHelper.ToDegrees( ( float )Math.Atan2( Position.Y - ClosestEntity.Position.Y, Position.X - ClosestEntity.Position.X ) ) + 180, 360 ) - Angle ) <= 10 )
+				{
+					if ( lastShot == TimeSpan.Zero || ( gameTime - lastShot ).TotalMilliseconds > 500 )
+					{
+						Shoot( gameTime );
+						lastShot = gameTime;
+					}
+				}
+				else
+				{
+					Angle += ang;
+				}
+			}
+			else if ( ClosestEntity is Pickup || ClosestEntity is ControllerEntity )
+			{
+				float ang = Home( ClosestEntity.Position );
+				Angle += ang;
+				Move( Speed );
+			}
+			else if ( ClosestEntity is Projectile )
+			{
+				float ang = Home( ClosestEntity.Position );
+				//if ( lastShot == TimeSpan.Zero || ( gameTime - lastShot ).TotalMilliseconds > 500 )
+				//{
+				PlaceFence( gameTime );
+				//	lastShot = gameTime;
+				//}
+				Angle += ang;
+			}
+			else if ( ClosestEntity is Fence )
+			{
+				float ang = Tools.Mod( MathHelper.ToDegrees( ( float )Math.Atan2( Position.Y - ClosestEntity.Position.Y, Position.X - ClosestEntity.Position.X ) ) + 180, 360 );
+
+			}
+		}
+
+
+
+		private float Home( Vector2 HomingPosition )
+		{
+			float ang = Tools.Mod( MathHelper.ToDegrees( ( float )Math.Atan2( Position.Y - HomingPosition.Y, Position.X - HomingPosition.X ) ) + 180, 360 );
+
+			if ( Angle == ang )
+			{
+				return 0;
+			}
+			bool ToRight = Angle > 180 ? !( ang < Angle && ang > Angle - 180 ) : ( ang > Angle && ang < Angle + 180 ); // Determines, in one line, whether the bullet should turn right or left.
+			if ( ToRight )
+			{
+				float difference = Math.Min( Math.Abs( ang - Angle ), Math.Abs( ang - Angle + 360 ) );
+				return Math.Min( difference, TurnSpeed );
+			}
+			else
+			{
+				float difference = Math.Min( Math.Abs( ang - Angle ), Math.Abs( ang - Angle + 360 ) );
+				return -Math.Min( difference, TurnSpeed );
+			}
 		}
 
 		/// <summary>
@@ -352,19 +466,22 @@ namespace TanksDropTwo
 		public override void LoadContent( ContentManager Content, int ScreenWidth, int ScreenHeight )
 		{
 			Texture = Content.Load<Texture2D>( "Sprites\\TankMap" );
-			TankSourceRects = new Rectangle[ 8 ];
-			texDatas = new Color[ 8 ][];
+			TankSourceRects = new Rectangle[ 8, 8 ];
+			texDatas = new Color[ 8, 8 ][];
 			int tankw = Texture.Width / 8;
 			int tankh = Texture.Height / 8;
 			Color[] tankMapData = new Color[ Texture.Width * Texture.Height ];
 			Texture.GetData( tankMapData );
-			for ( int x = 0; x < TankSourceRects.Length; x++ )
+			for ( int x = 0; x < TankSourceRects.GetLength( 0 ); x++ )
 			{
-				TankSourceRects[ x ] = new Rectangle( x * tankw, ( int )color * tankh, tankw, tankh );
-				texDatas[ x ] = GetImageData( tankMapData, Texture.Width, TankSourceRects[ x ] );
+				for ( int y = 0; y < 8; y++ )
+				{
+					TankSourceRects[ x, y ] = new Rectangle( x * tankw, y * tankh, tankw, tankh );
+					texDatas[ x, y ] = GetImageData( tankMapData, Texture.Width, TankSourceRects[ x, y ] );
+				}
 			}
-			SourceRectangle = TankSourceRects[ frame ];
-			TextureData = texDatas[ frame ];
+			SourceRectangle = TankSourceRects[ frame, ( int )TankColor ];
+			TextureData = texDatas[ frame, ( int )TankColor ];
 			base.LoadContent( Content, ScreenWidth, ScreenHeight );
 		}
 
@@ -409,7 +526,7 @@ namespace TanksDropTwo
 		/// <returns>True if the projectile was picked up - otherwise false.</returns>
 		public bool PickupProjectile( ProjectilePickup proj )
 		{
-			if ( nextProjectile.GetType() == OriginalProjectile.GetType() )
+			if ( nextProjectile.GetType() == OriginalProjectile.GetType() && ( Controller == null || Controller.PickupProjectile( proj ) ) )
 			{
 				nextProjectile = proj.Carrier.Clone();
 				return true;
@@ -467,6 +584,12 @@ namespace TanksDropTwo
 				Controller.StopControl();
 			Controllers.Remove( Controller );
 			Controller = null;
+		}
+
+		public void SetTankController( TankController t )
+		{
+			Controllers.Add( t );
+			Controller = t;
 		}
 
 		public override void Destroy( TimeSpan gameTime )

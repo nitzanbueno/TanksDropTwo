@@ -109,6 +109,11 @@ namespace TanksDropTwo
 			Colors p3Color = LoadSetting( "Player3Color", Colors.Blue );
 			Colors p4Color = LoadSetting( "Player4Color", Colors.Orange );
 
+			bool p1AI = LoadSetting( "Player1AI", false );
+			bool p2AI = LoadSetting( "Player2AI", false );
+			bool p3AI = LoadSetting( "Player3AI", false );
+			bool p4AI = LoadSetting( "Player4AI", false );
+
 			int ProjectileTime = LoadSetting( "ProjectileTime", 10000 );
 			int ProjectileSpeed = LoadSetting( "ProjectileSpeed", 10 );
 			int ControllerTime = LoadSetting( "ControllerTime", 10000 );
@@ -127,8 +132,6 @@ namespace TanksDropTwo
 
 			LoadSetting( "SuddenDeathTime", 10000 );
 
-			LoadSetting( "RiderTwist", 5F );
-
 			// Shows mouse
 			IsMouseVisible = true;
 
@@ -137,19 +140,19 @@ namespace TanksDropTwo
 			Entities = new HashSet<GameEntity>();
 
 			// Player 1
-			Entities.Add( new Tank( "Player 1", new Vector2( 50, 50 ), 45, p1keys, p1Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale ) );
+			Entities.Add( new Tank( "Player 1", new Vector2( 50, 50 ), 45, p1keys, p1Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale, p1AI ) );
 
 			// Player 2
-			Entities.Add( new Tank( "Player 2", new Vector2( ScreenWidth - 50, ScreenHeight - 50 ), 225, p2keys, p2Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale ) );
+			Entities.Add( new Tank( "Player 2", new Vector2( ScreenWidth - 50, ScreenHeight - 50 ), 225, p2keys, p2Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale, p2AI ) );
 
 			if ( NumOfPlayers >= 3 )
 			{
-				Entities.Add( new Tank( "Player 3", new Vector2( ScreenWidth - 50, 50 ), 135, p3keys, p3Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale ) );
+				Entities.Add( new Tank( "Player 3", new Vector2( ScreenWidth - 50, 50 ), 135, p3keys, p3Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale, p3AI ) );
 			}
 
 			if ( NumOfPlayers >= 4 )
 			{
-				Entities.Add( new Tank( "Player 4", new Vector2( 50, ScreenHeight - 50 ), 315, p4keys, p4Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale ) );
+				Entities.Add( new Tank( "Player 4", new Vector2( 50, ScreenHeight - 50 ), 315, p4keys, p4Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale, p4AI ) );
 			}
 
 			foreach ( GameEntity entity in Entities )
@@ -160,9 +163,9 @@ namespace TanksDropTwo
 			AvailableProjectiles = new Projectile[]
 			{
 				//new HomingBullet( LoadPositiveSetting( "HomingBulletSpeed", ProjectileSpeed ), LoadPositiveSetting( "HomingBulletTurnSpeed", 5 ), TimeSpan.Zero, LoadPositiveSetting( "HomingBulletNoticeTime", 1000 ), LoadPositiveSetting( "HomingBulletTime", ProjectileTime ) ),
-				new Missile( LoadPositiveSetting( "MissileSpeed", ProjectileSpeed ) ),
+				//new Missile( LoadPositiveSetting( "MissileSpeed", ProjectileSpeed ) ),
 				//new Lazer( LoadPositiveSetting( "LazerTime", ProjectileTime ) ),
-				//new Rider( LoadPositiveSetting( "RiderSpeed", ProjectileSpeed ), LoadPositiveSetting( "RiderTime", ProjectileTime ),LoadSetting("RiderDeath").ToLower() == "true" ),
+				new Rider( LoadPositiveSetting( "RiderSpeed", ProjectileSpeed ), LoadPositiveSetting( "RiderTime", ProjectileTime ),LoadSetting("RiderDeath").ToLower() == "true", LoadPositiveSetting( "RiderTwist", 1 ) ),
 			};
 
 			AvailableControllers = new TankController[]
@@ -173,10 +176,15 @@ namespace TanksDropTwo
 				//new Minimize( LoadPositiveSetting( "MinimizeTime", ControllerTime ) ),
 				//new Switcher(),
 				//new ForceField( LoadPositiveSetting( "ForceFieldTime", ControllerTime ) ),
-				//new Tripler( LoadPositiveSetting( "TriplerTime", ControllerTime ) ),
+				new Tripler( LoadPositiveSetting( "TriplerTime", ControllerTime ) ),
 				//new ExtraLife(),
 				//new Shockwave(),
 				//new Roulette(),
+				//new MindController( LoadPositiveSetting( "MindControlTime", ControllerTime ) ),
+				//new IronDome( LoadPositiveSetting( "IronDomeTime", ControllerTime ), LoadPositiveSetting( "IronLifeTime", 2000 ), LoadPositiveSetting( "IronSpeed", 10 ), LoadPositiveSetting( "IronRadius", 200 ), LoadPositiveSetting( "IronProbability", 90 ) ),
+				//new Disabler( LoadPositiveSetting( "MaxDisablerSpeed", 50 ) ),
+				//new Minigun( LoadPositiveSetting( "MinigunTime", ControllerTime ), LoadPositiveSetting( "MinigunSpeed", 500 ) ),
+				//new Ring( LoadPositiveSetting( "RingRadius", 50 )	 ),
 			};
 
 			AvailableConEnts = new ControllerEntity[]
@@ -380,6 +388,22 @@ namespace TanksDropTwo
 			catch ( Exception )
 			{
 				set = defaultSetting;
+			}
+			Settings.Add( setting, Tuple.Create<Type, object>( set.GetType(), set ) );
+			return set;
+		}
+
+		private bool LoadSetting( string setting, bool defaultSetting )
+		{
+			string sett = LoadSetting( setting ).ToLower();
+			bool set;
+			if ( sett == "" )
+			{
+				set = defaultSetting;
+			}
+			else
+			{
+				set = sett == "yes" || sett == "true";
 			}
 			Settings.Add( setting, Tuple.Create<Type, object>( set.GetType(), set ) );
 			return set;
@@ -677,6 +701,23 @@ namespace TanksDropTwo
 				}
 			}
 			MasterControllers.Remove( controller );
+		}
+
+		/// <summary>
+		/// Returns whether or not this GameController is a control of any entity on the board.
+		/// </summary>
+		/// <param name="controller">The controller to check.</param>
+		/// <returns></returns>
+		public bool HasController( GameController controller )
+		{
+			foreach ( GameEntity entity in Entities )
+			{
+				if ( entity.HasController( controller ) )
+				{
+					return true;
+				}
+			}
+			return false;
 		}
 
 		/// <summary>

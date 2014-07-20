@@ -8,6 +8,9 @@ using Microsoft.Xna.Framework.Content;
 
 namespace TanksDropTwo
 {
+	/// <summary>
+	/// A controller that a single tank owns and uses (like a power-up).
+	/// </summary>
 	public abstract class TankController : GameController
 	{
 		public Tank Owner;
@@ -55,7 +58,7 @@ namespace TanksDropTwo
 		public abstract bool ProjectileHit( Projectile hitter, TimeSpan gameTime );
 
 		/// <summary>
-		/// Called when the tank is hit by a mystical force.
+		/// Called when the tank is hit by a mystical force (e.g. Roulette).
 		/// </summary>
 		/// <param name="gameTime">The current game time.</param>
 		/// <returns>True if the tank should die - otherwise false.</returns>
@@ -93,6 +96,12 @@ namespace TanksDropTwo
 		/// </summary>
 		public abstract void StopControl();
 
+		/// <summary>
+		/// Creates a clone of this TankController.
+		/// </summary>
+		/// <returns>A new TankController with the exact same properties as this one.</returns>
 		public abstract GameController Clone();
+
+		public abstract bool PickupProjectile( ProjectilePickup proj );
 	}
 }

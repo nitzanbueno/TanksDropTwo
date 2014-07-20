@@ -24,8 +24,8 @@ namespace TanksDropTwo.Controllers
 
 		public override bool HitFence( Fence hitter )
 		{
-			hitter.Move( Owner.Speed, Owner.RelativeAngle );
-			return false;
+			hitter.Move( Owner.Speed * 2, Owner.RelativeAngle );
+			return true;
 		}
 
 		public override bool ProjectileHit( Projectile hitter, TimeSpan gameTime )
@@ -72,6 +72,11 @@ namespace TanksDropTwo.Controllers
 		public override bool Hit( TimeSpan gameTime )
 		{
 			return false;
+		}
+
+		public override bool PickupProjectile( ProjectilePickup proj )
+		{
+			return true;
 		}
 	}
 }

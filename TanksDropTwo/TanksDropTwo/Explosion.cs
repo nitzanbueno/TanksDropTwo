@@ -12,17 +12,31 @@ namespace TanksDropTwo
 	/// </summary>
 	public class Explosion : GameEntity
 	{
+		bool LoadScale;
+		bool Hurt;
+
 		public Explosion( TimeSpan gameTime )
 		{
 			spawnTime = gameTime;
 			lifeTime = 2000;
+			LoadScale = true;
+			Hurt = true;
+		}
+
+		public Explosion( TimeSpan gameTime, int lifeTime, float radius, bool hurt )
+		{
+			spawnTime = gameTime;
+			this.lifeTime = lifeTime;
+			this.Scale = radius;
+			this.Hurt = hurt;
+			LoadScale = false;
 		}
 
 		public override void LoadContent( Microsoft.Xna.Framework.Content.ContentManager Content, int screenWidth, int screenHeight )
 		{
 			Texture = Content.Load<Texture2D>( "Sprites\\Boom" );
-			Scale = ( float )Game.Settings[ "BlastRadius" ].Item2;
 			Origin = new Vector2( 32, 32 );
+			if ( LoadScale ) Scale = ( float )Game.Settings[ "BlastRadius" ].Item2;
 			base.LoadContent( Content, screenWidth, screenHeight );
 		}
 
@@ -30,7 +44,7 @@ namespace TanksDropTwo
 		{
 			foreach ( GameEntity entity in Entities )
 			{
-				if ( entity.CollidesWith( this ) && entity != this )
+				if ( entity.CollidesWith( this ) && entity != this && Hurt )
 				{
 					entity.Destroy( gameTime );
 				}

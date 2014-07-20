@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework;
 
 namespace TanksDropTwo
 {
@@ -26,6 +27,14 @@ namespace TanksDropTwo
 			KeyRight = right;
 			KeyPlace = place;
 			KeyShoot = shoot;
+		}
+
+		public static KeySet None
+		{
+			get
+			{
+				return new KeySet( Keys.None, Keys.None, Keys.None, Keys.None, Keys.None, Keys.None );
+			}
 		}
 	}
 
@@ -67,6 +76,24 @@ namespace TanksDropTwo
 				result += moddee;
 			}
 			return result;
+		}
+
+		public static bool IsGoingTowardsMe( Vector2 TankPosition, float angle, Vector2 BulletPosition )
+		{
+			float window = 20;
+			float ang = Tools.Mod( MathHelper.ToDegrees( ( float )Math.Atan2( TankPosition.Y - BulletPosition.Y, TankPosition.X - BulletPosition.X ) ), 360 );
+			if ( ang < window )
+			{
+				return !( ( angle >= ang && angle < ang + window ) || angle <= ang || angle >= ang + 360 - window );
+			}
+			else if ( ang >= window && ang <= 360 - window )
+			{
+				return !( angle >= ang - window && angle <= ang + window );
+			}
+			else
+			{
+				return !( angle <= ang - 360 + window || angle >= ang - window );
+			}
 		}
 	}
 }

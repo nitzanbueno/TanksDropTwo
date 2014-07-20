@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 
 namespace TanksDropTwo.Controllers
 {
-	class Minimize : TankController
+	public class Minimize : TankController
 	{
 		float OriginalTankScale;
 
@@ -85,6 +85,11 @@ namespace TanksDropTwo.Controllers
 			m.Initialize( Game, Owner );
 			m.LoadTexture( Game.Content );
 			return m;
+		}
+
+		public override bool PickupProjectile( ProjectilePickup proj )
+		{
+			return true;
 		}
 	}
 }

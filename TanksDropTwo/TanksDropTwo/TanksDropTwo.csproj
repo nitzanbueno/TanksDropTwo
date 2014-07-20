@@ -123,12 +123,17 @@
     <Compile Include="Controllers\BlackHole.cs" />
     <Compile Include="Controllers\BlackHoleController.cs" />
     <Compile Include="Controllers\ControllerEntity.cs" />
+    <Compile Include="Controllers\Disabler.cs" />
     <Compile Include="Controllers\ExtraLife.cs" />
     <Compile Include="Controllers\ForceField.cs" />
     <Compile Include="Controllers\Deflector.cs" />
+    <Compile Include="Controllers\IronDome.cs" />
+    <Compile Include="Controllers\MindController.cs" />
+    <Compile Include="Controllers\Minigun.cs" />
     <Compile Include="Controllers\Minimize.cs" />
     <Compile Include="Controllers\Portal.cs" />
     <Compile Include="Controllers\Rider.cs" />
+    <Compile Include="Controllers\Ring.cs" />
     <Compile Include="Controllers\Roulette.cs" />
     <Compile Include="Controllers\Shockwave.cs" />
     <Compile Include="Controllers\SpeedBoost.cs" />

@@ -65,5 +65,10 @@ namespace TanksDropTwo.Controllers
 			spriteBatch.Draw( Halo, Owner.Position, null, Color.White, Rotation, new Vector2( 16, 16 ), Owner.Scale * 1.5F, SpriteEffects.None, 0.24F );
 			Rotation += MathHelper.ToRadians( 10 );
 		}
+
+		public override bool PickupProjectile( ProjectilePickup proj )
+		{
+			return true;
+		}
 	}
 }

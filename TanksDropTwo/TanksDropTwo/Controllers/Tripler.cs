@@ -65,5 +65,10 @@ namespace TanksDropTwo.Controllers
 			Game.QueueEntity( shot, rightShot, leftShot );
 			return true;
 		}
+
+		public override bool PickupProjectile( ProjectilePickup proj )
+		{
+			return true;
+		}
 	}
 }

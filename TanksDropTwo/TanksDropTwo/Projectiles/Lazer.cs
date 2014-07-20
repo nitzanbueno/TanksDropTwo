@@ -112,9 +112,13 @@ namespace TanksDropTwo
 		public override Projectile Clone()
 		{
 			Lazer l = new Lazer( owner );
+			l.Game = Game;
 			l.Angle = Angle;
 			l.Position = Position;
 			l.lifeTime = lifeTime;
+			l.Helpers = Helpers;
+			l.lastHelper = lastHelper;
+			l.Tanks = Tanks;
 			return l;
 		}
 
@@ -174,7 +178,6 @@ namespace TanksDropTwo
 			Destroyed = true;
 			base.Destroy( gameTime );
 		}
-
 	}
 
 }

@@ -34,6 +34,8 @@ namespace TanksDropTwo
 		List<Rider> otherRiders;
 		public bool isOtherRider;
 		bool die;
+		bool isDead;
+		float twist;
 
 		public Rider()
 			: base()
@@ -45,12 +47,13 @@ namespace TanksDropTwo
 			isOtherRider = false;
 		}
 
-		public Rider( float Speed, int LifeTime, bool die )
+		public Rider( float Speed, int LifeTime, bool die, float twist )
 			: this()
 		{
 			this.Speed = Speed;
 			this.lifeTime = LifeTime;
 			this.die = die;
+			this.twist = twist;
 		}
 
 		public Rider( Tank Owner )
@@ -70,14 +73,22 @@ namespace TanksDropTwo
 
 		public override void Update( TimeSpan gameTime, HashSet<GameEntity> Entities, Microsoft.Xna.Framework.Input.KeyboardState keyState )
 		{
-			float a = ( float )( Game.Settings[ "RiderTwist" ].Item2 );
-			owner.Angle += a;
-			Move( Speed );
+			owner.Angle += twist;
+			if ( !isDead )
+				Move( Speed );
 			owner.Position = Position;
 			CheckBounces();
-			if ( ( Position.Y < -1 || Position.X < -1 || Position.Y > ScreenHeight + 1 || Position.X > ScreenWidth + 1 ) && bAxis == 0 )
+			if ( !owner.IsAlive )
 			{
-				Position = RandomPosition();
+				Destroy(gameTime);
+			}
+			if ( ( Position.Y < -1 || Position.X < -1 ) && bAxis == 0 )
+			{
+				Position += new Vector2( 10, 10 );
+			}
+			else if ( ( Position.Y > ScreenHeight + 1 || Position.X > ScreenWidth + 1 ) && bAxis == 0 )
+			{
+				Position -= new Vector2( 10, 10 );
 			}
 			foreach ( GameEntity entity in Entities )
 			{
@@ -121,22 +132,32 @@ namespace TanksDropTwo
 			owner.AppendController( Controller );
 			Position = owner.Position;
 			ControllerIsTripler = owner.Controller is Tripler;
+			isDead = false;
 			base.Initialize( game, gameTime, owner );
 		}
 
 		public override void Destroy( TimeSpan gameTime )
 		{
+			if ( isDead )
+				return;
+			isDead = true; 
 			owner.RemoveController( Controller );
+			if ( !isOtherRider )
+			{
+				VacuumController v = new VacuumController( owner, Speed + 1, x => x is Rider, false, Speed );
+				v.Initialize( Game );
+				Game.PutController( v );
+			}
 			if ( !didDestroyTank && otherRiders.All( x => !x.didDestroyTank ) && !isOtherRider && die )
 			{
 				owner.Destroy( gameTime );
 			}
-			base.Destroy( gameTime );
+			//base.Destroy( gameTime );
 		}
 
 		public override Projectile Clone()
 		{
-			Rider r = new Rider( Speed, lifeTime, die );
+			Rider r = new Rider( Speed, lifeTime, die, twist );
 			r.owner = owner;
 			r.Angle = Angle;
 			r.Position = Position;

@@ -150,7 +150,6 @@ namespace TanksDropTwo
 			Game = game;
 			ID = Game.CurrentID;
 			Game.CurrentID++;
-			Variables = new Dictionary<string, object>();
 		}
 
 		/// <summary>
@@ -179,6 +178,11 @@ namespace TanksDropTwo
 		/// The origin of rotation in relation to the unscaled texture.
 		/// </summary>
 		public Vector2 Origin;
+
+		public GameEntity()
+		{
+			Variables = new Dictionary<string, object>();
+		}
 
 		/// <summary>
 		/// Moves the entity forward the specified number of pixels.
@@ -602,6 +606,16 @@ namespace TanksDropTwo
 				return true;
 			}
 			return false;
+		}
+
+		/// <summary>
+		/// Returns whether or not the given controller controls this entity.
+		/// </summary>
+		/// <param name="controller">The controller to check.</param>
+		/// <returns></returns>
+		public bool HasController( GameController controller )
+		{
+			return Controllers.Contains( controller );
 		}
 
 		public Vector2 RandomPosition()

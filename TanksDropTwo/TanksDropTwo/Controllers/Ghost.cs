@@ -69,5 +69,10 @@ namespace TanksDropTwo.Controllers
 			g.LoadTexture( Game.Content );
 			return g;
 		}
+
+		public override bool PickupProjectile( ProjectilePickup proj )
+		{
+			return true;
+		}
 	}
 }

@@ -86,6 +86,7 @@ namespace TanksDropTwo
 		{
 			Missile m = new Missile( owner, Speed );
 			m.Position = Position;
+			m.con = con;
 			m.Angle = Angle;
 			m.Initialize( Game );
 			m.LoadContent( Game.Content, Game.ScreenWidth, Game.ScreenHeight );

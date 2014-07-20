@@ -21,7 +21,7 @@ namespace TanksDropTwo
 		public bool doesCountAsTankProjectile;
 
 		public float Speed;
-		protected Tank owner;
+		public Tank owner;
 
 		public Projectile( Tank Owner, TimeSpan gameTime )
 			: this( Owner )

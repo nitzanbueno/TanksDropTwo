@@ -41,7 +41,7 @@ namespace TanksDropTwo.Controllers
 
 		public override bool Shoot( TimeSpan gameTime, Projectile shot )
 		{
-			Projectile nextProjectile = shot.Clone();
+			Projectile nextProjectile = shot;
 			nextProjectile.Speed *= factor;
 			Game.QueueEntity( nextProjectile );
 			return true;
@@ -77,6 +77,11 @@ namespace TanksDropTwo.Controllers
 
 		public override void Draw( Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch )
 		{
+		}
+
+		public override bool PickupProjectile( ProjectilePickup proj )
+		{
+			return true;
 		}
 	}
 }

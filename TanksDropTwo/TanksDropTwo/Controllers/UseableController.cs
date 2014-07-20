@@ -72,5 +72,10 @@ namespace TanksDropTwo.Controllers
 		public override void StopControl()
 		{
 		}
+
+		public override bool PickupProjectile( ProjectilePickup proj )
+		{
+			return true;
+		}
 	}
 }
