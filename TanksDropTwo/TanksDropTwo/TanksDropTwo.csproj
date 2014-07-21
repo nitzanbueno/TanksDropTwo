@@ -136,6 +136,7 @@
     <Compile Include="Controllers\Ring.cs" />
     <Compile Include="Controllers\Roulette.cs" />
     <Compile Include="Controllers\Shockwave.cs" />
+    <Compile Include="Controllers\Shuffler.cs" />
     <Compile Include="Controllers\SpeedBoost.cs" />
     <Compile Include="Controllers\Switcher.cs" />
     <Compile Include="Controllers\Tripler.cs" />

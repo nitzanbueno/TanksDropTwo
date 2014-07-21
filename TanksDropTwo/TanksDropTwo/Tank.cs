@@ -185,8 +185,8 @@ namespace TanksDropTwo
 			this.originalSpeed = speed;
 			this.originalPosition = startPosition;
 			this.originalAngle = startAngle;
-			this.Keys = keys;
-			this.OriginalKeys = keys;
+			this.Keys = keys.Clone();
+			this.OriginalKeys = keys.Clone();
 			this.TankColor = color;
 			this.OriginalColor = color;
 			this.Origin = new Vector2( 16, 16 );
@@ -552,6 +552,7 @@ namespace TanksDropTwo
 			NumberOfProjectiles = 0;
 			NumberOfFences = 0;
 			RemoveTankController();
+			Keys = OriginalKeys.Clone();
 			Controllers = new HashSet<GameController>();
 		}
 

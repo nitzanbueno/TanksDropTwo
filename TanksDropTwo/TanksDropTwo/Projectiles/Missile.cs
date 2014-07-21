@@ -63,6 +63,7 @@ namespace TanksDropTwo
 				hasExploded = true;
 				con.conCount = 1;
 			}
+			owner.Keys.KeyShoot = keyShoot;
 			base.Destroy( gameTime );
 		}
 
@@ -119,17 +120,10 @@ namespace TanksDropTwo
 			if ( keyState.IsKeyDown( shoot ) && prevKeyState.IsKeyUp( shoot ) )
 			{
 				missile.Destroy( gameTime );
-			}
-			prevKeyState = keyState;
-			if ( conCount != 0 )
-			{
-				conCount++;
-			}
-			if ( conCount > 5 )
-			{
 				control.RemoveController( this );
 				owner.Keys.KeyShoot = shoot;
 			}
+			prevKeyState = keyState;
 			return true;
 		}
 

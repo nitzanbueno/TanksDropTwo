@@ -36,6 +36,11 @@ namespace TanksDropTwo
 				return new KeySet( Keys.None, Keys.None, Keys.None, Keys.None, Keys.None, Keys.None );
 			}
 		}
+
+		public KeySet Clone()
+		{
+			return new KeySet(KeyForward, KeyBackward, KeyLeft, KeyRight, KeyPlace, KeyShoot);
+		}
 	}
 
 	/// <summary>

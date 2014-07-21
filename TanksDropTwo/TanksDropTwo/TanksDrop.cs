@@ -162,35 +162,36 @@ namespace TanksDropTwo
 
 			AvailableProjectiles = new Projectile[]
 			{
-				//new HomingBullet( LoadPositiveSetting( "HomingBulletSpeed", ProjectileSpeed ), LoadPositiveSetting( "HomingBulletTurnSpeed", 5 ), TimeSpan.Zero, LoadPositiveSetting( "HomingBulletNoticeTime", 1000 ), LoadPositiveSetting( "HomingBulletTime", ProjectileTime ) ),
-				//new Missile( LoadPositiveSetting( "MissileSpeed", ProjectileSpeed ) ),
-				//new Lazer( LoadPositiveSetting( "LazerTime", ProjectileTime ) ),
+				new HomingBullet( LoadPositiveSetting( "HomingBulletSpeed", ProjectileSpeed ), LoadPositiveSetting( "HomingBulletTurnSpeed", 5 ), TimeSpan.Zero, LoadPositiveSetting( "HomingBulletNoticeTime", 1000 ), LoadPositiveSetting( "HomingBulletTime", ProjectileTime ) ),
+				new Missile( LoadPositiveSetting( "MissileSpeed", ProjectileSpeed ) ),
+				new Lazer( LoadPositiveSetting( "LazerTime", ProjectileTime ) ),
 				new Rider( LoadPositiveSetting( "RiderSpeed", ProjectileSpeed ), LoadPositiveSetting( "RiderTime", ProjectileTime ),LoadSetting("RiderDeath").ToLower() == "true", LoadPositiveSetting( "RiderTwist", 1 ) ),
 			};
 
 			AvailableControllers = new TankController[]
 			{
-				//new Ghost( LoadPositiveSetting( "GhostTime", ControllerTime ) ),
-				//new Deflector(),
-				//new SpeedBoost(LoadPositiveSetting( "SpeedBoostTime", ControllerTime ), LoadSetting( "SpeedBoostFactor", 2F ) ),
-				//new Minimize( LoadPositiveSetting( "MinimizeTime", ControllerTime ) ),
-				//new Switcher(),
-				//new ForceField( LoadPositiveSetting( "ForceFieldTime", ControllerTime ) ),
+				new Ghost( LoadPositiveSetting( "GhostTime", ControllerTime ) ),
+				new Deflector(),
+				new SpeedBoost(LoadPositiveSetting( "SpeedBoostTime", ControllerTime ), LoadSetting( "SpeedBoostFactor", 2F ) ),
+				new Minimize( LoadPositiveSetting( "MinimizeTime", ControllerTime ) ),
+				new Switcher(),
+				new ForceField( LoadPositiveSetting( "ForceFieldTime", ControllerTime ) ),
 				new Tripler( LoadPositiveSetting( "TriplerTime", ControllerTime ) ),
-				//new ExtraLife(),
-				//new Shockwave(),
-				//new Roulette(),
-				//new MindController( LoadPositiveSetting( "MindControlTime", ControllerTime ) ),
-				//new IronDome( LoadPositiveSetting( "IronDomeTime", ControllerTime ), LoadPositiveSetting( "IronLifeTime", 2000 ), LoadPositiveSetting( "IronSpeed", 10 ), LoadPositiveSetting( "IronRadius", 200 ), LoadPositiveSetting( "IronProbability", 90 ) ),
-				//new Disabler( LoadPositiveSetting( "MaxDisablerSpeed", 50 ) ),
-				//new Minigun( LoadPositiveSetting( "MinigunTime", ControllerTime ), LoadPositiveSetting( "MinigunSpeed", 500 ) ),
-				//new Ring( LoadPositiveSetting( "RingRadius", 50 )	 ),
+				new ExtraLife(),
+				new Shockwave(),
+				new Roulette(),
+				new MindController( LoadPositiveSetting( "MindControlTime", ControllerTime ) ),
+				new IronDome( LoadPositiveSetting( "IronDomeTime", ControllerTime ), LoadPositiveSetting( "IronLifeTime", 2000 ), LoadPositiveSetting( "IronSpeed", 10 ), LoadPositiveSetting( "IronRadius", 200 ), LoadPositiveSetting( "IronProbability", 90 ) ),
+				new Disabler( LoadPositiveSetting( "MaxDisablerSpeed", 50 ) ),
+				new Minigun( LoadPositiveSetting( "MinigunTime", ControllerTime ), LoadPositiveSetting( "MinigunSpeed", 500 ) ),
+				new Ring( LoadPositiveSetting( "RingRadius", 50 ) ),
+				new Shuffler(), 
 			};
 
 			AvailableConEnts = new ControllerEntity[]
 			{
-				//new Portal( LoadPositiveSetting( "PortalTime", ControllerTime ) ),
-				//new BlackHole()
+				new Portal( LoadPositiveSetting( "PortalTime", ControllerTime ) ),
+				new BlackHole(),
 			};
 
 			SuddenDeaths = new GameController[]
@@ -485,10 +486,10 @@ namespace TanksDropTwo
 			{
 				currentGameTime += gameTime.ElapsedGameTime;
 			}
-			if ( keyState.IsKeyDown( Keys.R ) )
+			/*if ( keyState.IsKeyDown( Keys.R ) )
 			{
 				NewRound( false, false, false );
-			}
+			}*/
 			if ( keyState.IsKeyDown( Keys.P ) )
 			{
 				CurrentMenu = new PauseMenu( this );

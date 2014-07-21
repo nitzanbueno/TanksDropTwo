@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace TanksDropTwo.Controllers
 {
@@ -51,6 +52,11 @@ namespace TanksDropTwo.Controllers
 
 		public override bool OnPlaceFence( TimeSpan gameTime )
 		{
+			if ( selectedTank != null )
+			{
+				Owner.Keys = selectedTank.Keys;
+			}
+			Owner.RemoveTankController();
 			return false;
 		}
 
@@ -58,6 +64,7 @@ namespace TanksDropTwo.Controllers
 		{
 			try
 			{
+				Owner.Keys = selectedTank.Keys;
 				selectedTank.Keys = selectedTank.OriginalKeys;
 				selectedTank.TankColor = selectedTank.OriginalColor;
 			}
@@ -118,9 +125,10 @@ namespace TanksDropTwo.Controllers
 			{
 				controlKeys = selectedTank.Keys;
 				selectedTank.Keys = Owner.Keys;
+				Owner.Keys = new KeySet( Keys.None, Keys.None, Keys.None, Keys.None, Owner.Keys.KeyPlace, Keys.None );
 			}
 			base.Control( control, gameTime, keyState );
-			return false;
+			return true;
 		}
 
 		public override bool PickupProjectile( ProjectilePickup proj )

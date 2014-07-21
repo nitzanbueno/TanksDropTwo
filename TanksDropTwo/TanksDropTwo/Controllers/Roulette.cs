@@ -48,10 +48,20 @@ namespace TanksDropTwo.Controllers
 			chosenTank = Tanks[ r.Next( Tanks.Count ) ];
 			if ( chosenTank.IsAlive )
 			{
+				Explosion explod = new Explosion( gameTime );
+				explod.Initialize( Game );
+				explod.LoadContent( Game.Content, Game.ScreenWidth, Game.ScreenHeight );
+				explod.Position = chosenTank.Position;
+				Game.QueueEntity( explod );
 				chosenTank.Destroy( gameTime );
 			}
 			else
 			{
+				Explosion explod = new Explosion( gameTime, 2000, ( float )Game.Settings[ "BlastRadius" ].Item2, false );
+				explod.Initialize( Game );
+				explod.LoadContent( Game.Content, Game.ScreenWidth, Game.ScreenHeight );
+				explod.Position = chosenTank.Position;
+				Game.QueueEntity( explod );
 				chosenTank.IsAlive = true;
 			}
 		}
