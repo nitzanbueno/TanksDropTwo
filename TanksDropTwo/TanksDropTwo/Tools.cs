@@ -100,5 +100,10 @@ namespace TanksDropTwo
 				return !( angle <= ang - 360 + window || angle >= ang - window );
 			}
 		}
+
+		public static float Angle( Vector2 FromPosition, Vector2 ToPosition )
+		{
+			return Tools.Mod( MathHelper.ToDegrees( ( float )Math.Atan2( FromPosition.Y - ToPosition.Y, FromPosition.X - ToPosition.X ) ) + 180, 360 );
+		}
 	}
 }
