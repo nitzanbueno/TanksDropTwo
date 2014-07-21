@@ -192,6 +192,7 @@ namespace TanksDropTwo
 			{
 				new Portal( LoadPositiveSetting( "PortalTime", ControllerTime ) ),
 				new BlackHole(),
+				new Concealer( LoadPositiveSetting( "ConcealerTime", 5000 ) ),
 			};
 
 			SuddenDeaths = new GameController[]
@@ -592,7 +593,7 @@ namespace TanksDropTwo
 			int ConEntLen = AvailableConEnts.Length;
 			int Category = r.Next( ProjLen + ConLen + ConEntLen );
 
-			if ( Category < ProjLen + ConLen || r.Next( 3 ) > 0 ) // Low probability for the controller entities
+			if ( Category < ProjLen + ConLen || r.Next( 10 ) == 0 ) // Low probability for the controller entities
 			{
 				Pickup p = null;
 				Category %= ( ProjLen + ConLen );

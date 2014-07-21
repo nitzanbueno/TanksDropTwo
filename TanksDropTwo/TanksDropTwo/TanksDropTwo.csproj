@@ -122,6 +122,7 @@
   <ItemGroup>
     <Compile Include="Controllers\BlackHole.cs" />
     <Compile Include="Controllers\BlackHoleController.cs" />
+    <Compile Include="Controllers\Concealer.cs" />
     <Compile Include="Controllers\ControllerEntity.cs" />
     <Compile Include="Controllers\Disabler.cs" />
     <Compile Include="Controllers\ExtraLife.cs" />
