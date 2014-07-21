@@ -30,8 +30,7 @@ namespace TanksDropTwo.Controllers
 
 		public override void LoadTexture( Microsoft.Xna.Framework.Content.ContentManager Content )
 		{
-			Texture = Content.Load<Texture2D>( "Sprites\\Accelerator" );
-			Scale = 2;
+			Texture = Content.Load<Texture2D>( "Sprites\\Ring" );
 		}
 
 		public override GameController Clone()
