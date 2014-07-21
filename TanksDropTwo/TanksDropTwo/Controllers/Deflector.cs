@@ -49,6 +49,19 @@ namespace TanksDropTwo.Controllers
 	public class DeflectorController : GameController
 	{
 		float max_speed = 10;
+		float n_ang;
+		bool should_ang;
+
+		public DeflectorController()
+		{
+			should_ang = false;
+		}
+
+		public DeflectorController( float new_angle )
+		{
+			n_ang = new_angle;
+			should_ang = true;
+		}
 
 		public override void Initialize( TanksDrop game )
 		{
@@ -69,7 +82,7 @@ namespace TanksDropTwo.Controllers
 			float orig_speed = ( float )p.Variables[ "OriginalSpeed" ];
 			bool turnAround = ( bool )p.Variables[ "TurnAround" ];
 
-			if ( speed_denominator < 1 )
+			if ( speed_denominator < 1 ) // Speed Denominator decreased to 0 so deflector is done
 			{
 				p.Variables.Remove( "SpeedDenominator" );
 				p.Variables.Remove( "OriginalSpeed" );
@@ -77,8 +90,9 @@ namespace TanksDropTwo.Controllers
 				p.Speed = orig_speed;
 				p.RemoveController( this );
 			}
-			else if ( speed_denominator < max_speed)
+			else if ( speed_denominator < max_speed )
 			{
+				// Either increase or decrease the speed denominator
 				p.Speed = (float)-Math.Log( (double)speed_denominator / max_speed, max_speed ) * orig_speed;
 				if ( turnAround )
 				{
@@ -92,8 +106,16 @@ namespace TanksDropTwo.Controllers
 			}
 			else
 			{
+				// Switch direction of the speed denominator
 				p.Variables[ "TurnAround" ] = true;
-				p.Angle = ( p.Angle + 180 ) % 360;
+				if ( should_ang )
+				{
+					p.Angle = n_ang;
+				}
+				else
+				{
+					p.Angle = ( p.Angle + 180 ) % 360;
+				}
 				p.Variables[ "SpeedDenominator" ] = speed_denominator - 1;
 			}
 
