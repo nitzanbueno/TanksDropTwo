@@ -7,6 +7,9 @@ using Microsoft.Xna.Framework;
 
 namespace TanksDropTwo.Controllers
 {
+	/// <summary>
+	/// Concealer is a ControllerEntity that causes all entities on board to become question mark boxes.
+	/// </summary>
 	public class Concealer : ControllerEntity
 	{
 		public Concealer( int lifeTime )
@@ -14,6 +17,10 @@ namespace TanksDropTwo.Controllers
 			this.lifeTime = lifeTime;
 		}
 
+
+		/// <summary>
+		/// The entities that are now question mark boxes, along with their original Texture, isTextureAMap, and TextureData.
+		/// </summary>
 		private Dictionary<GameEntity, Tuple<Texture2D, bool, Color[]>> appliedEntities;
 
 		public override void Initialize( TanksDrop game )
@@ -48,6 +55,7 @@ namespace TanksDropTwo.Controllers
 				{
 					if ( !appliedEntities.ContainsKey( control ) )
 					{
+						// Add this control to the appliedEntities so that I don't lose its texture
 						appliedEntities[ control ] = Tuple.Create( control.Texture, control.isTextureAMap, control.TextureData );
 						control.Texture = this.Texture;
 						control.TextureData = this.TextureData;
@@ -60,6 +68,7 @@ namespace TanksDropTwo.Controllers
 
 		public override void Destroy( TimeSpan gameTime )
 		{
+			// Undo all texture changes
 			foreach ( GameEntity ent in appliedEntities.Keys )
 			{
 				var e = appliedEntities[ ent ];
@@ -69,6 +78,11 @@ namespace TanksDropTwo.Controllers
 			}
 			appliedEntities = new Dictionary<GameEntity, Tuple<Texture2D, bool, Color[]>>();
 			base.Destroy( gameTime );
+		}
+
+		public override void Draw( TimeSpan gameTime, SpriteBatch spriteBatch )
+		{
+			// Don't draw anything
 		}
 
 		public override void OnCollision( GameEntity otherEntity )
