@@ -9,12 +9,15 @@ using Microsoft.Xna.Framework.Input;
 namespace TanksDropTwo
 {
 	/// <summary>
-	/// A missile that blows up with an explosion after the tank presses the shoot button or destroyed.
+	/// A missile that blows up with an explosion after the tank presses the shoot button or the missile is destroyed.
 	/// </summary>
 	public class Missile : Projectile
 	{
 		bool hasExploded;
 
+		/// <summary>
+		/// Used to check when the tank presses the Shoot button.
+		/// </summary>
 		MissileController con;
 
 		Keys keyShoot;
@@ -53,12 +56,14 @@ namespace TanksDropTwo
 
 		public override void ForceDestroy()
 		{
+			// Don't explode
 			owner.Keys.KeyShoot = keyShoot;
 			base.ForceDestroy();
 		}
 
 		public override void Destroy( TimeSpan gameTime )
 		{
+			// Explode
 			if ( !hasExploded )
 			{
 				Explosion explod = new Explosion( gameTime );
@@ -69,7 +74,6 @@ namespace TanksDropTwo
 				hasExploded = true;
 				con.conCount = 1;
 			}
-			owner.Keys.KeyShoot = keyShoot;
 			base.Destroy( gameTime );
 		}
 
@@ -106,10 +110,25 @@ namespace TanksDropTwo
 	/// </summary>
 	public class MissileController : GameController
 	{
+		/// <summary>
+		/// The owner missile.
+		/// </summary>
 		Missile missile;
+		/// <summary>
+		/// The owner.
+		/// </summary>
 		Tank owner;
+		/// <summary>
+		/// The previous key state.
+		/// </summary>
 		KeyboardState prevKeyState;
+		/// <summary>
+		/// The shoot key.
+		/// </summary>
 		Keys shoot;
+		/// <summary>
+		/// Makes sure the owner doesn't get the Shoot button back before the missile explodes.
+		/// </summary>
 		public int conCount;
 
 		public MissileController( Tank owner, Missile missile, Keys keyShoot )
@@ -127,7 +146,14 @@ namespace TanksDropTwo
 			{
 				missile.Destroy( gameTime );
 				control.RemoveController( this );
-				owner.Keys.KeyShoot = shoot;
+			}
+			if ( conCount > 1 )
+			{
+				conCount++;
+				if ( conCount > 5 )
+				{
+					owner.Keys.KeyShoot = shoot;
+				}
 			}
 			prevKeyState = keyState;
 			return true;
