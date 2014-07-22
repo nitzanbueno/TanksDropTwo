@@ -144,6 +144,7 @@
     <Compile Include="Controllers\Tripler.cs" />
     <Compile Include="Controllers\UseableController.cs" />
     <Compile Include="Controllers\Ghost.cs" />
+    <Compile Include="Controllers\VacuumController.cs" />
     <Compile Include="Explosion.cs" />
     <Compile Include="GameController.cs" />
     <Compile Include="Menus\Menu.cs" />

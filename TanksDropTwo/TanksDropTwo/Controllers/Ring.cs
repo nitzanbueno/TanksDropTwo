@@ -7,8 +7,14 @@ using Microsoft.Xna.Framework;
 
 namespace TanksDropTwo.Controllers
 {
+	/// <summary>
+	/// Ring is a UseableController that causes a ring of fences the size of the specified RingRadius to be formed around the owner on use.
+	/// </summary>
 	public class Ring : UseableController
 	{
+		/// <summary>
+		/// The radius of the fences.
+		/// </summary>
 		float radius;
 
 		public Ring( float radius )
@@ -47,6 +53,9 @@ namespace TanksDropTwo.Controllers
 		}
 	}
 
+	/// <summary>
+	/// RingCon is a TankController that owns the tank using the Ring while the fences are being formed.
+	/// </summary>
 	public class RingCon : TankController
 	{
 		float angle;
@@ -89,6 +98,7 @@ namespace TanksDropTwo.Controllers
 
 		public override bool Control( GameEntity control, TimeSpan gameTime, Microsoft.Xna.Framework.Input.KeyboardState keyState )
 		{
+			// Move angle
 			angle += 5F;
 			if ( angle >= 370 + orig_angle )
 			{
@@ -96,6 +106,7 @@ namespace TanksDropTwo.Controllers
 			}
 			else
 			{
+				// Put fence
 				float dist = Vector2.Distance( Vector2.Zero, Owner.Origin );
 				float sideDeg = 40F;
 				Vector2 Pos = Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( angle ) ), ( float )Math.Sin( MathHelper.ToRadians( angle ) ) ) * rad );

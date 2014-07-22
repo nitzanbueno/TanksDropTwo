@@ -7,6 +7,9 @@ using Microsoft.Xna.Framework;
 
 namespace TanksDropTwo.Controllers
 {
+	/// <summary>
+	/// Shuffler is a UseableController that causes all entities on board to change location and angle randomly.
+	/// </summary>
 	public class Shuffler : UseableController
 	{
 		Random r;
@@ -18,6 +21,7 @@ namespace TanksDropTwo.Controllers
 
 		public override void InstantControl( GameEntity control, TimeSpan gameTime )
 		{
+			// Change angle and position
 			control.Position = control.RandomPosition( r );
 			control.Angle = r.Next( 360 );
 		}
