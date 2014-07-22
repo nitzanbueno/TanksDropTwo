@@ -176,6 +176,8 @@ namespace TanksDropTwo
 
 		private float TurnSpeed;
 
+		private Texture2D originalTexture;
+
 		private bool AI;
 
 		public Tank( string name, Vector2 startPosition, float startAngle, KeySet keys, Colors color, float speed, Projectile originalProjectile, int BulletLimit, int FenceLimit, int FenceTime, float Scale, bool AI )
@@ -350,10 +352,7 @@ namespace TanksDropTwo
 						lastShot = gameTime;
 					}
 				}
-				else
-				{
-					Angle += ang;
-				}
+				Angle += ang;
 			}
 			else if ( ClosestEntity is Pickup || ClosestEntity is ControllerEntity )
 			{
@@ -364,11 +363,11 @@ namespace TanksDropTwo
 			else if ( ClosestEntity is Projectile )
 			{
 				float ang = Home( ClosestEntity.Position );
-				//if ( lastShot == TimeSpan.Zero || ( gameTime - lastShot ).TotalMilliseconds > 500 )
-				//{
-				PlaceFence( gameTime );
-				//	lastShot = gameTime;
-				//}
+				if ( lastShot == TimeSpan.Zero || ( gameTime - lastShot ).TotalMilliseconds > 500 )
+				{
+					PlaceFence( gameTime );
+					lastShot = gameTime;
+				}
 				Angle += ang;
 			}
 			else if ( ClosestEntity is Fence )
@@ -377,8 +376,6 @@ namespace TanksDropTwo
 
 			}
 		}
-
-
 
 		private float Home( Vector2 HomingPosition )
 		{
@@ -466,6 +463,8 @@ namespace TanksDropTwo
 		public override void LoadContent( ContentManager Content, int ScreenWidth, int ScreenHeight )
 		{
 			Texture = Content.Load<Texture2D>( "Sprites\\TankMap" );
+			originalTexture = Content.Load<Texture2D>( "Sprites\\TankMap" );
+			isTextureAMap = true;
 			TankSourceRects = new Rectangle[ 8, 8 ];
 			texDatas = new Color[ 8, 8 ][];
 			int tankw = Texture.Width / 8;
@@ -543,7 +542,9 @@ namespace TanksDropTwo
 			Position = originalPosition;
 			Angle = originalAngle;
 			Scale = originalScale;
+			Texture = originalTexture;
 			Speed = originalSpeed;
+			isTextureAMap = true;
 			if ( proj )
 			{
 				nextProjectile = OriginalProjectile.Clone();

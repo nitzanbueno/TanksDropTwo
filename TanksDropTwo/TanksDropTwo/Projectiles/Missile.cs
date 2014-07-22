@@ -51,6 +51,12 @@ namespace TanksDropTwo
 			base.Update( gameTime, Entities, keyState );
 		}
 
+		public override void ForceDestroy()
+		{
+			owner.Keys.KeyShoot = keyShoot;
+			base.ForceDestroy();
+		}
+
 		public override void Destroy( TimeSpan gameTime )
 		{
 			if ( !hasExploded )

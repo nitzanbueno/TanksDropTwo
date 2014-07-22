@@ -149,6 +149,7 @@
     <Compile Include="Menus\Menu.cs" />
     <Compile Include="Menus\PauseMenu.cs" />
     <Compile Include="Menus\SettingsMenu.cs" />
+    <Compile Include="Controllers\Orbit.cs" />
     <Compile Include="Pickup.cs" />
     <Compile Include="ProjectilePickup.cs" />
     <Compile Include="Projectiles\Bullet.cs" />

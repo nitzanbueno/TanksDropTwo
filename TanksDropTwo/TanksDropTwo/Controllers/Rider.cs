@@ -33,6 +33,10 @@ namespace TanksDropTwo
 		bool ControllerIsTripler;
 		List<Rider> otherRiders;
 		public bool isOtherRider;
+		/// <summary>
+		/// This allows the normal rider to know when the other two died so it can self-destruct.
+		/// </summary>
+		int deadRiders;
 		bool die;
 		bool isDead;
 		float twist;
@@ -73,14 +77,17 @@ namespace TanksDropTwo
 
 		public override void Update( TimeSpan gameTime, HashSet<GameEntity> Entities, Microsoft.Xna.Framework.Input.KeyboardState keyState )
 		{
-			owner.Angle += twist;
 			if ( !isDead )
 				Move( Speed );
-			owner.Position = Position;
+			if ( !isOtherRider )
+			{
+				owner.Angle += twist;
+				owner.Position = Position;
+			}
 			CheckBounces();
 			if ( !owner.IsAlive )
 			{
-				Destroy(gameTime);
+				Destroy( gameTime );
 			}
 			if ( ( Position.Y < -1 || Position.X < -1 ) && bAxis == 0 )
 			{
@@ -118,13 +125,12 @@ namespace TanksDropTwo
 
 		public override void Draw( TimeSpan gameTime, SpriteBatch spriteBatch )
 		{
-			if ( ControllerIsTripler )
+			/*Color c = Color.Blue;
+			if ( isOtherRider )
 			{
-				foreach ( Rider r in otherRiders )
-				{
-					spriteBatch.Draw( owner.Texture, r.Position, owner.SourceRectangle, Color.White, owner.AngleInRadians, owner.Origin, owner.Scale, SpriteEffects.None, 0.25F );
-				}
-			}
+				c = Color.Green;
+			}*/
+			spriteBatch.Draw( owner.Texture, this.Position, owner.SourceRectangle, Color.White, owner.AngleInRadians, owner.Origin, owner.Scale, SpriteEffects.None, 0.25F );
 		}
 
 		public override void Initialize( TanksDrop game, TimeSpan gameTime, Tank owner )
@@ -138,13 +144,17 @@ namespace TanksDropTwo
 
 		public override void Destroy( TimeSpan gameTime )
 		{
+			if ( !ControllerIsTripler || !isOtherRider && otherRiders.All( x => x.isDead ) )
+			{
+				base.Destroy( gameTime );
+			}
 			if ( isDead )
 				return;
-			isDead = true; 
+			isDead = true;
 			owner.RemoveController( Controller );
 			if ( !isOtherRider )
 			{
-				VacuumController v = new VacuumController( owner, Speed + 1, x => x is Rider, false, Speed );
+				VacuumController v = new VacuumController( owner, Speed + 1, x => x is Rider && ( ( Rider )x ).owner == this.owner && ( ( Rider )x ).isOtherRider, false, Speed, true );
 				v.Initialize( Game );
 				Game.PutController( v );
 			}
@@ -152,7 +162,16 @@ namespace TanksDropTwo
 			{
 				owner.Destroy( gameTime );
 			}
-			//base.Destroy( gameTime );
+		}
+
+		public override void ForceDestroy()
+		{
+			isDead = true;
+			if ( !isOtherRider )
+			{
+				owner.RemoveController( Controller );
+			}
+			Game.RemoveEntity( this );
 		}
 
 		public override Projectile Clone()

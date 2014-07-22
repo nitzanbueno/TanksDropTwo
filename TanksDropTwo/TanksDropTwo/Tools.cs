@@ -105,5 +105,10 @@ namespace TanksDropTwo
 		{
 			return Tools.Mod( MathHelper.ToDegrees( ( float )Math.Atan2( FromPosition.Y - ToPosition.Y, FromPosition.X - ToPosition.X ) ) + 180, 360 );
 		}
+
+		public static float Angle( GameEntity FromEntity, GameEntity ToEntity )
+		{
+			return Tools.Mod( MathHelper.ToDegrees( ( float )Math.Atan2( FromEntity.Position.Y - ToEntity.Position.Y, FromEntity.Position.X - ToEntity.Position.X ) ) + 180, 360 );
+		}
 	}
 }

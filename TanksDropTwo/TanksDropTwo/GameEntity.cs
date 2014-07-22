@@ -36,6 +36,11 @@ namespace TanksDropTwo
 		protected int lifeTime;
 
 		/// <summary>
+		/// True if the texture is a map and animated, false if not.
+		/// </summary>
+		public bool isTextureAMap;
+
+		/// <summary>
 		/// The TimeSpan in which the entity has appeared on the board.
 		/// </summary>
 		protected TimeSpan spawnTime;
@@ -279,7 +284,14 @@ namespace TanksDropTwo
 		/// <param name="spriteBatch">The SpriteBatch to draw on. Already begun.</param>
 		public virtual void Draw( TimeSpan gameTime, SpriteBatch spriteBatch )
 		{
-			spriteBatch.Draw( Texture, Position, SourceRectangle, Color.White, AngleInRadians, Origin, Scale, SpriteEffects.None, 0.25F );
+			if ( isTextureAMap )
+			{
+				spriteBatch.Draw( Texture, Position, SourceRectangle, Color.White, AngleInRadians, Origin, Scale, SpriteEffects.None, 0.25F );
+			}
+			else
+			{
+				spriteBatch.Draw( Texture, Position, null, Color.White, AngleInRadians, Origin, Scale, SpriteEffects.None, 0.25F );
+			}
 			foreach ( GameController c in Controllers )
 			{
 				c.Draw( spriteBatch );
@@ -321,6 +333,11 @@ namespace TanksDropTwo
 		public bool CollisionCheck( GameEntity otherEntity )
 		{
 			return CollisionCheck( otherEntity, Texture, TextureData, SourceRectangle );
+		}
+
+		public virtual void ForceDestroy()
+		{
+			Destroy( TimeSpan.Zero );
 		}
 
 		// Copied from the internet, and set to match criteria.

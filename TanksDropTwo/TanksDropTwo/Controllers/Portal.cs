@@ -79,6 +79,7 @@ namespace TanksDropTwo.Controllers
 		public override void LoadContent( Microsoft.Xna.Framework.Content.ContentManager Content, int screenWidth, int screenHeight )
 		{
 			Texture = Content.Load<Texture2D>( "Sprites\\PortalMap" );
+			isTextureAMap = true;
 			SourceRectangle = new Rectangle( 0, isRed ? 32 : 0, 32, 32 );
 			Scale = 4.0F;
 			Origin = new Vector2( 16, 16 );

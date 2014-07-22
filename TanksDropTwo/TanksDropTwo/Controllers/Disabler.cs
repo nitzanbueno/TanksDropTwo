@@ -23,7 +23,7 @@ namespace TanksDropTwo.Controllers
 
 		public override void InstantAction( TimeSpan gameTime )
 		{
-			VacuumController d = new VacuumController( Owner, maxSpeed, x => !( x is Tank ), true, 1 );
+			VacuumController d = new VacuumController( Owner, maxSpeed, x => !( x is Tank ), true, 1, true );
 			d.Initialize( Game );
 			Game.PutController( d );
 
@@ -33,6 +33,7 @@ namespace TanksDropTwo.Controllers
 		{
 			Texture = Content.Load<Texture2D>( "Sprites\\Disabler" );
 			Scale = 2F;
+			Origin = new Vector2( 16, 16 );
 		}
 
 		public override GameController Clone()
@@ -54,6 +55,10 @@ namespace TanksDropTwo.Controllers
 		}
 	}
 
+	/// <summary>
+	/// Has an owner, and pulls all entities it controls to the owner like a black hole.
+	/// Can spiral them and not.
+	/// </summary>
 	public class VacuumController : GameController
 	{
 		private GameEntity Owner;
@@ -62,14 +67,28 @@ namespace TanksDropTwo.Controllers
 		private Predicate<GameEntity> match;
 		private VacuumTankController t;
 		private float baseSpeed;
+		private bool spiral;
+		/// <summary>
+		/// As soon as the game doesn't have this as controller (all entities are vacuumed), this increments to 1000 then the VacuumTankController is removed.
+		/// </summary>
+		private int destroyTime;
 
-		public VacuumController( GameEntity Owner, float maxSpeed, Predicate<GameEntity> match, bool giveTankController, float baseSpeed )
+		public VacuumController( GameEntity Owner, float maxSpeed, Predicate<GameEntity> match, bool giveTankController, float baseSpeed, bool spiral )
 		{
 			this.Owner = Owner;
 			this.maxSpeed = maxSpeed;
-			this.acceleration = 1;
+			if ( spiral )
+			{
+				this.acceleration = 0.5F;
+			}
+			else
+			{
+				this.acceleration = 1;
+			}
 			this.match = match;
+			this.spiral = spiral;
 			this.baseSpeed = baseSpeed;
+			this.destroyTime = 0;
 			if ( Owner is Tank && giveTankController )
 			{
 				t = new VacuumTankController( this );
@@ -85,6 +104,7 @@ namespace TanksDropTwo.Controllers
 				( ( Tank )Owner ).AppendController( t );
 				( ( Tank )Owner ).Controller = t;
 			}
+			destroyTime = 0;
 		}
 
 		public override bool Control( GameEntity control, TimeSpan gameTime, Microsoft.Xna.Framework.Input.KeyboardState keyState )
@@ -96,22 +116,18 @@ namespace TanksDropTwo.Controllers
 
 			float vacSpeed = ( float )control.Variables[ "VacuumSpeed" ];
 			float d = Vector2.Distance( Owner.Position, control.Position );
-			if ( d <= vacSpeed )
+			if ( d * 2 <= Owner.GameWidth + Owner.GameHeight )
 			{
 				control.Variables.Remove( "VacuumSpeed" );
-				Game.RemoveEntity( control );
-				if ( t != null )
-				{
-					Tank ta = ( Tank )Owner;
-					if ( !Game.HasController( this ) )
-					{
-						ta.RemoveTankController();
-					}
-				}
+				control.ForceDestroy();
 			}
 			else
 			{
-				control.Move( vacSpeed, Tools.Mod( MathHelper.ToDegrees( ( float )Math.Atan2( Owner.Position.Y - control.Position.Y, Owner.Position.X - control.Position.X ) ), 360 ) );
+				control.Move( vacSpeed, Tools.Angle( control, Owner ) );
+				if ( spiral )
+				{
+					control.Move( vacSpeed + 10, Tools.Angle( control, Owner ) + 90 );
+				}
 			}
 			if ( vacSpeed < maxSpeed )
 			{
@@ -122,6 +138,19 @@ namespace TanksDropTwo.Controllers
 				vacSpeed = maxSpeed;
 			}
 			control.Variables[ "VacuumSpeed" ] = vacSpeed;
+
+			if ( t != null )
+			{
+				Tank ta = ( Tank )Owner;
+				if ( !Game.HasController( this ) )
+				{
+					destroyTime += 1;
+					if ( destroyTime > 1000 )
+					{
+						ta.RemoveTankController();
+					}
+				}
+			}
 
 			return true;
 		}
@@ -141,7 +170,7 @@ namespace TanksDropTwo.Controllers
 	{
 		VacuumController owner;
 
-		public VacuumTankController(VacuumController owner)
+		public VacuumTankController( VacuumController owner )
 			: base( -1 )
 		{
 			this.owner = owner;
@@ -167,22 +196,21 @@ namespace TanksDropTwo.Controllers
 
 		public override bool Hit( TimeSpan gameTime )
 		{
-			return true;
+			return false;
 		}
 
 		public override bool OnPlaceFence( TimeSpan gameTime )
 		{
-			return true;
+			return false;
 		}
 
 		public override void StopControl()
 		{
-			return;
 		}
 
 		public override GameController Clone()
 		{
-			return new VacuumTankController(owner);
+			return new VacuumTankController( owner );
 		}
 
 		public override bool PickupProjectile( ProjectilePickup proj )

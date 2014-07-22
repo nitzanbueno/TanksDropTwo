@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
 
 namespace TanksDropTwo.Controllers
 {
@@ -13,11 +14,11 @@ namespace TanksDropTwo.Controllers
 			this.lifeTime = lifeTime;
 		}
 
-		private Dictionary<GameEntity, Texture2D> appliedEntities;
+		private Dictionary<GameEntity, Tuple<Texture2D, bool, Color[]>> appliedEntities;
 
 		public override void Initialize( TanksDrop game )
 		{
-			appliedEntities = new Dictionary<GameEntity, Texture2D>();
+			appliedEntities = new Dictionary<GameEntity, Tuple<Texture2D, bool, Color[]>>();
 			base.Initialize( game );
 		}
 
@@ -43,12 +44,14 @@ namespace TanksDropTwo.Controllers
 			}
 			foreach ( GameEntity control in Entities )
 			{
-				if ( !( control is Tank || control.Texture == this.Texture ) )
+				if ( !( control is Lazer || control is LazerHelper || control.Texture == this.Texture ) )
 				{
 					if ( !appliedEntities.ContainsKey( control ) )
 					{
-						appliedEntities[ control ] = control.Texture;
+						appliedEntities[ control ] = Tuple.Create( control.Texture, control.isTextureAMap, control.TextureData );
 						control.Texture = this.Texture;
+						control.TextureData = this.TextureData;
+						control.isTextureAMap = false;
 					}
 				}
 			}
@@ -59,9 +62,12 @@ namespace TanksDropTwo.Controllers
 		{
 			foreach ( GameEntity ent in appliedEntities.Keys )
 			{
-				ent.Texture = appliedEntities[ ent ];
+				var e = appliedEntities[ ent ];
+				ent.Texture = e.Item1;
+				ent.isTextureAMap = e.Item2;
+				ent.TextureData = e.Item3;
 			}
-			appliedEntities = new Dictionary<GameEntity, Texture2D>();
+			appliedEntities = new Dictionary<GameEntity, Tuple<Texture2D, bool, Color[]>>();
 			base.Destroy( gameTime );
 		}
 

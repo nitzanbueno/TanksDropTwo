@@ -162,43 +162,44 @@ namespace TanksDropTwo
 
 			AvailableProjectiles = new Projectile[]
 			{
-				//new HomingBullet( LoadPositiveSetting( "HomingBulletSpeed", ProjectileSpeed ), LoadPositiveSetting( "HomingBulletTurnSpeed", 5 ), TimeSpan.Zero, LoadPositiveSetting( "HomingBulletNoticeTime", 1000 ), LoadPositiveSetting( "HomingBulletTime", ProjectileTime ) ),
-				//new Missile( LoadPositiveSetting( "MissileSpeed", ProjectileSpeed ) ),
-				//new Lazer( LoadPositiveSetting( "LazerTime", ProjectileTime ) ),
-				//new Rider( LoadPositiveSetting( "RiderSpeed", ProjectileSpeed ), LoadPositiveSetting( "RiderTime", ProjectileTime ),LoadSetting("RiderDeath").ToLower() == "true", LoadPositiveSetting( "RiderTwist", 1 ) ),
+				new HomingBullet( LoadPositiveSetting( "HomingBulletSpeed", ProjectileSpeed ), LoadPositiveSetting( "HomingBulletTurnSpeed", 5 ), TimeSpan.Zero, LoadPositiveSetting( "HomingBulletNoticeTime", 1000 ), LoadPositiveSetting( "HomingBulletTime", ProjectileTime ) ),
+				new Missile( LoadPositiveSetting( "MissileSpeed", ProjectileSpeed ) ),
+				new Lazer( LoadPositiveSetting( "LazerTime", ProjectileTime ) ),
+				new Rider( LoadPositiveSetting( "RiderSpeed", ProjectileSpeed ), LoadPositiveSetting( "RiderTime", ProjectileTime ),LoadSetting("RiderDeath").ToLower() == "true", LoadPositiveSetting( "RiderTwist", 1 ) ),
 			};
 
 			AvailableControllers = new TankController[]
 			{
-				//new Ghost( LoadPositiveSetting( "GhostTime", ControllerTime ) ),
-				//new Deflector(),
-				//new SpeedBoost(LoadPositiveSetting( "SpeedBoostTime", ControllerTime ), LoadSetting( "SpeedBoostFactor", 2F ) ),
-				//new Minimize( LoadPositiveSetting( "MinimizeTime", ControllerTime ) ),
-				//new Switcher(),
-				//new ForceField( LoadPositiveSetting( "ForceFieldTime", ControllerTime ) ),
-				//new Tripler( LoadPositiveSetting( "TriplerTime", ControllerTime ) ),
-				//new ExtraLife(),
-				//new Shockwave(),
-				//new Roulette(),
-				//new MindController( LoadPositiveSetting( "MindControlTime", ControllerTime ) ),
-				//new IronDome( LoadPositiveSetting( "IronDomeTime", ControllerTime ), LoadPositiveSetting( "IronLifeTime", 2000 ), LoadPositiveSetting( "IronSpeed", 10 ), LoadPositiveSetting( "IronRadius", 200 ), LoadPositiveSetting( "IronProbability", 90 ) ),
-				//new Disabler( LoadPositiveSetting( "MaxDisablerSpeed", 50 ) ),
-				//new Minigun( LoadPositiveSetting( "MinigunTime", ControllerTime ), LoadPositiveSetting( "MinigunSpeed", 500 ) ),
-				//new Ring( LoadPositiveSetting( "RingRadius", 50 ) ),
-				//new Shuffler(), 
+				new Ghost( LoadPositiveSetting( "GhostTime", ControllerTime ) ),
+				new Deflector(),
+				new SpeedBoost(LoadPositiveSetting( "SpeedBoostTime", ControllerTime ), LoadSetting( "SpeedBoostFactor", 2F ) ),
+				new Minimize( LoadPositiveSetting( "MinimizeTime", ControllerTime ) ),
+				new Switcher(),
+				new ForceField( LoadPositiveSetting( "ForceFieldTime", ControllerTime ) ),
+				new Tripler( LoadPositiveSetting( "TriplerTime", ControllerTime ) ),
+				new ExtraLife(),
+				new Shockwave(),
+				new Roulette(),
+				new MindController( LoadPositiveSetting( "MindControlTime", ControllerTime ) ),
+				new IronDome( LoadPositiveSetting( "IronDomeTime", ControllerTime ), LoadPositiveSetting( "IronLifeTime", 2000 ), LoadPositiveSetting( "IronSpeed", 10 ), LoadPositiveSetting( "IronRadius", 200 ), LoadPositiveSetting( "IronProbability", 90 ) ),
+				new Disabler( LoadPositiveSetting( "MaxDisablerSpeed", 50 ) ),
+				new Minigun( LoadPositiveSetting( "MinigunTime", ControllerTime ), LoadPositiveSetting( "MinigunSpeed", 500 ) ),
+				new Ring( LoadPositiveSetting( "RingRadius", 50 ) ),
+				new Shuffler(), 
 				new Hypnotizer( LoadPositiveSetting( "HypnotizerTime", ControllerTime ), LoadPositiveSetting( "HypnoRadius", 200 ) ),
 			};
 
 			AvailableConEnts = new ControllerEntity[]
 			{
-				//new Portal( LoadPositiveSetting( "PortalTime", ControllerTime ) ),
-				//new BlackHole(),
-				//new Concealer( LoadPositiveSetting( "ConcealerTime", ControllerTime ) ),
+				new Portal( LoadPositiveSetting( "PortalTime", ControllerTime ) ),
+				new BlackHole(),
+				new Concealer( LoadPositiveSetting( "ConcealerTime", ControllerTime ) ),
 			};
 
 			SuddenDeaths = new GameController[]
 			{
-				new ShrinkyDeath(),
+				//new ShrinkyDeath(),
+				new Orbit( LoadSetting( "OrbitBaseSpeed", 20F ), LoadSetting( "OrbitMaxSpeed", 60F ), LoadSetting( "OrbitMinSpeed", 1F ), LoadSetting( "OrbitAccleration", -0.5F ), LoadSetting( "OrbitSpiralFactor", 19F ) ),
 			};
 
 			QueueSuddenDeath();
@@ -488,10 +489,10 @@ namespace TanksDropTwo
 			{
 				currentGameTime += gameTime.ElapsedGameTime;
 			}
-			/*if ( keyState.IsKeyDown( Keys.R ) )
+			if ( keyState.IsKeyDown( Keys.R ) )
 			{
 				NewRound( false, false, false );
-			}*/
+			}
 			if ( keyState.IsKeyDown( Keys.P ) )
 			{
 				CurrentMenu = new PauseMenu( this );
@@ -594,7 +595,7 @@ namespace TanksDropTwo
 			int ConEntLen = AvailableConEnts.Length;
 			int Category = r.Next( ProjLen + ConLen + ConEntLen );
 
-			if ( Category < ProjLen + ConLen || r.Next( 10 ) == 0 ) // Low probability for the controller entities
+			if ( ( Category < ProjLen + ConLen || r.Next( 3 ) == 0 ) && ProjLen + ConLen > 0 ) // Low probability for the controller entities
 			{
 				Pickup p = null;
 				Category %= ( ProjLen + ConLen );
@@ -605,9 +606,9 @@ namespace TanksDropTwo
 				p.Initialize( this, gameTime );
 				QueueEntity( p );
 			}
-			else
+			else if ( ConEntLen > 0 )
 			{
-				ControllerEntity e = AvailableConEnts[ Category - ProjLen - ConLen ];
+				ControllerEntity e = AvailableConEnts[ ( int )Tools.Mod( Category - ProjLen - ConLen, AvailableConEnts.LongLength ) ];
 				e.Spawn( gameTime, this );
 			}
 		}
@@ -748,7 +749,21 @@ namespace TanksDropTwo
 
 		public void SpawnSuddenDeath()
 		{
-			PutController( SuddenDeaths[ r.Next( SuddenDeaths.Length ) ] );
+			GameController c = SuddenDeaths[ r.Next( SuddenDeaths.Length ) ];
+			c.Initialize( this );
+			AppendController( c );
+		}
+
+		public bool HasEntity( Predicate<GameEntity> match )
+		{
+			foreach ( GameEntity entity in Entities )
+			{
+				if ( match( entity ) )
+				{
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 }
