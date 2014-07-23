@@ -187,6 +187,8 @@ namespace TanksDropTwo
 				new Ring( LoadPositiveSetting( "RingRadius", 50 ) ),
 				new Shuffler(), 
 				new Hypnotizer( LoadPositiveSetting( "HypnotizerTime", ControllerTime ), LoadPositiveSetting( "HypnoRadius", 200 ) ),
+				new Aimbot(),
+				new Dodger( LoadPositiveSetting( "DodgerTime", ControllerTime ) ),
 			};
 
 			AvailableConEnts = new ControllerEntity[]
@@ -198,7 +200,7 @@ namespace TanksDropTwo
 
 			SuddenDeaths = new GameController[]
 			{
-				//new ShrinkyDeath(),
+				new ShrinkyDeath(),
 				new Orbit( LoadSetting( "OrbitBaseSpeed", 20F ), LoadSetting( "OrbitMaxSpeed", 60F ), LoadSetting( "OrbitMinSpeed", 1F ), LoadSetting( "OrbitAccleration", -0.5F ), LoadSetting( "OrbitSpiralFactor", 19F ) ),
 			};
 

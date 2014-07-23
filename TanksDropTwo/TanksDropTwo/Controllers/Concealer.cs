@@ -32,6 +32,7 @@ namespace TanksDropTwo.Controllers
 		public override void LoadContent( Microsoft.Xna.Framework.Content.ContentManager Content, int screenWidth, int screenHeight )
 		{
 			Texture = Content.Load<Texture2D>( "Sprites\\Concealer" );
+			Origin = new Vector2( 16, 16 );
 			base.LoadContent( Content, screenWidth, screenHeight );
 		}
 

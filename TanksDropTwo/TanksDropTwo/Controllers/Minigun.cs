@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
 
 namespace TanksDropTwo.Controllers
 {
@@ -26,6 +27,7 @@ namespace TanksDropTwo.Controllers
 		public override void LoadTexture( Microsoft.Xna.Framework.Content.ContentManager Content )
 		{
 			Texture = Content.Load<Texture2D>( "Sprites\\Minigun" );
+			Origin = new Vector2( 16, 16 );
 			Scale = 2;
 		}
 

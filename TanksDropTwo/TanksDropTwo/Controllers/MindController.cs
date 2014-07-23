@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework;
 
 namespace TanksDropTwo.Controllers
 {
@@ -26,6 +27,7 @@ namespace TanksDropTwo.Controllers
 		public override void LoadTexture( Microsoft.Xna.Framework.Content.ContentManager Content )
 		{
 			Texture = Content.Load<Texture2D>( "Sprites\\MindController" );
+			Origin = new Vector2( 32, 32 );
 			Scale = 1F;
 		}
 

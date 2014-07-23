@@ -66,26 +66,10 @@ namespace TanksDropTwo
 				}
 			}
 
-			if ( HomingTank == null ) return; // Make sure there is a tank I home onto.
+			if ( HomingTank == null )
+				return; // Make sure there is a tank I home onto.
 
-			float ang = Tools.Mod( MathHelper.ToDegrees( ( float )Math.Atan2( Position.Y - HomingTank.Position.Y, Position.X - HomingTank.Position.X ) ) + 180, 360 );
-
-			if ( Angle == ang )
-			{
-				return;
-				// Don't move if the bullet is in the right direction.
-			}
-			bool ToRight = Angle > 180 ? !( ang < Angle && ang > Angle - 180 ) : ( ang > Angle && ang < Angle + 180 ); // Determines, in one line, whether the bullet should turn right or left.
-			if ( ToRight )
-			{
-				float difference = Math.Min( Math.Abs( ang - Angle ), Math.Abs( ang - Angle + 360 ) );
-				Angle += Math.Min( difference, speed );
-			}
-			else
-			{
-				float difference = Math.Min( Math.Abs( ang - Angle ), Math.Abs( ang - Angle + 360 ) );
-				Angle -= Math.Min( difference, speed );
-			}
+			Angle += Tools.HomeAngle( speed,Angle, Position, HomingTank.Position );
 		}
 
 		public override void LoadContent( ContentManager Content, int screenWidth, int screenHeight )

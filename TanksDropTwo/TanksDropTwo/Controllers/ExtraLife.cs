@@ -23,6 +23,7 @@ namespace TanksDropTwo.Controllers
 		{
 			Texture = Content.Load<Texture2D>( "Sprites\\ExtraLife" );
 			Halo = Content.Load<Texture2D>( "Sprites\\ExtraAlive" );
+			Origin = new Vector2( 16, 16 );
 			Scale = 2.0F;
 		}
 
@@ -62,7 +63,7 @@ namespace TanksDropTwo.Controllers
 
 		public override void Draw( SpriteBatch spriteBatch )
 		{
-			spriteBatch.Draw( Halo, Owner.Position, null, Color.White, Rotation, new Vector2( 16, 16 ), Owner.Scale * 1.5F, SpriteEffects.None, 0.24F );
+			spriteBatch.Draw( Halo, Owner.Position, null, Color.White, Rotation, Origin, Owner.Scale * 1.5F, SpriteEffects.None, 0.24F );
 			Rotation += MathHelper.ToRadians( 10 );
 		}
 

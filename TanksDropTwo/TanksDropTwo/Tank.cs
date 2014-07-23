@@ -117,7 +117,23 @@ namespace TanksDropTwo
 		/// </summary>
 		public Colors OriginalColor;
 
-		public KeySet OriginalKeys;
+		private KeySet origKeys;
+
+		/// <summary>
+		/// The original keys.
+		/// </summary>
+		public KeySet OriginalKeys
+		{
+			get
+			{
+				return origKeys.Clone();
+			}
+
+			set
+			{
+				origKeys = value.Clone();
+			}
+		}
 
 		/// <summary>
 		/// This tank's controller, if exists.
@@ -174,7 +190,7 @@ namespace TanksDropTwo
 
 		public int FenceLimit;
 
-		private float TurnSpeed;
+		public float TurnSpeed;
 
 		private Texture2D originalTexture;
 
@@ -187,8 +203,8 @@ namespace TanksDropTwo
 			this.originalSpeed = speed;
 			this.originalPosition = startPosition;
 			this.originalAngle = startAngle;
-			this.Keys = keys.Clone();
-			this.OriginalKeys = keys.Clone();
+			this.Keys = keys;
+			this.OriginalKeys = keys;
 			this.TankColor = color;
 			this.OriginalColor = color;
 			this.Origin = new Vector2( 16, 16 );

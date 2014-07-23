@@ -39,7 +39,7 @@ namespace TanksDropTwo
 
 		public KeySet Clone()
 		{
-			return new KeySet(KeyForward, KeyBackward, KeyLeft, KeyRight, KeyPlace, KeyShoot);
+			return new KeySet( KeyForward, KeyBackward, KeyLeft, KeyRight, KeyPlace, KeyShoot );
 		}
 	}
 
@@ -109,6 +109,28 @@ namespace TanksDropTwo
 		public static float Angle( GameEntity FromEntity, GameEntity ToEntity )
 		{
 			return Tools.Mod( MathHelper.ToDegrees( ( float )Math.Atan2( FromEntity.Position.Y - ToEntity.Position.Y, FromEntity.Position.X - ToEntity.Position.X ) ) + 180, 360 );
+		}
+
+		public static float HomeAngle( float TurnSpeed, float Angle, Vector2 Position, Vector2 HomingPosition )
+		{
+			float ang = Tools.Angle( Position, HomingPosition );
+
+			if ( Angle == ang )
+			{
+				return 0;
+				// Don't move if the bullet is in the right direction.
+			}
+			bool ToRight = Angle > 180 ? !( ang < Angle && ang > Angle - 180 ) : ( ang > Angle && ang < Angle + 180 ); // Determines, in one line, whether the bullet should turn right or left.
+			if ( ToRight )
+			{
+				float difference = Math.Min( Math.Abs( ang - Angle ), Math.Abs( ang - Angle + 360 ) );
+				return Math.Min( difference, TurnSpeed );
+			}
+			else
+			{
+				float difference = Math.Min( Math.Abs( ang - Angle ), Math.Abs( ang - Angle + 360 ) );
+				return -Math.Min( difference, TurnSpeed );
+			}
 		}
 	}
 }
