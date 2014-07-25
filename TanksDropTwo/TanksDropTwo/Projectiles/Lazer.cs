@@ -7,16 +7,22 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TanksDropTwo
 {
+	/// <summary>
+	/// A red laser that bounces off walls and fences quickly, and kills on contact with the tip.
+	/// </summary>
 	public class Lazer : Projectile
 	{
 		List<LazerHelper> Helpers;
 		LazerHelper lastHelper;
 		bool hasCollided;
 		IEnumerable<GameEntity> Tanks;
+		int Trail;
 
 		public Lazer( Tank Owner )
 			: base( Owner )
 		{
+			this.Speed = 100;
+			this.Trail = 200;
 		}
 
 		public Lazer( Tank Owner, TimeSpan gameTime )
@@ -26,9 +32,11 @@ namespace TanksDropTwo
 
 		public Lazer() : this( Tank.blank ) { }
 
-		public Lazer( int lifeTime ) : this()
+		public Lazer( int lifeTime, int speed, int trail ) : this()
 		{
 			this.lifeTime = lifeTime;
+			this.Speed = speed;
+			this.Trail = trail;
 		}
 
 		public override void Initialize( TanksDrop game )
@@ -50,9 +58,9 @@ namespace TanksDropTwo
 						select e;
 			}
 
-			for ( int i = 0; i < 100; i++ )
+			for ( int i = 0; i < Speed; i++ )
 			{
-				if ( ( Helpers.Count >= 200 || hasCollided ) && Helpers.Count > 0 )
+				if ( ( Helpers.Count >= Trail || hasCollided ) && Helpers.Count > 0 )
 				{
 					try
 					{
@@ -112,6 +120,8 @@ namespace TanksDropTwo
 		public override Projectile Clone()
 		{
 			Lazer l = new Lazer( owner );
+			l.Trail = Trail;
+			l.Speed = Speed;
 			l.Game = Game;
 			l.Angle = Angle;
 			l.Position = Position;
@@ -129,6 +139,9 @@ namespace TanksDropTwo
 		}
 	}
 
+	/// <summary>
+	/// A LazerHelper marks a single red dot of the lazer's trail.
+	/// </summary>
 	public class LazerHelper : Projectile
 	{
 		public bool Destroyed;

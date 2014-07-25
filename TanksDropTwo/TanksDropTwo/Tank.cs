@@ -339,7 +339,7 @@ namespace TanksDropTwo
 			{
 				double dist = Vector2.Distance( Position, entity.Position );
 				if ( ( ClosestEntity == null || dist < ClosestDistance ) && entity != this && !( entity is Fence )
-					&& ( !( entity is Projectile ) || ( !Tools.IsGoingTowardsMe( Position, entity.Angle, entity.Position ) && dist < 300 ) )
+					&& ( !( entity is Projectile ) || ( Tools.IsGoingTowardsMe( Position, entity.Angle, entity.Position ) && dist < 300 ) )
 					&& ( !( entity is ProjectilePickup ) || nextProjectile.GetType() == originalProjectile.GetType() )
 					&& ( !( entity is TankControllerPickup ) || Controller == null )
 					&& ( !( entity is Tank ) || ( ( Tank )entity ).IsAlive ) )

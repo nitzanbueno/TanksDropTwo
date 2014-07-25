@@ -33,7 +33,7 @@ namespace TanksDropTwo.Controllers
 
 		public override bool Control( GameEntity control, TimeSpan gameTime, Microsoft.Xna.Framework.Input.KeyboardState keyState )
 		{
-			if ( Owner.IsAlive && control is Projectile && !( control is IronRocket ) && Vector2.DistanceSquared( control.Position, Owner.Position ) <= Math.Pow( Radius, 2 ) && !Tools.IsGoingTowardsMe( Owner.Position, control.Angle, control.Position ) )
+			if ( Owner.IsAlive && control is Projectile && !( control is IronRocket ) && Vector2.DistanceSquared( control.Position, Owner.Position ) <= Math.Pow( Radius, 2 ) && Tools.IsGoingTowardsMe( Owner.Position, control.Angle, control.Position ) )
 			{
 				Projectile cont = ( Projectile )control;
 				if ( ( !cont.Variables.ContainsKey( "IronRockets" ) || !( ( HashSet<Tank> )cont.Variables[ "IronRockets" ] ).Contains( Owner ) ) )

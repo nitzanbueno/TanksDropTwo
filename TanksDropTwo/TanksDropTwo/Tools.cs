@@ -83,34 +83,65 @@ namespace TanksDropTwo
 			return result;
 		}
 
+		/// <summary>
+		/// Used to check whether a bullet is going towards a tank or not.
+		/// Returns true if it is, false if it isn't.
+		/// </summary>
+		/// <param name="TankPosition">The position of the tank.</param>
+		/// <param name="angle">The angle of the bullet.</param>
+		/// <param name="BulletPosition">The position of the bullet.</param>
+		/// <returns>True if the bullet is going towards the tank, false if it isn't.</returns>
 		public static bool IsGoingTowardsMe( Vector2 TankPosition, float angle, Vector2 BulletPosition )
 		{
-			float window = 20;
+			// Checks by checking the angle the bullet SHOULD go to hit the tank, then checking if the current angle is within a close radius of it.
+			float window = 20; // Window represents that close radius.
 			float ang = Tools.Mod( MathHelper.ToDegrees( ( float )Math.Atan2( TankPosition.Y - BulletPosition.Y, TankPosition.X - BulletPosition.X ) ), 360 );
+			// Compensation for the 0-to-360 problem.
 			if ( ang < window )
 			{
-				return !( ( angle >= ang && angle < ang + window ) || angle <= ang || angle >= ang + 360 - window );
+				return ( ( angle >= ang && angle < ang + window ) || angle <= ang || angle >= ang + 360 - window );
 			}
 			else if ( ang >= window && ang <= 360 - window )
 			{
-				return !( angle >= ang - window && angle <= ang + window );
+				return ( angle >= ang - window && angle <= ang + window );
 			}
 			else
 			{
-				return !( angle <= ang - 360 + window || angle >= ang - window );
+				return ( angle <= ang - 360 + window || angle >= ang - window );
 			}
 		}
 
+		/// <summary>
+		/// Returns the angle between two Vector2s.
+		/// </summary>
+		/// <param name="FromPosition">The point to measure the angle from.</param>
+		/// <param name="ToPosition">The point to measure the angle to.</param>
+		/// <returns>The angle between FromPosition and ToPosition.</returns>
 		public static float Angle( Vector2 FromPosition, Vector2 ToPosition )
 		{
 			return Tools.Mod( MathHelper.ToDegrees( ( float )Math.Atan2( FromPosition.Y - ToPosition.Y, FromPosition.X - ToPosition.X ) ) + 180, 360 );
 		}
 
+		/// <summary>
+		/// Returns the angle between two GameEntities.
+		/// </summary>
+		/// <param name="FromPosition">The entity to measure the angle from.</param>
+		/// <param name="ToPosition">The entity to measure the angle to.</param>
+		/// <returns>The angle between the two entities.</returns>
 		public static float Angle( GameEntity FromEntity, GameEntity ToEntity )
 		{
 			return Tools.Mod( MathHelper.ToDegrees( ( float )Math.Atan2( FromEntity.Position.Y - ToEntity.Position.Y, FromEntity.Position.X - ToEntity.Position.X ) ) + 180, 360 );
 		}
 
+		/// <summary>
+		/// Returns the angle the entity should turn to be closer to face the HomingPosition.
+		/// (returns the value of turning, not the angle.)
+		/// </summary>
+		/// <param name="TurnSpeed">The maximum speed of turning.</param>
+		/// <param name="Angle">The current angle.</param>
+		/// <param name="Position">The current position.</param>
+		/// <param name="HomingPosition">The position to home to.</param>
+		/// <returns>The angle to have the entity turn.</returns>
 		public static float HomeAngle( float TurnSpeed, float Angle, Vector2 Position, Vector2 HomingPosition )
 		{
 			float ang = Tools.Angle( Position, HomingPosition );
