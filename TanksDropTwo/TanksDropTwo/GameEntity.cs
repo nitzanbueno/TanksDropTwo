@@ -196,15 +196,15 @@ namespace TanksDropTwo
 		/// If negative, moves backwards.</param>
 		public void Move( float speed )
 		{
-			Position = Forward( speed );
+			Position = PositionShift( speed );
 		}
 
 		/// <summary>
-		/// Returns the entity's position moved forward the given amount of pixels in its angle's direction.
+		/// Returns the entity's position shifted forward the given amount of pixels in its angle's direction.
 		/// </summary>
-		/// <param name="speed">The amount of pixels to move</param>
-		/// <returns>The moved position.</returns>
-		protected Vector2 Forward( float speed )
+		/// <param name="speed">The amount of pixels to shift.</param>
+		/// <returns>The shifted position.</returns>
+		protected Vector2 PositionShift( float speed )
 		{
 			return Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( Angle ) ), ( float )Math.Sin( MathHelper.ToRadians( Angle ) ) ) * speed );
 		}
@@ -216,15 +216,15 @@ namespace TanksDropTwo
 		/// <param name="angle">The angle of movement, in degrees..</param>
 		public void Move( float speed, float angle )
 		{
-			Position = Forward( speed, angle );
+			Position = PositionShift( speed, angle );
 		}
 
 		/// <summary>
-		/// Returns the entity's position moved forward the given amount of pixels in its angle's direction.
+		/// Returns the entity's position shifted the given amount of pixels in the given angle's direction.
 		/// </summary>
 		/// <param name="speed">The amount of pixels to move</param>
 		/// <returns>The moved position.</returns>
-		public Vector2 Forward( float speed, float angle )
+		public Vector2 PositionShift( float speed, float angle )
 		{
 			return Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( angle ) ), ( float )Math.Sin( MathHelper.ToRadians( angle ) ) ) * speed );
 		}

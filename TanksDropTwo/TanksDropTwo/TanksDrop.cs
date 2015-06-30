@@ -164,7 +164,7 @@ namespace TanksDropTwo
 			{
 				new HomingBullet( LoadPositiveSetting( "HomingBulletSpeed", ProjectileSpeed ), LoadPositiveSetting( "HomingBulletTurnSpeed", 5 ), TimeSpan.Zero, LoadPositiveSetting( "HomingBulletNoticeTime", 1000 ), LoadPositiveSetting( "HomingBulletTime", ProjectileTime ) ),
 				new Missile( LoadPositiveSetting( "MissileSpeed", ProjectileSpeed ) ),
-				new Lazer( LoadPositiveSetting( "LazerTime", ProjectileTime ) ),
+				new Lazer( LoadPositiveSetting( "LazerTime", ProjectileTime ), LoadPositiveSetting( "LazerSpeed", 200 ), LoadPositiveSetting( "LazerTrail", 100 ) ),
 				new Rider( LoadPositiveSetting( "RiderSpeed", ProjectileSpeed ), LoadPositiveSetting( "RiderTime", ProjectileTime ),LoadSetting("RiderDeath").ToLower() == "true", LoadPositiveSetting( "RiderTwist", 1 ) ),
 			};
 
@@ -275,14 +275,14 @@ namespace TanksDropTwo
 		{
 			foreach ( string l in Lines )
 			{
-				if ( l != "" && l[ 0 ] != '#' && l[ 0 ] != '[' )
+				if ( l != "" && l[0] != '#' && l[0] != '[' )
 				{
 					string[] Line = l.Split( '=' );
-					if ( Line[ 0 ].ToLower() == setting.ToLower() )
+					if ( Line[0].ToLower() == setting.ToLower() )
 					{
 						try
 						{
-							return Line[ 1 ];
+							return Line[1];
 						}
 						catch ( Exception ) { }
 					}
@@ -303,7 +303,7 @@ namespace TanksDropTwo
 			Colors set;
 			try
 			{
-				set = ( Colors )Enum.Parse( typeof( Colors ), color );
+				set = (Colors)Enum.Parse( typeof( Colors ), color );
 			}
 			catch ( Exception ) { set = defaultSetting; }
 			Settings.Add( setting, Tuple.Create<Type, object>( set.GetType(), set ) );
@@ -318,12 +318,12 @@ namespace TanksDropTwo
 				return defaultSetting;
 			string[] keys = keystr.Replace( " ", string.Empty ).Split( ',' );
 			set = new KeySet(
-			LoadKey( keys[ 0 ], defaultSetting.KeyForward ),
-			LoadKey( keys[ 2 ], defaultSetting.KeyBackward ),
-			LoadKey( keys[ 1 ], defaultSetting.KeyLeft ),
-			LoadKey( keys[ 3 ], defaultSetting.KeyRight ),
-			LoadKey( keys[ 4 ], defaultSetting.KeyPlace ),
-			LoadKey( keys[ 5 ], defaultSetting.KeyShoot ) );
+			LoadKey( keys[0], defaultSetting.KeyForward ),
+			LoadKey( keys[2], defaultSetting.KeyBackward ),
+			LoadKey( keys[1], defaultSetting.KeyLeft ),
+			LoadKey( keys[3], defaultSetting.KeyRight ),
+			LoadKey( keys[4], defaultSetting.KeyPlace ),
+			LoadKey( keys[5], defaultSetting.KeyShoot ) );
 			Settings.Add( setting, Tuple.Create<Type, object>( set.GetType(), set ) );
 			return set;
 		}
@@ -338,7 +338,7 @@ namespace TanksDropTwo
 		{
 			try
 			{
-				return ( Keys )Enum.Parse( typeof( Keys ), key );
+				return (Keys)Enum.Parse( typeof( Keys ), key );
 			}
 			catch ( Exception )
 			{
@@ -505,7 +505,7 @@ namespace TanksDropTwo
 			foreach ( GameEntity entity in EntitiesCopy )
 			{
 				entity.ConUpdate( currentGameTime, EntitiesCopy, keyState );
-				if ( entity is Tank && ( ( Tank )entity ).IsAlive )
+				if ( entity is Tank && ( (Tank)entity ).IsAlive )
 				{
 					NumberOfLivingTanks++;
 				}
@@ -537,7 +537,7 @@ namespace TanksDropTwo
 		private void NewRound( bool Score, bool sleep, bool check )
 		{
 			HasBeganWait = false;
-			if ( check && Entities.Count( x => x is Tank && ( ( Tank )x ).IsAlive ) > 1 )
+			if ( check && Entities.Count( x => x is Tank && ( (Tank)x ).IsAlive ) > 1 )
 				return;
 			if ( sleep )
 			{
@@ -551,7 +551,7 @@ namespace TanksDropTwo
 			{
 				if ( entity is Tank )
 				{
-					Tank t = ( Tank )entity;
+					Tank t = (Tank)entity;
 					if ( t.IsAlive && Score )
 					{
 						t.Score++;
@@ -601,7 +601,7 @@ namespace TanksDropTwo
 			{
 				Pickup p = null;
 				Category %= ( ProjLen + ConLen );
-				p = Category < AvailableProjectiles.Length ? new ProjectilePickup( AvailableProjectiles[ Category ], PickupLifetime ) : ( Pickup )new TankControllerPickup( AvailableControllers[ Category - ProjLen ], PickupLifetime );
+				p = Category < AvailableProjectiles.Length ? new ProjectilePickup( AvailableProjectiles[Category], PickupLifetime ) : (Pickup)new TankControllerPickup( AvailableControllers[Category - ProjLen], PickupLifetime );
 				// Picks a random pickup using the category integer.
 
 				p.Position = new Vector2( r.Next( ScreenWidth ), r.Next( ScreenHeight ) );
@@ -610,7 +610,7 @@ namespace TanksDropTwo
 			}
 			else if ( ConEntLen > 0 )
 			{
-				ControllerEntity e = AvailableConEnts[ ( int )Tools.Mod( Category - ProjLen - ConLen, AvailableConEnts.LongLength ) ];
+				ControllerEntity e = AvailableConEnts[(int)Tools.Mod( Category - ProjLen - ConLen, AvailableConEnts.LongLength )];
 				e.Spawn( gameTime, this );
 			}
 		}
@@ -741,17 +741,17 @@ namespace TanksDropTwo
 
 		public void QueueSuddenDeath()
 		{
-			if ( ( int )Settings[ "SuddenDeathTime" ].Item2 > 0 )
+			if ( (int)Settings["SuddenDeathTime"].Item2 > 0 )
 			{
 				ScheduledTasks.Remove( SuddenDeathTask );
-				SuddenDeathTask = Tuple.Create<TimeSpan, int, Action>( currentGameTime, ( int )Settings[ "SuddenDeathTime" ].Item2, SpawnSuddenDeath );
+				SuddenDeathTask = Tuple.Create<TimeSpan, int, Action>( currentGameTime, (int)Settings["SuddenDeathTime"].Item2, SpawnSuddenDeath );
 				ScheduledTasks.Add( SuddenDeathTask );
 			}
 		}
 
 		public void SpawnSuddenDeath()
 		{
-			GameController c = SuddenDeaths[ r.Next( SuddenDeaths.Length ) ];
+			GameController c = SuddenDeaths[r.Next( SuddenDeaths.Length )];
 			c.Initialize( this );
 			AppendController( c );
 		}
