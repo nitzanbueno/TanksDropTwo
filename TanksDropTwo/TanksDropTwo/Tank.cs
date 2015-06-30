@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
 using TanksDropTwo.Controllers;
+using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Audio;
 
 namespace TanksDropTwo
@@ -20,12 +21,12 @@ namespace TanksDropTwo
 		/// <summary>
 		/// Since this is an animated entity, the texture datas for each frame.
 		/// </summary>
-		private Color[ , ][] texDatas;
+		private Color[,][] texDatas;
 
 		/// <summary>
 		/// Since this is an animated entity, the source rectangles for each frame.
 		/// </summary>
-		private Rectangle[ , ] TankSourceRects;
+		private Rectangle[,] TankSourceRects;
 
 		/// <summary>
 		/// The name of the tank.
@@ -197,6 +198,9 @@ namespace TanksDropTwo
 
 		public bool AI;
 
+		private PlayerIndex index;
+
+		GamePadState prevPad;
 		private SoundEffect powerUpSound;
 		private SoundEffect hitSound;
 		private SoundEffect shootSound;
@@ -238,19 +242,21 @@ namespace TanksDropTwo
 		{
 			originalProjectile.Initialize( game );
 			nextProjectile = OriginalProjectile;
+			prevPad = GamePad.GetState( index );
 			base.Initialize( game );
 		}
 
 		public override void Update( TimeSpan gameTime, HashSet<GameEntity> Entities, KeyboardState keyState )
 		{
+			GamePadState padState = GamePad.GetState( index );
 			// Update the tank's frame.
 			if ( ( gameTime - timeSinceLastFrameUpdate ).TotalMilliseconds > 175 )
 			{
 				frame++;
 				frame %= 8;
 				timeSinceLastFrameUpdate = gameTime;
-				SourceRectangle = TankSourceRects[ frame, ( int )TankColor ];
-				TextureData = texDatas[ frame, ( int )TankColor ];
+				SourceRectangle = TankSourceRects[frame, (int)TankColor];
+				TextureData = texDatas[frame, (int)TankColor];
 			}
 
 			if ( AI && IsAlive )
@@ -259,17 +265,16 @@ namespace TanksDropTwo
 			Vector2 newPosition = Position;
 			float newAngle = Angle;
 
-			if ( keyState.IsKeyDown( Keys.KeyForward ) )
+			if ( keyState.IsKeyDown( Keys.KeyForward ) || padState.DPad.Up == ButtonState.Pressed )
 			{
 				// Move forward
-				newPosition = Bound( Forward( Speed ) );
+				newPosition = PositionShift( Speed );
 			}
 
-			if ( keyState.IsKeyDown( Keys.KeyBackward ) )
+			if ( keyState.IsKeyDown( Keys.KeyBackward ) || padState.DPad.Down == ButtonState.Pressed )
 			{
 				// Move backward
-				newPosition = Forward( -Speed );
-				newPosition = Bound( newPosition );
+				newPosition = PositionShift( -Speed );
 				IsGoingBackwards = true;
 			}
 			else
@@ -277,16 +282,37 @@ namespace TanksDropTwo
 				IsGoingBackwards = false;
 			}
 
-			if ( keyState.IsKeyDown( Keys.KeyLeft ) )
+			if ( keyState.IsKeyDown( Keys.KeyLeft ) || padState.DPad.Left == ButtonState.Pressed )
 			{
 				// Turn left
 				newAngle -= TurnSpeed;
 			}
 
-			if ( keyState.IsKeyDown( Keys.KeyRight ) )
+			if ( keyState.IsKeyDown( Keys.KeyRight ) || padState.DPad.Right == ButtonState.Pressed )
 			{
 				// Turn right
 				newAngle += TurnSpeed;
+			}
+
+			// Move with thumbsticks: Check if left thumbstick is active. If it is, move with it. Otherwise, check if right thumbstick is active. If it is, move with it.
+			// Thumbsticks override the D-Pad or keyboard because they're the most comfortable control.
+			Vector2 leftThumb = padState.ThumbSticks.Left;
+			Vector2 rightThumb = padState.ThumbSticks.Right;
+			float leftDistance = leftThumb.Length();
+			float rightDistance = rightThumb.Length();
+			bool moveWithLeftThumb = leftDistance > 0.05f;
+			bool moveWithRightThumb = rightDistance > 0.05f;
+			if ( moveWithLeftThumb )
+			{
+				// Move with left thumbstick if it's active
+				newAngle = Tools.Angle( Vector2.Zero, leftThumb );
+				newPosition = this.PositionShift( Speed * leftThumb.Length(), newAngle );
+			}
+			else if ( moveWithRightThumb )
+			{
+				// Move with right thumbstick if left thumbstick isn't active
+				newAngle = Tools.Angle( Vector2.Zero, rightThumb );
+				newPosition = this.PositionShift( Speed * rightThumb.Length(), newAngle );
 			}
 
 			// The transformation matrix used to pre-check collision
@@ -302,23 +328,23 @@ namespace TanksDropTwo
 			{
 				if ( entity is Fence && this.CollidesWith( entity, Transformation ) )
 				{
-					// If the tank hits a fence if it moves
+					// If the tank will hit a fence if it moves
 					toMove = false;
 					if ( Controller != null ) // And if the tank has a controller
 						toMove = Controller.HitFence( ( Fence )entity ); // that doesn't allow that to happen,
 					// The tank will not move.
 					// However, due to the ghost controller and other tanks, the tank may be stuck inside a fence.
-					// In that case, it should be allowed to escape it.
+					// In that case, it should be able to move so it can leave the fence.
 					toMove = toMove || CollidesWith( entity );
 					if ( !toMove )
 						break;
 				}
 			}
 
-			// If I don't hit a fence I will move.
+			// If the tank doesn't hit a fence it will move.
 			if ( toMove )
 			{
-				Position = newPosition;
+				Position = Bound( newPosition );
 				Angle = newAngle;
 			}
 
@@ -333,6 +359,11 @@ namespace TanksDropTwo
 			}
 
 			base.Update( gameTime, Entities, keyState );
+		}
+
+		private bool isButtonPressed(GamePadState padState, Buttons button)
+		{
+			return true;
 		}
 
 		//int AIFencePart = 0;
@@ -477,8 +508,8 @@ namespace TanksDropTwo
 			float dist = Vector2.Distance( Vector2.Zero, Origin );
 			float sideDeg = 40F;
 			Fence newFence = new Fence(
-				Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( Angle + sideDeg ) ), ( float )Math.Sin( MathHelper.ToRadians( Angle + sideDeg ) ) ) * dist * Scale * 1.5F ),
-				Position + ( new Vector2( ( float )Math.Cos( MathHelper.ToRadians( Angle - sideDeg ) ), ( float )Math.Sin( MathHelper.ToRadians( Angle - sideDeg ) ) ) * dist * Scale * 1.5F ), this, 16, gameTime, FenceLifeTime );
+				Position + ( new Vector2( (float)Math.Cos( MathHelper.ToRadians( Angle + sideDeg ) ), (float)Math.Sin( MathHelper.ToRadians( Angle + sideDeg ) ) ) * dist * Scale * 1.5F ),
+				Position + ( new Vector2( (float)Math.Cos( MathHelper.ToRadians( Angle - sideDeg ) ), (float)Math.Sin( MathHelper.ToRadians( Angle - sideDeg ) ) ) * dist * Scale * 1.5F ), this, 16, gameTime, FenceLifeTime );
 			newFence.Initialize( Game );
 			NumberOfFences++;
 			Game.QueueEntity( newFence );
@@ -495,7 +526,7 @@ namespace TanksDropTwo
 			if ( NumberOfProjectiles >= ProjectileLimit && ProjectileLimit > 0 )
 				return;
 			nextProjectile.Angle = Angle;
-			nextProjectile.Position = Forward( 20 * Scale );
+			nextProjectile.Position = PositionShift( 20 * Scale );
 			NumberOfProjectiles++;
 			nextProjectile.Initialize( Game, gameTime, this );
 			if ( force || Controller == null || !Controller.Shoot( gameTime, nextProjectile ) )
@@ -530,22 +561,22 @@ namespace TanksDropTwo
 			Texture = Content.Load<Texture2D>( "Sprites\\TankMap" );
 			originalTexture = Content.Load<Texture2D>( "Sprites\\TankMap" );
 			isTextureAMap = true;
-			TankSourceRects = new Rectangle[ 8, 8 ];
-			texDatas = new Color[ 8, 8 ][];
+			TankSourceRects = new Rectangle[8, 8];
+			texDatas = new Color[8, 8][];
 			int tankw = Texture.Width / 8;
 			int tankh = Texture.Height / 8;
-			Color[] tankMapData = new Color[ Texture.Width * Texture.Height ];
+			Color[] tankMapData = new Color[Texture.Width * Texture.Height];
 			Texture.GetData( tankMapData );
 			for ( int x = 0; x < TankSourceRects.GetLength( 0 ); x++ )
 			{
 				for ( int y = 0; y < 8; y++ )
 				{
-					TankSourceRects[ x, y ] = new Rectangle( x * tankw, y * tankh, tankw, tankh );
-					texDatas[ x, y ] = GetImageData( tankMapData, Texture.Width, TankSourceRects[ x, y ] );
+					TankSourceRects[x, y] = new Rectangle( x * tankw, y * tankh, tankw, tankh );
+					texDatas[x, y] = GetImageData( tankMapData, Texture.Width, TankSourceRects[x, y] );
 				}
 			}
-			SourceRectangle = TankSourceRects[ frame, ( int )TankColor ];
-			TextureData = texDatas[ frame, ( int )TankColor ];
+			SourceRectangle = TankSourceRects[frame, (int)TankColor];
+			TextureData = texDatas[frame, (int)TankColor];
 			base.LoadContent( Content, ScreenWidth, ScreenHeight );
 		}
 
@@ -577,10 +608,10 @@ namespace TanksDropTwo
 		/// <returns>The cropped data.</returns>
 		Color[] GetImageData( Color[] colorData, int width, Rectangle rectangle )
 		{
-			Color[] color = new Color[ rectangle.Width * rectangle.Height ];
+			Color[] color = new Color[rectangle.Width * rectangle.Height];
 			for ( int x = 0; x < rectangle.Width; x++ )
 				for ( int y = 0; y < rectangle.Height; y++ )
-					color[ x + y * rectangle.Width ] = colorData[ x + rectangle.X + ( y + rectangle.Y ) * width ];
+					color[x + y * rectangle.Width] = colorData[x + rectangle.X + ( y + rectangle.Y ) * width];
 			return color;
 		}
 
@@ -634,7 +665,7 @@ namespace TanksDropTwo
 		{
 			if ( Controller == null )
 			{
-				TankController controller = ( TankController )tankControllerPickup.Carrier.Clone();
+				TankController controller = (TankController)tankControllerPickup.Carrier.Clone();
 				controller.Initialize( Game, this, gameTime );
 				Controllers.Add( controller );
 				Controller = controller;

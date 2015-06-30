@@ -46,7 +46,7 @@ namespace TanksDropTwo.Controllers
 				ang = ( ( Tank )otherEntity ).RelativeAngle;
 			}
 			if ( otherEntity is Portal ) return;
-			otherEntity.Position = otherPortal.Forward( Distance( GameWidth / 2, GameHeight / 2 ) + Distance( otherEntity.GameWidth / 2, otherEntity.GameHeight / 2 ), ang );
+			otherEntity.Position = otherPortal.PositionShift( Distance( GameWidth / 2, GameHeight / 2 ) + Distance( otherEntity.GameWidth / 2, otherEntity.GameHeight / 2 ), ang );
 		}
 
 		private float Distance( float x, float y )

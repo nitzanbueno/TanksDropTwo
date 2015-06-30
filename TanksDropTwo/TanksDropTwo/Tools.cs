@@ -93,7 +93,7 @@ namespace TanksDropTwo
 		/// <returns>True if the bullet is going towards the tank, false if it isn't.</returns>
 		public static bool IsGoingTowardsMe( Vector2 TankPosition, float angle, Vector2 BulletPosition )
 		{
-			// Checks by checking the angle the bullet SHOULD go to hit the tank, then checking if the current angle is within a close radius of it.
+			// Checks by checking the angle the bullet should exactly go at to hit the tank, then checking if the current angle is within a close radius of it.
 			float window = 20; // Window represents that close radius.
 
 			float ang = Tools.Mod( MathHelper.ToDegrees( ( float )Math.Atan2( TankPosition.Y - BulletPosition.Y, TankPosition.X - BulletPosition.X ) ), 360 );

@@ -134,7 +134,7 @@ namespace TanksDropTwo.Controllers
 						{
 							Projectile p = Owner.OriginalProjectile;
 							p.Angle = Tools.Angle( Owner, t );
-							p.Position = Owner.Forward( 20 * Owner.Scale, p.Angle );
+							p.Position = Owner.PositionShift( 20 * Owner.Scale, p.Angle );
 							p.Initialize( Game, gameTime, Owner );
 							Game.QueueEntity( p );
 							t.Variables[ "Aimbot" ] = false;

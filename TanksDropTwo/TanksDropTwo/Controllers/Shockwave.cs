@@ -135,7 +135,7 @@ namespace TanksDropTwo.Controllers
 				( ( Tank )control ).RemoveTankController();
 				TankControllerPickup p = new TankControllerPickup( t, 3000 );
 				float d = maxdist;
-				p.Position = control.Bound( control.Forward( d, ang ) );
+				p.Position = control.Bound( control.PositionShift( d, ang ) );
 				p.Initialize( Game, gameTime );
 				p.Variables[ speedString ] = speed;
 				p.Variables[ currentdistString ] = currentdist + d;
