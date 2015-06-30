@@ -16,7 +16,7 @@ namespace TanksDropTwo.Menus
 			this.Game = Game;
 		}
 
-		public abstract void Update( TimeSpan gameTime, KeyboardState keyState, MouseState mouseState );
+		public abstract void Update( TimeSpan gameTime, KeyboardState keyState, MouseState mouseState, GamePadState padState );
 
 		public abstract void Draw( SpriteBatch spriteBatch, TimeSpan gameTime );
 

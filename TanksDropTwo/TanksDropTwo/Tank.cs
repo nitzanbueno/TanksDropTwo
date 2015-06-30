@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
 using TanksDropTwo.Controllers;
-using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Audio;
 
 namespace TanksDropTwo
@@ -200,14 +197,14 @@ namespace TanksDropTwo
 
 		private PlayerIndex index;
 
-		GamePadState prevPad;
+		GamePadState prevPadState;
 		private SoundEffect powerUpSound;
 		private SoundEffect hitSound;
 		private SoundEffect shootSound;
 		private SoundEffect placeSound;
 		private SoundEffect instantSound;
 
-		public Tank( string name, Vector2 startPosition, float startAngle, KeySet keys, Colors color, float speed, Projectile originalProjectile, int BulletLimit, int FenceLimit, int FenceTime, float Scale, bool AI )
+		public Tank( string name, Vector2 startPosition, float startAngle, KeySet keys, Colors color, float speed, Projectile originalProjectile, int BulletLimit, int FenceLimit, int FenceTime, float Scale, bool AI, PlayerIndex index )
 		{
 			this.Name = name;
 			this.Speed = speed;
@@ -228,6 +225,7 @@ namespace TanksDropTwo
 			this.TurnSpeed = 5;
 			this.AI = AI;
 			this.r = new Random( 10 );
+			this.index = index;
 			Reset( false );
 		}
 
@@ -242,7 +240,7 @@ namespace TanksDropTwo
 		{
 			originalProjectile.Initialize( game );
 			nextProjectile = OriginalProjectile;
-			prevPad = GamePad.GetState( index );
+			prevPadState = GamePad.GetState( index );
 			base.Initialize( game );
 		}
 
@@ -265,13 +263,13 @@ namespace TanksDropTwo
 			Vector2 newPosition = Position;
 			float newAngle = Angle;
 
-			if ( keyState.IsKeyDown( Keys.KeyForward ) || padState.DPad.Up == ButtonState.Pressed )
+			if ( keyState.IsKeyDown( Keys.KeyForward ) || padState.IsButtonDown( Buttons.DPadUp ) || padState.IsButtonDown( Buttons.RightThumbstickUp ) )
 			{
 				// Move forward
 				newPosition = PositionShift( Speed );
 			}
 
-			if ( keyState.IsKeyDown( Keys.KeyBackward ) || padState.DPad.Down == ButtonState.Pressed )
+			if ( keyState.IsKeyDown( Keys.KeyBackward ) || padState.IsButtonDown( Buttons.DPadDown ) || padState.IsButtonDown( Buttons.RightThumbstickDown ) )
 			{
 				// Move backward
 				newPosition = PositionShift( -Speed );
@@ -282,13 +280,13 @@ namespace TanksDropTwo
 				IsGoingBackwards = false;
 			}
 
-			if ( keyState.IsKeyDown( Keys.KeyLeft ) || padState.DPad.Left == ButtonState.Pressed )
+			if ( keyState.IsKeyDown( Keys.KeyLeft ) || padState.IsButtonDown( Buttons.DPadLeft ) || padState.IsButtonDown( Buttons.RightThumbstickLeft ) )
 			{
 				// Turn left
 				newAngle -= TurnSpeed;
 			}
 
-			if ( keyState.IsKeyDown( Keys.KeyRight ) || padState.DPad.Right == ButtonState.Pressed )
+			if ( keyState.IsKeyDown( Keys.KeyRight ) || padState.IsButtonDown( Buttons.DPadRight ) || padState.IsButtonDown( Buttons.RightThumbstickRight ) )
 			{
 				// Turn right
 				newAngle += TurnSpeed;
@@ -297,22 +295,13 @@ namespace TanksDropTwo
 			// Move with thumbsticks: Check if left thumbstick is active. If it is, move with it. Otherwise, check if right thumbstick is active. If it is, move with it.
 			// Thumbsticks override the D-Pad or keyboard because they're the most comfortable control.
 			Vector2 leftThumb = padState.ThumbSticks.Left;
-			Vector2 rightThumb = padState.ThumbSticks.Right;
 			float leftDistance = leftThumb.Length();
-			float rightDistance = rightThumb.Length();
 			bool moveWithLeftThumb = leftDistance > 0.05f;
-			bool moveWithRightThumb = rightDistance > 0.05f;
 			if ( moveWithLeftThumb )
 			{
 				// Move with left thumbstick if it's active
 				newAngle = Tools.Angle( Vector2.Zero, leftThumb );
 				newPosition = this.PositionShift( Speed * leftThumb.Length(), newAngle );
-			}
-			else if ( moveWithRightThumb )
-			{
-				// Move with right thumbstick if left thumbstick isn't active
-				newAngle = Tools.Angle( Vector2.Zero, rightThumb );
-				newPosition = this.PositionShift( Speed * rightThumb.Length(), newAngle );
 			}
 
 			// The transformation matrix used to pre-check collision
@@ -348,7 +337,7 @@ namespace TanksDropTwo
 				Angle = newAngle;
 			}
 
-			if ( isKeyPressed( keyState, Keys.KeyShoot ) && IsAlive )
+			if ( ( isKeyPressed( keyState, Keys.KeyShoot ) || isButtonPressed( padState, Buttons.A ) || isButtonPressed( padState, Buttons.RightTrigger ) ) && IsAlive )
 			{
 				Shoot( gameTime );
 			}
@@ -362,12 +351,22 @@ namespace TanksDropTwo
 				}
 			}
 
+			if ( isButtonPressed( padState, Buttons.Y ) || isButtonPressed( padState, Buttons.LeftTrigger ) )
+			{
+				CheckPlaceFence( gameTime );
+			}
+
+			if ( isButtonPressed( padState, Buttons.X ) )
+			{
+				Activate( gameTime );
+			}
+
 			base.Update( gameTime, Entities, keyState );
 		}
 
 		private bool isButtonPressed( GamePadState padState, Buttons button )
 		{
-			return true;
+			return prevPadState.IsButtonUp( button ) && padState.IsButtonDown( button );
 		}
 
 		//int AIFencePart = 0;

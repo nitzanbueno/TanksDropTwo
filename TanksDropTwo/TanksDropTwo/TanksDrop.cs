@@ -146,21 +146,21 @@ namespace TanksDropTwo
 			Entities = new HashSet<GameEntity>();
 
 			// Player 1
-			p1 = new Tank( "Player 1", new Vector2( 50, 50 ), 45, p1keys, p1Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale, p1AI );
+			p1 = new Tank( "Player 1", new Vector2( 50, 50 ), 45, p1keys, p1Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale, p1AI, PlayerIndex.One );
 			Entities.Add( p1 );
 
 			// Player 2
-			p2 = new Tank( "Player 2", new Vector2( ScreenWidth - 50, ScreenHeight - 50 ), 225, p2keys, p2Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale, p2AI );
+			p2 = new Tank( "Player 2", new Vector2( ScreenWidth - 50, ScreenHeight - 50 ), 225, p2keys, p2Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale, p2AI, PlayerIndex.Two );
 			Entities.Add( p2 );
 
 			if ( NumOfPlayers >= 3 )
 			{
-				Entities.Add( new Tank( "Player 3", new Vector2( ScreenWidth - 50, 50 ), 135, p3keys, p3Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale, p3AI ) );
+				Entities.Add( new Tank( "Player 3", new Vector2( ScreenWidth - 50, 50 ), 135, p3keys, p3Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale, p3AI, PlayerIndex.Three ) );
 			}
 
 			if ( NumOfPlayers >= 4 )
 			{
-				Entities.Add( new Tank( "Player 4", new Vector2( 50, ScreenHeight - 50 ), 315, p4keys, p4Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale, p4AI ) );
+				Entities.Add( new Tank( "Player 4", new Vector2( 50, ScreenHeight - 50 ), 315, p4keys, p4Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale, p4AI, PlayerIndex.Four ) );
 			}
 
 			foreach ( GameEntity entity in Entities )
@@ -171,7 +171,7 @@ namespace TanksDropTwo
 					TankController g = new Hypnotizer( -1, 100 );
 					g.Initialize( this );
 					g.LoadTexture( Content );
-					( ( Tank )entity ).Controller = g;
+					( (Tank)entity ).Controller = g;
 				}
 			}
 
@@ -473,6 +473,7 @@ namespace TanksDropTwo
 		TimeSpan timeSinceLastPickup;
 
 		KeyboardState prevKeyState;
+		GamePadState prevPadState;
 
 		/// <summary>
 		/// Allows the game to run logic such as updating the world,
@@ -483,6 +484,8 @@ namespace TanksDropTwo
 		{
 			KeyboardState keyState = Keyboard.GetState();
 			MouseState mouseState = Mouse.GetState();
+			GamePadState padState = GamePad.GetState( PlayerIndex.One );
+
 
 			Collisions = new Dictionary<Tuple<int, int>, bool>();
 
@@ -506,7 +509,7 @@ namespace TanksDropTwo
 
 			if ( CurrentMenu != null )
 			{
-				CurrentMenu.Update( currentGameTime, keyState, mouseState );
+				CurrentMenu.Update( currentGameTime, keyState, mouseState, padState );
 				return;
 			}
 
@@ -526,7 +529,11 @@ namespace TanksDropTwo
 			{
 				p1.AI = !p1.AI;
 			}
-			if ( keyState.IsKeyDown( Keys.P ) )
+			if ( keyState.IsKeyDown( Keys.M ) && prevKeyState.IsKeyUp( Keys.M ) )
+			{
+				loopInstance.Volume = 1.0f - loopInstance.Volume;
+			}
+			if ( keyState.IsKeyDown( Keys.P ) || padState.IsButtonDown( Buttons.Start ) )
 			{
 				CurrentMenu = new PauseMenu( this );
 			}
@@ -557,6 +564,7 @@ namespace TanksDropTwo
 				}
 			}
 			prevKeyState = keyState;
+			prevPadState = padState;
 			base.Update( gameTime );
 		}
 
