@@ -456,7 +456,7 @@ namespace TanksDropTwo
 		/// <param name="rectangle">Original bounding rectangle.</param>
 		/// <param name="transform">World transform of the rectangle.</param>
 		/// <returns>A new rectangle which contains the trasnformed rectangle.</returns>
-		public Rectangle CalculateBoundingRectangle( Rectangle rectangle, Matrix transform )
+		public Rectangle CalculateBoundingRectangle( Rectangle rectangle, Matrix transform )	
 		{
 			// Get all four corners in local space
 			Vector2 leftTop = new Vector2( rectangle.Left, rectangle.Top );

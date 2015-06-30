@@ -70,6 +70,12 @@ namespace TanksDropTwo
 		StreamReader reader;
 		List<string> Lines;
 
+		SoundEffect explod;
+		SoundEffect loop;
+
+		Tank p1;
+		Tank p2;
+
 		public TanksDrop()
 		{
 			Settings = new Dictionary<string, Tuple<Type, object>>();
@@ -140,10 +146,12 @@ namespace TanksDropTwo
 			Entities = new HashSet<GameEntity>();
 
 			// Player 1
-			Entities.Add( new Tank( "Player 1", new Vector2( 50, 50 ), 45, p1keys, p1Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale, p1AI ) );
+			p1 = new Tank( "Player 1", new Vector2( 50, 50 ), 45, p1keys, p1Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale, p1AI );
+			Entities.Add( p1 );
 
 			// Player 2
-			Entities.Add( new Tank( "Player 2", new Vector2( ScreenWidth - 50, ScreenHeight - 50 ), 225, p2keys, p2Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale, p2AI ) );
+			p2 = new Tank( "Player 2", new Vector2( ScreenWidth - 50, ScreenHeight - 50 ), 225, p2keys, p2Color, TankSpeed, defaultBullet, ProjectileLimit, FenceLimit, FenceTime, TankScale, p2AI );
+			Entities.Add( p2 );
 
 			if ( NumOfPlayers >= 3 )
 			{
@@ -158,49 +166,56 @@ namespace TanksDropTwo
 			foreach ( GameEntity entity in Entities )
 			{
 				entity.Initialize( this );
+				if ( entity is Tank )
+				{
+					TankController g = new Hypnotizer( -1, 100 );
+					g.Initialize( this );
+					g.LoadTexture( Content );
+					( ( Tank )entity ).Controller = g;
+				}
 			}
 
 			AvailableProjectiles = new Projectile[]
 			{
-				new HomingBullet( LoadPositiveSetting( "HomingBulletSpeed", ProjectileSpeed ), LoadPositiveSetting( "HomingBulletTurnSpeed", 5 ), TimeSpan.Zero, LoadPositiveSetting( "HomingBulletNoticeTime", 1000 ), LoadPositiveSetting( "HomingBulletTime", ProjectileTime ) ),
-				new Missile( LoadPositiveSetting( "MissileSpeed", ProjectileSpeed ) ),
-				new Lazer( LoadPositiveSetting( "LazerTime", ProjectileTime ) ),
-				new Rider( LoadPositiveSetting( "RiderSpeed", ProjectileSpeed ), LoadPositiveSetting( "RiderTime", ProjectileTime ),LoadSetting("RiderDeath").ToLower() == "true", LoadPositiveSetting( "RiderTwist", 1 ) ),
+			    new HomingBullet( LoadPositiveSetting( "HomingBulletSpeed", ProjectileSpeed ), LoadPositiveSetting( "HomingBulletTurnSpeed", 5 ), TimeSpan.Zero, LoadPositiveSetting( "HomingBulletNoticeTime", 1000 ), LoadPositiveSetting( "HomingBulletTime", ProjectileTime ) ),
+			    new Missile( LoadPositiveSetting( "MissileSpeed", ProjectileSpeed ) ),
+			    new Lazer( LoadPositiveSetting( "LazerTime", ProjectileTime ), LoadPositiveSetting( "LazerSpeed", 100 ), LoadPositiveSetting( "LazerTrail", 200 ) ),
+			    new Rider( LoadPositiveSetting( "RiderSpeed", ProjectileSpeed ), LoadPositiveSetting( "RiderTime", ProjectileTime ),LoadSetting("RiderDeath").ToLower() == "true", LoadPositiveSetting( "RiderTwist", 1 ) ),
 			};
 
 			AvailableControllers = new TankController[]
 			{
-				new Ghost( LoadPositiveSetting( "GhostTime", ControllerTime ) ),
-				new Deflector(),
-				new SpeedBoost(LoadPositiveSetting( "SpeedBoostTime", ControllerTime ), LoadSetting( "SpeedBoostFactor", 2F ) ),
-				new Minimize( LoadPositiveSetting( "MinimizeTime", ControllerTime ) ),
-				new Switcher(),
-				new ForceField( LoadPositiveSetting( "ForceFieldTime", ControllerTime ) ),
-				new Tripler( LoadPositiveSetting( "TriplerTime", ControllerTime ) ),
-				new ExtraLife(),
-				new Shockwave(),
-				new Roulette(),
-				new MindController( LoadPositiveSetting( "MindControlTime", ControllerTime ) ),
-				new IronDome( LoadPositiveSetting( "IronDomeTime", ControllerTime ), LoadPositiveSetting( "IronLifeTime", 2000 ), LoadPositiveSetting( "IronSpeed", 10 ), LoadPositiveSetting( "IronRadius", 200 ), LoadPositiveSetting( "IronProbability", 90 ) ),
-				new Disabler( LoadPositiveSetting( "MaxDisablerSpeed", 50 ) ),
-				new Minigun( LoadPositiveSetting( "MinigunTime", ControllerTime ), LoadPositiveSetting( "MinigunSpeed", 500 ) ),
-				new Ring( LoadPositiveSetting( "RingRadius", 50 ) ),
-				new Shuffler(), 
-				new Hypnotizer( LoadPositiveSetting( "HypnotizerTime", ControllerTime ), LoadPositiveSetting( "HypnoRadius", 200 ) ),
-				new Aimbot(),
-				new Dodger( LoadPositiveSetting( "DodgerTime", ControllerTime ) ),
+			    new Ghost( LoadPositiveSetting( "GhostTime", ControllerTime ) ),
+			    new Deflector(),
+			    new SpeedBoost(LoadPositiveSetting( "SpeedBoostTime", ControllerTime ), LoadSetting( "SpeedBoostFactor", 2F ) ),
+			    new Minimize( LoadPositiveSetting( "MinimizeTime", ControllerTime ) ),
+			    new Switcher(),
+			    new ForceField( LoadPositiveSetting( "ForceFieldTime", ControllerTime ) ),
+			    new Tripler( LoadPositiveSetting( "TriplerTime", ControllerTime ) ),
+			    new ExtraLife(),
+			    new Shockwave(),
+			    new Roulette(),
+			    new MindController( LoadPositiveSetting( "MindControlTime", ControllerTime ) ),
+			    new IronDome( LoadPositiveSetting( "IronDomeTime", ControllerTime ), LoadPositiveSetting( "IronLifeTime", 2000 ), LoadPositiveSetting( "IronSpeed", 10 ), LoadPositiveSetting( "IronRadius", 200 ), LoadPositiveSetting( "IronProbability", 90 ) ),
+			    new Disabler( LoadPositiveSetting( "MaxDisablerSpeed", 50 ) ),
+			    new Minigun( LoadPositiveSetting( "MinigunTime", ControllerTime ), LoadPositiveSetting( "MinigunSpeed", 500 ) ),
+			    new Ring( LoadPositiveSetting( "RingRadius", 50 ) ),
+			    new Shuffler(),
+			    new Hypnotizer( LoadPositiveSetting( "HypnotizerTime", ControllerTime ), LoadPositiveSetting( "HypnoRadius", 200 ) ),
+			    new Aimbot(),
+			    new Dodger( LoadPositiveSetting( "DodgerTime", ControllerTime ) ),
 			};
 
 			AvailableConEnts = new ControllerEntity[]
 			{
-				new Portal( LoadPositiveSetting( "PortalTime", ControllerTime ) ),
-				new BlackHole(),
-				new Concealer( LoadPositiveSetting( "ConcealerTime", ControllerTime ) ),
+			    new Portal( LoadPositiveSetting( "PortalTime", ControllerTime ) ),
+			    new BlackHole(),
+			    new Concealer( LoadPositiveSetting( "ConcealerTime", ControllerTime ) ),
 			};
 
 			SuddenDeaths = new GameController[]
 			{
-				new ShrinkyDeath(),
+				//new ShrinkyDeath(),
 				new Orbit( LoadSetting( "OrbitBaseSpeed", 20F ), LoadSetting( "OrbitMaxSpeed", 60F ), LoadSetting( "OrbitMinSpeed", 1F ), LoadSetting( "OrbitAccleration", -0.5F ), LoadSetting( "OrbitSpiralFactor", 19F ) ),
 			};
 
@@ -208,6 +223,8 @@ namespace TanksDropTwo
 
 			base.Initialize();
 		}
+
+		SoundEffectInstance loopInstance;
 
 		/// <summary>
 		/// LoadContent will be called once per game and is the place to load
@@ -218,10 +235,18 @@ namespace TanksDropTwo
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch( GraphicsDevice );
 
+			explod = Content.Load<SoundEffect>( "explod" );
+
 			Score = Content.Load<SpriteFont>( "Score" );
 
 			Blank = new Texture2D( GraphicsDevice, 1, 1 );
 			Blank.SetData( new Color[] { Color.White } );
+
+			loop = Content.Load<SoundEffect>( "loop" );
+			loopInstance = loop.CreateInstance();
+			loopInstance.IsLooped = true;
+			//loopInstance.Pitch = 1;
+			loopInstance.Play();
 
 			foreach ( GameEntity entity in Entities )
 			{
@@ -447,6 +472,8 @@ namespace TanksDropTwo
 		// This is the TimeSpan used when checking for pickup spawns.
 		TimeSpan timeSinceLastPickup;
 
+		KeyboardState prevKeyState;
+
 		/// <summary>
 		/// Allows the game to run logic such as updating the world,
 		/// checking for collisions, gathering input, and playing audio.
@@ -491,9 +518,13 @@ namespace TanksDropTwo
 			{
 				currentGameTime += gameTime.ElapsedGameTime;
 			}
-			if ( keyState.IsKeyDown( Keys.R ) )
+			if ( keyState.IsKeyDown( Keys.R ) && prevKeyState.IsKeyUp( Keys.R ) )
 			{
 				NewRound( false, false, false );
+			}
+			if ( keyState.IsKeyDown( Keys.Z ) && prevKeyState.IsKeyUp( Keys.Z ) )
+			{
+				p1.AI = !p1.AI;
 			}
 			if ( keyState.IsKeyDown( Keys.P ) )
 			{
@@ -525,7 +556,7 @@ namespace TanksDropTwo
 					HasBeganWait = true;
 				}
 			}
-			int x = Entities.Count( r => r is Projectile );
+			prevKeyState = keyState;
 			base.Update( gameTime );
 		}
 
@@ -638,7 +669,13 @@ namespace TanksDropTwo
 					}
 				}
 				Entities.Add( entity );
+				// Sound effects
+				if ( entity is Explosion )
+				{
+					explod.Play();
+				}
 			}
+
 			return b;
 		}
 

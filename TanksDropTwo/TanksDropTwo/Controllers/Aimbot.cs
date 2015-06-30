@@ -12,8 +12,38 @@ namespace TanksDropTwo.Controllers
 	/// </summary>
 	public class Aimbot : UseableController
 	{
+		HashSet<Tank> Tanks;
+
+		public override void Initialize( TanksDrop game )
+		{
+			Tanks = new HashSet<Tank>();
+			base.Initialize( game );
+		}
+
 		public override void InstantControl( GameEntity control, TimeSpan gameTime )
 		{
+			float closestDistance = -1; // The distance to the closest tank
+			Tank closestTank = null; // The closest tank
+			// Find the closest living tank
+			foreach ( Tank t in Tanks )
+			{
+				float dist = Vector2.DistanceSquared( Owner.Position, t.Position );
+				if ( t.IsAlive )
+				{
+					if ( ( closestTank == null || dist < closestDistance ) )
+					{
+						closestDistance = dist;
+						closestTank = t;
+					}
+				}
+			}
+			if ( closestTank != null ) // If no tank is alive don't do anything
+			{
+				// Set owner's angle
+				float ang = Tools.Angle( control.Position, closestTank.Position );
+				DeflectorController c = new DeflectorController( ang );
+				control.AppendController( c );
+			}
 		}
 
 		public override void InstantAction( TimeSpan gameTime )
@@ -40,7 +70,13 @@ namespace TanksDropTwo.Controllers
 
 		public override bool AddEntity( GameEntity entity )
 		{
-			return false;
+			// Add tank to tanks set
+			if ( entity is Tank && entity != Owner )
+			{
+				Tanks.Add( ( Tank )entity );
+				entity.Variables[ "Aimbot" ] = true;
+			}
+			return entity is Projectile;
 		}
 	}
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 
 namespace TanksDropTwo.Controllers
 {
@@ -14,6 +15,7 @@ namespace TanksDropTwo.Controllers
 		private int Radius;
 		private Random rand;
 		private int probability;
+		private SoundEffect launch;
 
 		public IronDome( int lifeTime, int IronLifeTime, float IronSpeed, int radius, int prob )
 			: base( lifeTime )
@@ -44,6 +46,7 @@ namespace TanksDropTwo.Controllers
 						rocket.Initialize( Game, gameTime, Owner );
 						rocket.LoadContent( Game.Content, Game.ScreenWidth, Game.ScreenHeight );
 						Game.QueueEntity( rocket );
+						launch.Play();
 					}
 					if ( !cont.Variables.ContainsKey( "IronRockets" ) )
 					{
@@ -60,6 +63,7 @@ namespace TanksDropTwo.Controllers
 			Texture = Content.Load<Texture2D>( "Sprites\\IronDome" );
 			Origin = new Vector2( 16, 16 );
 			Scale = 2;
+			launch = Content.Load<SoundEffect>( "launch" );
 		}
 
 		public override bool ProjectileHit( Projectile hitter, TimeSpan gameTime )

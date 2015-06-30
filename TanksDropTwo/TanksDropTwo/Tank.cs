@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
 using TanksDropTwo.Controllers;
+using Microsoft.Xna.Framework.Audio;
 
 namespace TanksDropTwo
 {
@@ -194,7 +195,13 @@ namespace TanksDropTwo
 
 		private Texture2D originalTexture;
 
-		private bool AI;
+		public bool AI;
+
+		private SoundEffect powerUpSound;
+		private SoundEffect hitSound;
+		private SoundEffect shootSound;
+		private SoundEffect placeSound;
+		private SoundEffect instantSound;
 
 		public Tank( string name, Vector2 startPosition, float startAngle, KeySet keys, Colors color, float speed, Projectile originalProjectile, int BulletLimit, int FenceLimit, int FenceTime, float Scale, bool AI )
 		{
@@ -282,6 +289,7 @@ namespace TanksDropTwo
 				newAngle += TurnSpeed;
 			}
 
+			// The transformation matrix used to pre-check collision
 			Matrix Transformation =
 				Matrix.CreateTranslation( new Vector3( -Origin, 0.0f ) ) *
 				Matrix.CreateScale( Scale ) *
@@ -294,13 +302,13 @@ namespace TanksDropTwo
 			{
 				if ( entity is Fence && this.CollidesWith( entity, Transformation ) )
 				{
-					// If when I move, I will hit a fence,
+					// If the tank hits a fence if it moves
 					toMove = false;
-					if ( Controller != null ) // And if there's a controller
-						toMove = Controller.HitFence( ( Fence )entity ); // it doesn't allow that,
-					// I won't move!
-					// However, due to the ghost controller and other tanks, I may be stuck IN a fence.
-					// In that case, I should be able to go outside of it.
+					if ( Controller != null ) // And if the tank has a controller
+						toMove = Controller.HitFence( ( Fence )entity ); // that doesn't allow that to happen,
+					// The tank will not move.
+					// However, due to the ghost controller and other tanks, the tank may be stuck inside a fence.
+					// In that case, it should be allowed to escape it.
 					toMove = toMove || CollidesWith( entity );
 					if ( !toMove )
 						break;
@@ -338,11 +346,15 @@ namespace TanksDropTwo
 			foreach ( GameEntity entity in Entities )
 			{
 				double dist = Vector2.Distance( Position, entity.Position );
-				if ( ( ClosestEntity == null || dist < ClosestDistance ) && entity != this && !( entity is Fence )
-					&& ( !( entity is Projectile ) || ( Tools.IsGoingTowardsMe( Position, entity.Angle, entity.Position ) && dist < 300 ) )
-					&& ( !( entity is ProjectilePickup ) || nextProjectile.GetType() == originalProjectile.GetType() )
-					&& ( !( entity is TankControllerPickup ) || Controller == null )
-					&& ( !( entity is Tank ) || ( ( Tank )entity ).IsAlive ) )
+				if ( ( ClosestEntity == null || dist < ClosestDistance ) 
+					// Specify entities not to count when finding closest entity
+					&& entity != this // the tank itself
+					&& (entity is Tank) && ((Tank)entity).IsAlive)
+					/*&& !( entity is Fence ) // Fences
+					&& ( !( entity is Projectile ) || ( Tools.IsGoingTowardsMe( Position, entity.Angle, entity.Position ) && dist < 300 ) ) // Projectiles heading away from the tank
+					&& ( !( entity is ProjectilePickup ) || nextProjectile.GetType() == originalProjectile.GetType() ) // Projectile pickups, if the tank is already loaded
+					&& ( !( entity is TankControllerPickup ) || Controller == null ) // Power-up pickups, if the tank has one already
+					&& ( !( entity is Tank ) || ( ( Tank )entity ).IsAlive ) ) // Dead tanks*/
 				{
 					ClosestDistance = dist;
 					ClosestEntity = entity;
@@ -359,26 +371,31 @@ namespace TanksDropTwo
 
 			if ( ClosestEntity is Tank )
 			{
-				float ang = Home( ClosestEntity.Position );
-				if ( ang == 0 || Math.Abs( Tools.Mod( MathHelper.ToDegrees( ( float )Math.Atan2( Position.Y - ClosestEntity.Position.Y, Position.X - ClosestEntity.Position.X ) ) + 180, 360 ) - Angle ) <= 10 )
+				float ang = Home( ClosestEntity.Position, Entities, true );
+				if ( ang == 0 || Math.Abs( Tools.Angle( this, ClosestEntity ) - Angle ) <= 10 )
 				{
-					if ( lastShot == TimeSpan.Zero || ( gameTime - lastShot ).TotalMilliseconds > 500 )
+					if ( lastShot == TimeSpan.Zero || ( gameTime - lastShot ).TotalMilliseconds > 1000 )
 					{
-						Shoot( gameTime );
+						//Shoot( gameTime );
 						lastShot = gameTime;
 					}
 				}
 				Angle += ang;
+				if ( ClosestDistance > 100 )
+				{
+					// Get closer to the tank in order to be able to react better
+					Move( Speed );
+				}
 			}
 			else if ( ClosestEntity is Pickup || ClosestEntity is ControllerEntity )
 			{
-				float ang = Home( ClosestEntity.Position );
+				float ang = Home( ClosestEntity.Position, Entities, true );
 				Angle += ang;
 				Move( Speed );
 			}
 			else if ( ClosestEntity is Projectile )
 			{
-				float ang = Home( ClosestEntity.Position );
+				float ang = Home( ClosestEntity.Position, Entities, false );
 				if ( lastShot == TimeSpan.Zero || ( gameTime - lastShot ).TotalMilliseconds > 500 )
 				{
 					PlaceFence( gameTime );
@@ -386,32 +403,53 @@ namespace TanksDropTwo
 				}
 				Angle += ang;
 			}
-			else if ( ClosestEntity is Fence )
-			{
-				float ang = Tools.Mod( MathHelper.ToDegrees( ( float )Math.Atan2( Position.Y - ClosestEntity.Position.Y, Position.X - ClosestEntity.Position.X ) ) + 180, 360 );
-
-			}
 		}
 
-		private float Home( Vector2 HomingPosition )
+		/// <summary>
+		/// Returns the angle the tank AI needs to turn to point towards HomingPosition or dodge close fences if required.
+		/// </summary>
+		/// <param name="HomingPosition">The position to home onto.</param>
+		/// <param name="Entities">The entities on the board (used to check fences).</param>
+		/// <param name="CheckFences">Whether or not to turn away from fences so the tank won't hit them.</param>
+		/// <returns></returns>
+		private float Home( Vector2 HomingPosition, HashSet<GameEntity> Entities, bool CheckFences = true )
 		{
-			float ang = Tools.Mod( MathHelper.ToDegrees( ( float )Math.Atan2( Position.Y - HomingPosition.Y, Position.X - HomingPosition.X ) ) + 180, 360 );
+			// Check for fences
 
-			if ( Angle == ang )
+			// Get closest fence within a 500-unit radius that is at most 20 degrees apart from the tank's angle
+			Fence ClosestFence = null;
+			double ClosestDistance = ScreenHeight + ScreenWidth;
+			foreach ( GameEntity entity in Entities )
 			{
-				return 0;
+				double dist = Vector2.Distance( Position, entity.Position );
+				bool todo = false;
+				if ( ( ClosestFence == null || dist < ClosestDistance ) && entity is Fence )
+				{
+					if ( Math.Abs( Tools.Angle( this, entity ) - Angle ) < 150 )
+					{
+						todo = dist < 500;
+					}
+					else
+					{
+						todo = false;
+					}
+				}
+				if ( todo )
+				{
+					ClosestDistance = dist;
+					ClosestFence = ( Fence )entity;
+				}
 			}
-			bool ToRight = Angle > 180 ? !( ang < Angle && ang > Angle - 180 ) : ( ang > Angle && ang < Angle + 180 ); // Determines, in one line, whether the bullet should turn right or left.
-			if ( ToRight )
+
+			if ( ClosestFence != null )
 			{
-				float difference = Math.Min( Math.Abs( ang - Angle ), Math.Abs( ang - Angle + 360 ) );
-				return Math.Min( difference, TurnSpeed );
+				// If there is such a fence, return the angle of going away from it, which is the negative of the angle of going towards it
+				float ang = Tools.HomeAngle( TurnSpeed, Angle, Position, ClosestFence.Position );
+				ang = ang == 0 ? 1 : ang;
+				Angle -= ang * (200 / (float)ClosestDistance);
 			}
-			else
-			{
-				float difference = Math.Min( Math.Abs( ang - Angle ), Math.Abs( ang - Angle + 360 ) );
-				return -Math.Min( difference, TurnSpeed );
-			}
+
+			return Tools.HomeAngle( TurnSpeed, Angle, Position, HomingPosition );
 		}
 
 		/// <summary>
@@ -423,6 +461,10 @@ namespace TanksDropTwo
 			if ( ( Controller == null || Controller.OnPlaceFence( gameTime ) ) && IsAlive && ( NumberOfFences < FenceLimit || FenceLimit <= 0 ) )
 			{
 				PlaceFence( gameTime );
+			}
+			else if ( IsAlive )
+			{
+				instantSound.Play();
 			}
 		}
 
@@ -440,6 +482,7 @@ namespace TanksDropTwo
 			newFence.Initialize( Game );
 			NumberOfFences++;
 			Game.QueueEntity( newFence );
+			placeSound.Play();
 		}
 
 		/// <summary>
@@ -460,6 +503,7 @@ namespace TanksDropTwo
 				Game.QueueEntity( nextProjectile );
 			}
 			nextProjectile = OriginalProjectile;
+			shootSound.Play();
 		}
 
 		/// <summary>
@@ -478,6 +522,11 @@ namespace TanksDropTwo
 
 		public override void LoadContent( ContentManager Content, int ScreenWidth, int ScreenHeight )
 		{
+			powerUpSound = Content.Load<SoundEffect>( "powerup" );
+			hitSound = Content.Load<SoundEffect>( "hit" );
+			shootSound = Content.Load<SoundEffect>( "shoot" );
+			placeSound = Content.Load<SoundEffect>( "place" );
+			instantSound = Content.Load<SoundEffect>( "instant" );
 			Texture = Content.Load<Texture2D>( "Sprites\\TankMap" );
 			originalTexture = Content.Load<Texture2D>( "Sprites\\TankMap" );
 			isTextureAMap = true;
@@ -510,6 +559,7 @@ namespace TanksDropTwo
 			if ( Controller == null || Controller.ProjectileHit( Hitter, gameTime ) )
 			{
 				IsAlive = false;
+				hitSound.Play();
 				return true;
 			}
 			else
@@ -544,6 +594,7 @@ namespace TanksDropTwo
 			if ( nextProjectile.GetType() == OriginalProjectile.GetType() && ( Controller == null || Controller.PickupProjectile( proj ) ) )
 			{
 				nextProjectile = proj.Carrier.Clone();
+				powerUpSound.Play();
 				return true;
 			}
 			return false;
@@ -587,6 +638,7 @@ namespace TanksDropTwo
 				controller.Initialize( Game, this, gameTime );
 				Controllers.Add( controller );
 				Controller = controller;
+				powerUpSound.Play();
 				return true;
 			}
 			else

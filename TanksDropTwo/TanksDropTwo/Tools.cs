@@ -95,7 +95,9 @@ namespace TanksDropTwo
 		{
 			// Checks by checking the angle the bullet SHOULD go to hit the tank, then checking if the current angle is within a close radius of it.
 			float window = 20; // Window represents that close radius.
+
 			float ang = Tools.Mod( MathHelper.ToDegrees( ( float )Math.Atan2( TankPosition.Y - BulletPosition.Y, TankPosition.X - BulletPosition.X ) ), 360 );
+
 			// Compensation for the 0-to-360 problem.
 			if ( ang < window )
 			{
