@@ -35,11 +35,20 @@ namespace TanksDropTwo.Controllers
 
 		public override bool OnPlaceFence( TimeSpan gameTime )
 		{
+			return true;
+		}
+		
+
+		/// <summary>
+		/// Sets off the UseableController's action.
+		/// </summary>
+		/// <param name="gameTime">The current game time.</param>
+		public void Activate( TimeSpan gameTime )
+		{
 			isDestructed = true;
 			Owner.RemoveTankController();
 			InstantAction( gameTime );
 			Game.StopController( this );
-			return false;
 		}
 
 		public override bool Control( GameEntity control, TimeSpan gameTime, KeyboardState keyState )

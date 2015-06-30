@@ -331,7 +331,7 @@ namespace TanksDropTwo
 					// If the tank will hit a fence if it moves
 					toMove = false;
 					if ( Controller != null ) // And if the tank has a controller
-						toMove = Controller.HitFence( ( Fence )entity ); // that doesn't allow that to happen,
+						toMove = Controller.HitFence( (Fence)entity ); // that doesn't allow that to happen,
 					// The tank will not move.
 					// However, due to the ghost controller and other tanks, the tank may be stuck inside a fence.
 					// In that case, it should be able to move so it can leave the fence.
@@ -355,13 +355,17 @@ namespace TanksDropTwo
 
 			if ( isKeyPressed( keyState, Keys.KeyPlace ) )
 			{
-				CheckPlaceFence( gameTime );
+				// Place key is also used to activate UseableControllers, so if there is one it will set it off.
+				if ( !Activate( gameTime ) ) // If there isn't a UseableController then a fence will be placed.
+				{
+					CheckPlaceFence( gameTime );
+				}
 			}
 
 			base.Update( gameTime, Entities, keyState );
 		}
 
-		private bool isButtonPressed(GamePadState padState, Buttons button)
+		private bool isButtonPressed( GamePadState padState, Buttons button )
 		{
 			return true;
 		}
@@ -377,15 +381,15 @@ namespace TanksDropTwo
 			foreach ( GameEntity entity in Entities )
 			{
 				double dist = Vector2.Distance( Position, entity.Position );
-				if ( ( ClosestEntity == null || dist < ClosestDistance ) 
+				if ( ( ClosestEntity == null || dist < ClosestDistance )
 					// Specify entities not to count when finding closest entity
 					&& entity != this // the tank itself
-					&& (entity is Tank) && ((Tank)entity).IsAlive)
-					/*&& !( entity is Fence ) // Fences
-					&& ( !( entity is Projectile ) || ( Tools.IsGoingTowardsMe( Position, entity.Angle, entity.Position ) && dist < 300 ) ) // Projectiles heading away from the tank
-					&& ( !( entity is ProjectilePickup ) || nextProjectile.GetType() == originalProjectile.GetType() ) // Projectile pickups, if the tank is already loaded
-					&& ( !( entity is TankControllerPickup ) || Controller == null ) // Power-up pickups, if the tank has one already
-					&& ( !( entity is Tank ) || ( ( Tank )entity ).IsAlive ) ) // Dead tanks*/
+					&& ( entity is Tank ) && ( (Tank)entity ).IsAlive )
+				/*&& !( entity is Fence ) // Fences
+				&& ( !( entity is Projectile ) || ( Tools.IsGoingTowardsMe( Position, entity.Angle, entity.Position ) && dist < 300 ) ) // Projectiles heading away from the tank
+				&& ( !( entity is ProjectilePickup ) || nextProjectile.GetType() == originalProjectile.GetType() ) // Projectile pickups, if the tank is already loaded
+				&& ( !( entity is TankControllerPickup ) || Controller == null ) // Power-up pickups, if the tank has one already
+				&& ( !( entity is Tank ) || ( ( Tank )entity ).IsAlive ) ) // Dead tanks*/
 				{
 					ClosestDistance = dist;
 					ClosestEntity = entity;
@@ -397,7 +401,7 @@ namespace TanksDropTwo
 
 			if ( Controller is UseableController && r.Next( 100 ) <= 5 )
 			{
-				CheckPlaceFence( gameTime );
+				Activate( gameTime );
 			}
 
 			if ( ClosestEntity is Tank )
@@ -468,7 +472,7 @@ namespace TanksDropTwo
 				if ( todo )
 				{
 					ClosestDistance = dist;
-					ClosestFence = ( Fence )entity;
+					ClosestFence = (Fence)entity;
 				}
 			}
 
@@ -477,14 +481,14 @@ namespace TanksDropTwo
 				// If there is such a fence, return the angle of going away from it, which is the negative of the angle of going towards it
 				float ang = Tools.HomeAngle( TurnSpeed, Angle, Position, ClosestFence.Position );
 				ang = ang == 0 ? 1 : ang;
-				Angle -= ang * (200 / (float)ClosestDistance);
+				Angle -= ang * ( 200 / (float)ClosestDistance );
 			}
 
 			return Tools.HomeAngle( TurnSpeed, Angle, Position, HomingPosition );
 		}
 
 		/// <summary>
-		/// Places fence if the controller doesn't do anything.
+		/// Places a fence if the current TankController allows it.
 		/// </summary>
 		/// <param name="gameTime">The current game time.</param>
 		private void CheckPlaceFence( TimeSpan gameTime )
@@ -493,9 +497,23 @@ namespace TanksDropTwo
 			{
 				PlaceFence( gameTime );
 			}
-			else if ( IsAlive )
+		}
+
+		/// <summary>
+		/// Activates the TankController if it is a UseableController, and returns true if it activated and false otherwise.
+		/// </summary>
+		/// <param name="gameTime">The current game time.</param>
+		/// <returns>true if the TankController activated, false if it didn't.</returns>
+		private bool Activate( TimeSpan gameTime )
+		{
+			if ( Controller is UseableController )
 			{
-				instantSound.Play();
+				( (UseableController)Controller ).Activate( gameTime );
+				return true;
+			}
+			else // If there isn't a UseableController then return false.
+			{
+				return false;
 			}
 		}
 
