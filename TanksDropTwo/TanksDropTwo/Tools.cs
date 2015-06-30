@@ -96,7 +96,7 @@ namespace TanksDropTwo
 			// Checks by checking the angle the bullet should exactly go at to hit the tank, then checking if the current angle is within a close radius of it.
 			float window = 20; // Window represents that close radius.
 
-			float ang = Tools.Mod( MathHelper.ToDegrees( ( float )Math.Atan2( TankPosition.Y - BulletPosition.Y, TankPosition.X - BulletPosition.X ) ), 360 );
+			float ang = Tools.Mod( MathHelper.ToDegrees( (float)Math.Atan2( TankPosition.Y - BulletPosition.Y, TankPosition.X - BulletPosition.X ) ), 360 );
 
 			// Compensation for the 0-to-360 problem.
 			if ( ang < window )
@@ -121,7 +121,7 @@ namespace TanksDropTwo
 		/// <returns>The angle between FromPosition and ToPosition.</returns>
 		public static float Angle( Vector2 FromPosition, Vector2 ToPosition )
 		{
-			return Tools.Mod( MathHelper.ToDegrees( ( float )Math.Atan2( FromPosition.Y - ToPosition.Y, FromPosition.X - ToPosition.X ) ) + 180, 360 );
+			return Tools.Mod( MathHelper.ToDegrees( (float)Math.Atan2( FromPosition.Y - ToPosition.Y, FromPosition.X - ToPosition.X ) ) + 180, 360 );
 		}
 
 		/// <summary>
@@ -132,7 +132,7 @@ namespace TanksDropTwo
 		/// <returns>The angle between the two entities.</returns>
 		public static float Angle( GameEntity FromEntity, GameEntity ToEntity )
 		{
-			return Tools.Mod( MathHelper.ToDegrees( ( float )Math.Atan2( FromEntity.Position.Y - ToEntity.Position.Y, FromEntity.Position.X - ToEntity.Position.X ) ) + 180, 360 );
+			return Tools.Mod( MathHelper.ToDegrees( (float)Math.Atan2( FromEntity.Position.Y - ToEntity.Position.Y, FromEntity.Position.X - ToEntity.Position.X ) ) + 180, 360 );
 		}
 
 		/// <summary>
@@ -164,6 +164,142 @@ namespace TanksDropTwo
 				float difference = Math.Min( Math.Abs( ang - Angle ), Math.Abs( ang - Angle + 360 ) );
 				return -Math.Min( difference, TurnSpeed );
 			}
+		}
+	}
+
+	public class Tuple<T1, T2>
+	{
+		public T1 Item1 { get; set; }
+		public T2 Item2 { get; set; }
+
+		public Tuple( T1 item1, T2 item2 )
+		{
+			Item1 = item1;
+			Item2 = item2;
+		}
+	}
+
+	public class Tuple<T1, T2, T3>
+	{
+		public T1 Item1 { get; set; }
+		public T2 Item2 { get; set; }
+		public T3 Item3 { get; set; }
+
+		public Tuple( T1 item1, T2 item2, T3 item3 )
+		{
+			Item1 = item1;
+			Item2 = item2;
+			Item3 = item3;
+		}
+
+		
+	}
+
+	public class Tuple
+	{
+		public static Tuple<T1,T2> Create<T1,T2>(T1 t1, T2 t2)
+		{
+			return new Tuple<T1, T2>( t1, t2 );
+		}
+		public static Tuple<T1, T2, T3> Create<T1, T2, T3>( T1 t1, T2 t2, T3 t3 )
+		{
+			return new Tuple<T1, T2, T3>( t1, t2, t3 );
+		}
+	}
+
+	public class HashSet<T> : IEnumerable<T>
+	{
+		private Dictionary<T, bool> set;
+
+		public HashSet()
+		{
+			set = new Dictionary<T, bool>();
+		}
+
+		public HashSet(IEnumerable<T> items)
+		{
+			set = new Dictionary<T, bool>();
+			foreach(T t in items)
+			{
+				set.Add( t, false );
+			}
+		}
+
+		public void Add( T item )
+		{
+			set.Add( item, false );
+		}
+
+		public bool Contains( T item )
+		{
+			return set.ContainsKey( item );
+		}
+
+		IEnumerator<T> IEnumerable<T>.GetEnumerator()
+		{
+			return new HashEnumerator<T>( set );
+		}
+
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		{
+			return new HashEnumerator<T>( set );
+		}
+
+		public bool Remove(T item)
+		{
+			return set.Remove( item );
+		}
+
+		public int Count
+		{
+			get
+			{
+				return set.Count;
+			}
+		}
+	}
+
+	public class HashEnumerator<T> : IEnumerator<T>
+	{
+		Dictionary<T, bool>.Enumerator e;
+		Dictionary<T, bool> d;
+
+		public HashEnumerator( Dictionary<T, bool> d )
+		{
+			this.d = d;
+			e = d.GetEnumerator();
+		}
+
+		public T Current
+		{
+			get
+			{
+				return e.Current.Key;
+			}
+
+		}
+
+		public void Dispose()
+		{
+			e.Dispose();
+		}
+
+		object System.Collections.IEnumerator.Current
+		{
+			get 
+			{
+				return e.Current.Key;
+			}
+		}
+
+		public bool MoveNext()
+		{
+			return e.MoveNext();
+		}
+
+		public void Reset()
+		{
+			e = d.GetEnumerator();
 		}
 	}
 }

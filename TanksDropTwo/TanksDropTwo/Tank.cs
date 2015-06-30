@@ -446,7 +446,7 @@ namespace TanksDropTwo
 		/// <param name="Entities">The entities on the board (used to check fences).</param>
 		/// <param name="CheckFences">Whether or not to turn away from fences so the tank won't hit them.</param>
 		/// <returns></returns>
-		private float Home( Vector2 HomingPosition, HashSet<GameEntity> Entities, bool CheckFences = true )
+		private float Home( Vector2 HomingPosition, HashSet<GameEntity> Entities, bool CheckFences )
 		{
 			// Check for fences
 
@@ -484,6 +484,11 @@ namespace TanksDropTwo
 			}
 
 			return Tools.HomeAngle( TurnSpeed, Angle, Position, HomingPosition );
+		}
+
+		private float Home(Vector2 HomingPosition, HashSet<GameEntity> Entities)
+		{
+			return Home( HomingPosition, Entities, true );
 		}
 
 		/// <summary>
@@ -538,7 +543,7 @@ namespace TanksDropTwo
 		/// </summary>
 		/// <param name="gameTime">The current game time.</param>
 		/// <param name="force">True if the tank must shoot, otherwise false.</param>
-		public void Shoot( TimeSpan gameTime, bool force = false )
+		public void Shoot( TimeSpan gameTime, bool force )
 		{
 			if ( NumberOfProjectiles >= ProjectileLimit && ProjectileLimit > 0 )
 				return;
@@ -552,6 +557,11 @@ namespace TanksDropTwo
 			}
 			nextProjectile = OriginalProjectile;
 			shootSound.Play();
+		}
+
+		public void Shoot( TimeSpan gameTime )
+		{
+			Shoot( gameTime, false );
 		}
 
 		/// <summary>
@@ -652,7 +662,7 @@ namespace TanksDropTwo
 		/// Resets the tank to the original form.
 		/// </summary>
 		/// <param name="proj">Whether or not to reset the projectile.</param>
-		public void Reset( bool proj = true )
+		public void Reset( bool proj )
 		{
 			Position = originalPosition;
 			Angle = originalAngle;
@@ -670,6 +680,11 @@ namespace TanksDropTwo
 			RemoveTankController();
 			Keys = OriginalKeys.Clone();
 			Controllers = new HashSet<GameController>();
+		}
+
+		public void Reset()
+		{
+			Reset( true );
 		}
 
 		/// <summary>

@@ -57,7 +57,7 @@ namespace TanksDropTwo
 		/// </summary>
 		/// <param name="Entities">The list of entities.</param>
 		/// <param name="CheckFences">True if should mirror angle when hits a fence, otherwise false.</param>
-		protected void CheckHits( TimeSpan gameTime, HashSet<GameEntity> Entities, bool CheckFences = true )
+		protected void CheckHits( TimeSpan gameTime, HashSet<GameEntity> Entities, bool CheckFences )
 		{
 			foreach ( GameEntity entity in Entities )
 			{
@@ -92,6 +92,11 @@ namespace TanksDropTwo
 					}
 				}
 			}
+		}
+
+		protected void CheckHits( TimeSpan gameTime, HashSet<GameEntity> Entities )
+		{
+			CheckHits( gameTime, Entities, true );
 		}
 
 		protected void CheckBounces()

@@ -328,7 +328,7 @@ namespace TanksDropTwo
 			Colors set;
 			try
 			{
-				set = (Colors)Enum.Parse( typeof( Colors ), color );
+				set = (Colors)Enum.Parse( typeof( Colors ), color, true );
 			}
 			catch ( Exception ) { set = defaultSetting; }
 			Settings.Add( setting, Tuple.Create<Type, object>( set.GetType(), set ) );
@@ -363,7 +363,7 @@ namespace TanksDropTwo
 		{
 			try
 			{
-				return (Keys)Enum.Parse( typeof( Keys ), key );
+				return (Keys)Enum.Parse( typeof( Keys ), key, true );
 			}
 			catch ( Exception )
 			{
@@ -649,7 +649,7 @@ namespace TanksDropTwo
 			}
 			else if ( ConEntLen > 0 )
 			{
-				ControllerEntity e = AvailableConEnts[(int)Tools.Mod( Category - ProjLen - ConLen, AvailableConEnts.LongLength )];
+				ControllerEntity e = AvailableConEnts[(int)Tools.Mod( Category - ProjLen - ConLen, AvailableConEnts.Length )];
 				e.Spawn( gameTime, this );
 			}
 		}
