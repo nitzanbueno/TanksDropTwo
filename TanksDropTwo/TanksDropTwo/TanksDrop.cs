@@ -210,7 +210,7 @@ namespace TanksDropTwo
 			{
 			    new Portal( LoadPositiveSetting( "PortalTime", ControllerTime ) ),
 			    new BlackHole(),
-			    new Concealer( LoadPositiveSetting( "ConcealerTime", ControllerTime ) ),
+			    //new Concealer( LoadPositiveSetting( "ConcealerTime", ControllerTime ) ),
 			};
 
 			SuddenDeaths = new GameController[]
@@ -521,7 +521,7 @@ namespace TanksDropTwo
 			{
 				currentGameTime += gameTime.ElapsedGameTime;
 			}
-			if ( keyState.IsKeyDown( Keys.R ) && prevKeyState.IsKeyUp( Keys.R ) )
+			if ( keyState.IsKeyDown( Keys.R ) && prevKeyState.IsKeyUp( Keys.R ) || ( padState.IsButtonDown( Buttons.Back ) && prevPadState.IsButtonUp( Buttons.Back ) ) )
 			{
 				NewRound( false, false, false );
 			}
@@ -533,7 +533,7 @@ namespace TanksDropTwo
 			{
 				loopInstance.Volume = 1.0f - loopInstance.Volume;
 			}
-			if ( keyState.IsKeyDown( Keys.P ) || padState.IsButtonDown( Buttons.Start ) )
+			if ( keyState.IsKeyDown( Keys.P ) || padState.IsButtonDown( Buttons.Start ) || padState.IsButtonDown( Buttons.BigButton ) )
 			{
 				CurrentMenu = new PauseMenu( this );
 			}

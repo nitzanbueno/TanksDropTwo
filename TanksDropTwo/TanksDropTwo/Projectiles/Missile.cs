@@ -79,7 +79,7 @@ namespace TanksDropTwo
 
 		public override void Draw( TimeSpan gameTime, SpriteBatch spriteBatch )
 		{
-			spriteBatch.Draw( Texture, Position, SourceRectangle, Color.White, AngleInRadians + ( float )Math.PI / 2, Origin, Scale, SpriteEffects.None, 0 );
+			spriteBatch.Draw( Texture, Position, SourceRectangle, Color.White, AngleInRadians + (float)Math.PI / 2, Origin, Scale, SpriteEffects.None, 0 );
 			foreach ( GameController c in Controllers )
 			{
 				c.Draw( spriteBatch );
@@ -142,7 +142,7 @@ namespace TanksDropTwo
 
 		public override bool Control( GameEntity control, TimeSpan gameTime, KeyboardState keyState )
 		{
-			if ( keyState.IsKeyDown( shoot ) && prevKeyState.IsKeyUp( shoot ) )
+			if ( ( keyState.IsKeyDown( shoot ) && prevKeyState.IsKeyUp( shoot ) ) || owner.prevPadState.IsButtonDown( Buttons.B ) )
 			{
 				missile.Destroy( gameTime );
 				control.RemoveController( this );

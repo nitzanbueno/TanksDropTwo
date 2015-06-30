@@ -197,7 +197,8 @@ namespace TanksDropTwo
 
 		private PlayerIndex index;
 
-		GamePadState prevPadState;
+		public GamePadState prevPadState;
+
 		private SoundEffect powerUpSound;
 		private SoundEffect hitSound;
 		private SoundEffect shootSound;
@@ -295,8 +296,9 @@ namespace TanksDropTwo
 			// Move with thumbsticks: Check if left thumbstick is active. If it is, move with it. Otherwise, check if right thumbstick is active. If it is, move with it.
 			// Thumbsticks override the D-Pad or keyboard because they're the most comfortable control.
 			Vector2 leftThumb = padState.ThumbSticks.Left;
+			leftThumb.Y = -leftThumb.Y;
 			float leftDistance = leftThumb.Length();
-			bool moveWithLeftThumb = leftDistance > 0.05f;
+			bool moveWithLeftThumb = leftDistance > 0.5f;
 			if ( moveWithLeftThumb )
 			{
 				// Move with left thumbstick if it's active
@@ -361,6 +363,8 @@ namespace TanksDropTwo
 				Activate( gameTime );
 			}
 
+
+			prevPadState = padState;
 			base.Update( gameTime, Entities, keyState );
 		}
 
@@ -486,7 +490,7 @@ namespace TanksDropTwo
 			return Tools.HomeAngle( TurnSpeed, Angle, Position, HomingPosition );
 		}
 
-		private float Home(Vector2 HomingPosition, HashSet<GameEntity> Entities)
+		private float Home( Vector2 HomingPosition, HashSet<GameEntity> Entities )
 		{
 			return Home( HomingPosition, Entities, true );
 		}
@@ -714,8 +718,10 @@ namespace TanksDropTwo
 		public void RemoveTankController()
 		{
 			if ( Controller != null )
+			{
 				Controller.StopControl();
-			Controllers.Remove( Controller );
+				Controllers.Remove( Controller );
+			}
 			Controller = null;
 		}
 

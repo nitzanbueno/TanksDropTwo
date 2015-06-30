@@ -227,7 +227,10 @@ namespace TanksDropTwo
 
 		public void Add( T item )
 		{
-			set.Add( item, false );
+			if ( !set.ContainsKey( item ) )
+			{
+				set.Add( item, false );
+			}
 		}
 
 		public bool Contains( T item )
@@ -247,6 +250,10 @@ namespace TanksDropTwo
 
 		public bool Remove(T item)
 		{
+			if(item == null)
+			{
+				return false;
+			}
 			return set.Remove( item );
 		}
 
