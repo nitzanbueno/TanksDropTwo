@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 
 namespace TanksDropTwo.Controllers
 {
@@ -11,10 +12,12 @@ namespace TanksDropTwo.Controllers
 	{
 		List<Tank> Tanks;
 		Tank chosenTank;
+		SoundEffect reverseExplod;
 
 		public override void Initialize( TanksDrop game )
 		{
 			Tanks = new List<Tank>();
+			reverseExplod = game.Content.Load<SoundEffect>( "dolpxe" );
 			base.Initialize( game );
 		}
 
@@ -54,6 +57,7 @@ namespace TanksDropTwo.Controllers
 				explod.LoadContent( Game.Content, Game.ScreenWidth, Game.ScreenHeight );
 				explod.Position = chosenTank.Position;
 				Game.QueueEntity( explod );
+				Game.explod.Play();
 				chosenTank.Destroy( gameTime );
 			}
 			else
@@ -63,6 +67,7 @@ namespace TanksDropTwo.Controllers
 				explod.LoadContent( Game.Content, Game.ScreenWidth, Game.ScreenHeight );
 				explod.Position = chosenTank.Position;
 				Game.QueueEntity( explod );
+				reverseExplod.Play();
 				chosenTank.IsAlive = true;
 			}
 		}

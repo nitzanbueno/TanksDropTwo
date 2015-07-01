@@ -70,7 +70,7 @@ namespace TanksDropTwo
 		StreamReader reader;
 		List<string> Lines;
 
-		SoundEffect explod;
+		public SoundEffect explod;
 		SoundEffect loop;
 
 		Tank p1;
@@ -170,10 +170,10 @@ namespace TanksDropTwo
 
 			AvailableProjectiles = new Projectile[]
 			{
-			    new HomingBullet( LoadPositiveSetting( "HomingBulletSpeed", ProjectileSpeed ), LoadPositiveSetting( "HomingBulletTurnSpeed", 5 ), TimeSpan.Zero, LoadPositiveSetting( "HomingBulletNoticeTime", 1000 ), LoadPositiveSetting( "HomingBulletTime", ProjectileTime ) ),
-			    new Missile( LoadPositiveSetting( "MissileSpeed", ProjectileSpeed ) ),
-			    new Lazer( LoadPositiveSetting( "LazerTime", ProjectileTime ), LoadPositiveSetting( "LazerSpeed", 100 ), LoadPositiveSetting( "LazerTrail", 200 ) ),
-			    new Rider( LoadPositiveSetting( "RiderSpeed", ProjectileSpeed ), LoadPositiveSetting( "RiderTime", ProjectileTime ),LoadSetting("RiderDeath").ToLower() == "true", LoadPositiveSetting( "RiderTwist", 1 ) ),
+				new HomingBullet( LoadPositiveSetting( "HomingBulletSpeed", ProjectileSpeed ), LoadPositiveSetting( "HomingBulletTurnSpeed", 5 ), TimeSpan.Zero, LoadPositiveSetting( "HomingBulletNoticeTime", 1000 ), LoadPositiveSetting( "HomingBulletTime", ProjectileTime ) ),
+				new Missile( LoadPositiveSetting( "MissileSpeed", ProjectileSpeed ) ),
+				new Lazer( LoadPositiveSetting( "LazerTime", ProjectileTime ), LoadPositiveSetting( "LazerSpeed", 100 ), LoadPositiveSetting( "LazerTrail", 200 ) ),
+				new Rider( LoadPositiveSetting( "RiderSpeed", ProjectileSpeed ), LoadPositiveSetting( "RiderTime", ProjectileTime ),LoadSetting("RiderDeath").ToLower() == "true", LoadPositiveSetting( "RiderTwist", 1 ) ),
 			};
 
 			AvailableControllers = new TankController[]
@@ -670,11 +670,6 @@ namespace TanksDropTwo
 					}
 				}
 				Entities.Add( entity );
-				// Sound effects
-				if ( entity is Explosion )
-				{
-					explod.Play();
-				}
 			}
 
 			return b;

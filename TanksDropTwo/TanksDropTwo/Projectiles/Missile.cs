@@ -71,6 +71,7 @@ namespace TanksDropTwo
 				explod.Initialize( Game );
 				explod.LoadContent( Game.Content, ScreenWidth, ScreenHeight );
 				Game.QueueEntity( explod );
+				Game.explod.Play();
 				hasExploded = true;
 				con.conCount = 1;
 			}
