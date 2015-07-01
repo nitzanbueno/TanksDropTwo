@@ -178,32 +178,32 @@ namespace TanksDropTwo
 
 			AvailableControllers = new TankController[]
 			{
-			    new Ghost( LoadPositiveSetting( "GhostTime", ControllerTime ) ),
-			    new Deflector(),
-			    new SpeedBoost(LoadPositiveSetting( "SpeedBoostTime", ControllerTime ), LoadSetting( "SpeedBoostFactor", 2F ) ),
-			    new Minimize( LoadPositiveSetting( "MinimizeTime", ControllerTime ) ),
-			    new Switcher(),
-			    new ForceField( LoadPositiveSetting( "ForceFieldTime", ControllerTime ) ),
-			    new Tripler( LoadPositiveSetting( "TriplerTime", ControllerTime ) ),
-			    new ExtraLife(),
-			    new Shockwave(),
-			    new Roulette(),
-			    new MindController( LoadPositiveSetting( "MindControlTime", ControllerTime ) ),
-			    new IronDome( LoadPositiveSetting( "IronDomeTime", ControllerTime ), LoadPositiveSetting( "IronLifeTime", 2000 ), LoadPositiveSetting( "IronSpeed", 10 ), LoadPositiveSetting( "IronRadius", 200 ), LoadPositiveSetting( "IronProbability", 90 ) ),
-			    new Disabler( LoadPositiveSetting( "MaxDisablerSpeed", 50 ) ),
-			    new Minigun( LoadPositiveSetting( "MinigunTime", ControllerTime ), LoadPositiveSetting( "MinigunSpeed", 500 ) ),
-			    new Ring( LoadPositiveSetting( "RingRadius", 50 ) ),
-			    new Shuffler(),
-			    new Hypnotizer( LoadPositiveSetting( "HypnotizerTime", ControllerTime ), LoadPositiveSetting( "HypnoRadius", 200 ) ),
-			    new Aimbot(),
-			    new Dodger( LoadPositiveSetting( "DodgerTime", ControllerTime ) ),
+				new Ghost( LoadPositiveSetting( "GhostTime", ControllerTime ) ),
+				new Deflector(),
+				new SpeedBoost(LoadPositiveSetting( "SpeedBoostTime", ControllerTime ), LoadSetting( "SpeedBoostFactor", 2F ) ),
+				new Minimize( LoadPositiveSetting( "MinimizeTime", ControllerTime ) ),
+				new Switcher(),
+				new ForceField( LoadPositiveSetting( "ForceFieldTime", ControllerTime ) ),
+				new Tripler( LoadPositiveSetting( "TriplerTime", ControllerTime ) ),
+				new ExtraLife(),
+				new Shockwave(),
+				new Roulette(),
+				new MindController( LoadPositiveSetting( "MindControlTime", ControllerTime ) ),
+				new IronDome( LoadPositiveSetting( "IronDomeTime", ControllerTime ), LoadPositiveSetting( "IronLifeTime", 2000 ), LoadPositiveSetting( "IronSpeed", 10 ), LoadPositiveSetting( "IronRadius", 200 ), LoadPositiveSetting( "IronProbability", 90 ) ),
+				new Disabler( LoadPositiveSetting( "MaxDisablerSpeed", 50 ) ),
+				new Minigun( LoadPositiveSetting( "MinigunTime", ControllerTime ), LoadPositiveSetting( "MinigunSpeed", 500 ) ),
+				new Ring( LoadPositiveSetting( "RingRadius", 50 ) ),
+				new Shuffler(),
+				new Hypnotizer( LoadPositiveSetting( "HypnotizerTime", ControllerTime ), LoadPositiveSetting( "HypnoRadius", 200 ) ),
+				new Aimbot(),
+				new Dodger( LoadPositiveSetting( "DodgerTime", ControllerTime ) ),
 			};
 
 			AvailableConEnts = new ControllerEntity[]
 			{
 			    new Portal( LoadPositiveSetting( "PortalTime", ControllerTime ) ),
 			    new BlackHole(),
-			    new Concealer( LoadPositiveSetting( "ConcealerTime", ControllerTime ) ),
+			    //new Concealer( LoadPositiveSetting( "ConcealerTime", ControllerTime ) ),
 			};
 
 			SuddenDeaths = new GameController[]

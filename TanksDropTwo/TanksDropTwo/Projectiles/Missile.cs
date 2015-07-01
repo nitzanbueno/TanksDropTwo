@@ -145,14 +145,14 @@ namespace TanksDropTwo
 			if ( keyState.IsKeyDown( shoot ) && prevKeyState.IsKeyUp( shoot ) )
 			{
 				missile.Destroy( gameTime );
-				control.RemoveController( this );
 			}
-			if ( conCount > 1 )
+			if ( conCount >= 1 )
 			{
 				conCount++;
 				if ( conCount > 5 )
 				{
 					owner.Keys.KeyShoot = shoot;
+					control.RemoveController( this );
 				}
 			}
 			prevKeyState = keyState;
