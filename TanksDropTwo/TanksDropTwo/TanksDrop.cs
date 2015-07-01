@@ -166,13 +166,6 @@ namespace TanksDropTwo
 			foreach ( GameEntity entity in Entities )
 			{
 				entity.Initialize( this );
-				if ( entity is Tank )
-				{
-					TankController g = new Hypnotizer( -1, 100 );
-					g.Initialize( this );
-					g.LoadTexture( Content );
-					( (Tank)entity ).Controller = g;
-				}
 			}
 
 			AvailableProjectiles = new Projectile[]
