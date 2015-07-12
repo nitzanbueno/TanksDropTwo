@@ -120,31 +120,31 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controllers\Aimbot.cs" />
-    <Compile Include="Controllers\BlackHole.cs" />
-    <Compile Include="Controllers\BlackHoleController.cs" />
-    <Compile Include="Controllers\Concealer.cs" />
-    <Compile Include="Controllers\ControllerEntity.cs" />
-    <Compile Include="Controllers\Disabler.cs" />
     <Compile Include="Controllers\Dodger.cs" />
+    <Compile Include="Controllers\Entities\BlackHole.cs" />
+    <Compile Include="Controllers\Entities\BlackHoleController.cs" />
+    <Compile Include="Controllers\Entities\Concealer.cs" />
+    <Compile Include="Controllers\Entities\ControllerEntity.cs" />
+    <Compile Include="Controllers\Entities\Portal.cs" />
     <Compile Include="Controllers\ExtraLife.cs" />
     <Compile Include="Controllers\ForceField.cs" />
-    <Compile Include="Controllers\Deflector.cs" />
     <Compile Include="Controllers\Hypnotizer.cs" />
+    <Compile Include="Controllers\Instants\Aimbot.cs" />
+    <Compile Include="Controllers\Instants\Deflector.cs" />
+    <Compile Include="Controllers\Instants\Disabler.cs" />
+    <Compile Include="Controllers\Instants\Ring.cs" />
+    <Compile Include="Controllers\Instants\Roulette.cs" />
+    <Compile Include="Controllers\Instants\Shockwave.cs" />
+    <Compile Include="Controllers\Instants\Shuffler.cs" />
+    <Compile Include="Controllers\Instants\Switcher.cs" />
+    <Compile Include="Controllers\Instants\UseableController.cs" />
     <Compile Include="Controllers\IronDome.cs" />
     <Compile Include="Controllers\MindController.cs" />
     <Compile Include="Controllers\Minigun.cs" />
     <Compile Include="Controllers\Minimize.cs" />
-    <Compile Include="Controllers\Portal.cs" />
     <Compile Include="Controllers\Rider.cs" />
-    <Compile Include="Controllers\Ring.cs" />
-    <Compile Include="Controllers\Roulette.cs" />
-    <Compile Include="Controllers\Shockwave.cs" />
-    <Compile Include="Controllers\Shuffler.cs" />
     <Compile Include="Controllers\SpeedBoost.cs" />
-    <Compile Include="Controllers\Switcher.cs" />
     <Compile Include="Controllers\Tripler.cs" />
-    <Compile Include="Controllers\UseableController.cs" />
     <Compile Include="Controllers\Ghost.cs" />
     <Compile Include="Controllers\VacuumController.cs" />
     <Compile Include="Explosion.cs" />
