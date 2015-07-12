@@ -71,6 +71,7 @@ namespace TanksDropTwo
 				explod.Initialize( Game );
 				explod.LoadContent( Game.Content, ScreenWidth, ScreenHeight );
 				Game.QueueEntity( explod );
+				Game.explod.Play();
 				hasExploded = true;
 				con.conCount = 1;
 			}
@@ -145,14 +146,14 @@ namespace TanksDropTwo
 			if ( ( keyState.IsKeyDown( shoot ) && prevKeyState.IsKeyUp( shoot ) ) || owner.prevPadState.IsButtonDown( Buttons.B ) )
 			{
 				missile.Destroy( gameTime );
-				control.RemoveController( this );
 			}
-			if ( conCount > 1 )
+			if ( conCount >= 1 )
 			{
 				conCount++;
 				if ( conCount > 5 )
 				{
 					owner.Keys.KeyShoot = shoot;
+					control.RemoveController( this );
 				}
 			}
 			prevKeyState = keyState;
