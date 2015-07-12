@@ -59,6 +59,7 @@ namespace TanksDropTwo.Controllers
 		{
 			Texture = Content.Load<Texture2D>( "Sprites\\Aimbot" );
 			Origin = new Vector2( 32, 32 );
+			base.LoadTexture( Content );
 		}
 
 		public override GameController Clone()

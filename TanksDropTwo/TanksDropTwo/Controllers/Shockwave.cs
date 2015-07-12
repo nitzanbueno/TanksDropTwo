@@ -8,19 +8,15 @@ using Microsoft.Xna.Framework;
 
 namespace TanksDropTwo.Controllers
 {
-	public class Shockwave : TankController
+	public class Shockwave : UseableController
 	{
 		Knockback controller;
-
-		public Shockwave()
-			: base( -1 )
-		{
-		}
 
 		public override void LoadTexture( ContentManager Content )
 		{
 			Texture = Content.Load<Texture2D>( "Sprites\\Shockwave" );
 			Origin = new Vector2( 32, 32 );
+			base.LoadTexture( Content );
 		}
 
 		public override GameController Clone()
@@ -46,7 +42,11 @@ namespace TanksDropTwo.Controllers
 			return true;
 		}
 
-		public override bool OnPlaceFence( TimeSpan gameTime )
+		public override void InstantControl( GameEntity control, TimeSpan gameTime )
+		{
+		}
+
+		public override void InstantAction( TimeSpan gameTime )
 		{
 			controller = new Knockback( Owner, ( float )Game.Settings[ "ShockwaveRadius" ].Item2 );
 			controller.Initialize( Game );
@@ -54,7 +54,6 @@ namespace TanksDropTwo.Controllers
 			Game.ScheduleTask( gameTime, 500, Stop );
 			Game.ScheduleTask( gameTime, 2000, Remove );
 			Owner.RemoveTankController();
-			return false;
 		}
 
 		public void Stop()
@@ -65,19 +64,6 @@ namespace TanksDropTwo.Controllers
 		public void Remove()
 		{
 			Game.RemoveController( controller, x => true );
-		}
-
-		public override void StopControl()
-		{
-		}
-
-		public override void Draw( SpriteBatch spriteBatch )
-		{
-		}
-
-		public override bool PickupProjectile( ProjectilePickup proj )
-		{
-			return true;
 		}
 	}
 

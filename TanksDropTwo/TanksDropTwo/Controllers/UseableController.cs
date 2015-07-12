@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
 
 namespace TanksDropTwo.Controllers
 {
@@ -45,10 +46,18 @@ namespace TanksDropTwo.Controllers
 		/// <param name="gameTime">The current game time.</param>
 		public void Activate( TimeSpan gameTime )
 		{
+			useSound.Play();
 			isDestructed = true;
 			Owner.RemoveTankController();
 			InstantAction( gameTime );
 			Game.StopController( this );
+		}
+
+		SoundEffect useSound;
+
+		public override void LoadTexture( Microsoft.Xna.Framework.Content.ContentManager Content )
+		{
+			useSound = Content.Load<SoundEffect>( "instant" );
 		}
 
 		public override bool Control( GameEntity control, TimeSpan gameTime, KeyboardState keyState )

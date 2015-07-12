@@ -37,6 +37,7 @@ namespace TanksDropTwo.Controllers
 			Texture = Content.Load<Texture2D>( "Sprites\\Disabler" );
 			Scale = 2F;
 			Origin = new Vector2( 16, 16 );
+			base.LoadTexture( Content );
 		}
 
 		public override GameController Clone()
