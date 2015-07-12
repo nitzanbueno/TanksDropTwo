@@ -30,11 +30,12 @@ namespace TanksDropTwo.Controllers
 			
 		}
 
-		public override void LoadTexture( Microsoft.Xna.Framework.Content.ContentManager content )
+		public override void LoadTexture( Microsoft.Xna.Framework.Content.ContentManager Content )
 		{
-			Texture = content.Load<Texture2D>( "Sprites\\Switcher" );
+			Texture = Content.Load<Texture2D>( "Sprites\\Switcher" );
 			Origin = new Vector2( 16, 16 );
 			Scale = 2.0F;
+			base.LoadTexture( Content );
 		}
 
 		public override bool AddEntity( GameEntity entity )

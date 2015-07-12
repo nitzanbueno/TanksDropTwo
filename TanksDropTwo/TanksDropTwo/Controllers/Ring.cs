@@ -38,6 +38,7 @@ namespace TanksDropTwo.Controllers
 		{
 			Texture = Content.Load<Texture2D>( "Sprites\\Ring" );
 			Origin = new Vector2( 32, 32 );
+			base.LoadTexture( Content );
 		}
 
 		public override GameController Clone()

@@ -159,7 +159,7 @@ namespace TanksDropTwo
 
 		public void Move( HashSet<GameEntity> Entities )
 		{
-			Move( 1 );
+			Move( 10 );
 			CheckBounces();
 			foreach ( GameEntity entity in Entities )
 			{

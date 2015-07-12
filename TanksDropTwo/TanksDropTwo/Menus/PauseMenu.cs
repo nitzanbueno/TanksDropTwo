@@ -18,9 +18,9 @@ namespace TanksDropTwo.Menus
 			spriteBatch.DrawString( Game.Score, "Paused\n\n\n\nSpacebar or X to resume", new Vector2( Game.ScreenWidth / 4, Game.ScreenHeight / 10 ), Color.White, 0, new Vector2( 16, 16 ), 2, SpriteEffects.None, 0 );
 		}
 
-		public override void Update( TimeSpan gameTime, KeyboardState keyState, MouseState mouseState, GamePadState padState )
+		public override void Update( TimeSpan gameTime, KeyboardState keyState, MouseState mouseState, GamePadState[] padStates )
 		{
-			if ( keyState.IsKeyDown( Keys.Space ) || padState.IsButtonDown( Buttons.X ) || keyState.IsKeyDown( Keys.X ) )
+			if ( keyState.IsKeyDown( Keys.Space ) || padStates.Any(padState => padState.IsButtonDown( Buttons.X )) || keyState.IsKeyDown( Keys.X ) )
 			{
 				ReferMenu( null );
 			}

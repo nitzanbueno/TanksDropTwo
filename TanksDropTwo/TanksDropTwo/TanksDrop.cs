@@ -212,6 +212,8 @@ namespace TanksDropTwo
 				new Orbit( LoadSetting( "OrbitBaseSpeed", 20F ), LoadSetting( "OrbitMaxSpeed", 60F ), LoadSetting( "OrbitMinSpeed", 1F ), LoadSetting( "OrbitAccleration", -0.5F ), LoadSetting( "OrbitSpiralFactor", 19F ) ),
 			};
 
+			Components.Add( new GamerServicesComponent( this ) );
+
 			QueueSuddenDeath();
 
 			base.Initialize();
@@ -466,7 +468,7 @@ namespace TanksDropTwo
 		TimeSpan timeSinceLastPickup;
 
 		KeyboardState prevKeyState;
-		GamePadState prevPadState;
+		GamePadState[] prevPadStates;
 
 		/// <summary>
 		/// Allows the game to run logic such as updating the world,
@@ -477,7 +479,7 @@ namespace TanksDropTwo
 		{
 			KeyboardState keyState = Keyboard.GetState();
 			MouseState mouseState = Mouse.GetState();
-			GamePadState padState = GamePad.GetState( PlayerIndex.One );
+			GamePadState[] padStates = new GamePadState[] { GamePad.GetState( PlayerIndex.One ), GamePad.GetState( PlayerIndex.Two ), GamePad.GetState( PlayerIndex.Three ), GamePad.GetState( PlayerIndex.Four ) };
 
 
 			Collisions = new Dictionary<Tuple<int, int>, bool>();
@@ -492,7 +494,7 @@ namespace TanksDropTwo
 				HashSet<Tuple<TimeSpan, int, Action>> ScheduledTasksCopy = new HashSet<Tuple<TimeSpan, int, Action>>( ScheduledTasks );
 				foreach ( var task in ScheduledTasksCopy )
 				{
-					if ( ( currentGameTime - task.Item1 ).TotalMilliseconds >= task.Item2 )
+					if ( (currentGameTime - task.Item1).TotalMilliseconds >= task.Item2 )
 					{
 						task.Item3();
 						ScheduledTasks.Remove( task );
@@ -502,7 +504,7 @@ namespace TanksDropTwo
 
 			if ( CurrentMenu != null )
 			{
-				CurrentMenu.Update( currentGameTime, keyState, mouseState, padState );
+				CurrentMenu.Update( currentGameTime, keyState, mouseState, padStates );
 				return;
 			}
 
@@ -514,7 +516,26 @@ namespace TanksDropTwo
 			{
 				currentGameTime += gameTime.ElapsedGameTime;
 			}
-			if ( keyState.IsKeyDown( Keys.R ) && prevKeyState.IsKeyUp( Keys.R ) || ( padState.IsButtonDown( Buttons.Back ) && prevPadState.IsButtonUp( Buttons.Back ) ) )
+			bool IsBackDown = false;
+			bool IsStartDown = false;
+			bool IsBigButtonDown = false;
+			for ( int i = 0; i < 4; i++ )
+			{
+				if ( padStates[i].IsButtonDown( Buttons.Back ) && prevPadStates[i].IsButtonUp( Buttons.Back ) )
+				{
+					IsBackDown = true;
+				}
+
+				if ( padStates[i].IsButtonDown( Buttons.Start ) )
+				{
+					IsStartDown = true;
+				}
+				if ( padStates[i].IsButtonDown( Buttons.BigButton ) )
+				{
+					IsBigButtonDown = true;
+				}
+			}
+			if ( keyState.IsKeyDown( Keys.R ) && prevKeyState.IsKeyUp( Keys.R ) || IsBackDown )
 			{
 				NewRound( false, false, false );
 			}
@@ -526,7 +547,7 @@ namespace TanksDropTwo
 			{
 				loopInstance.Volume = 1.0f - loopInstance.Volume;
 			}
-			if ( keyState.IsKeyDown( Keys.P ) || padState.IsButtonDown( Buttons.Start ) || padState.IsButtonDown( Buttons.BigButton ) )
+			if ( keyState.IsKeyDown( Keys.P ) || IsStartDown || IsBigButtonDown || Guide.IsVisible )
 			{
 				CurrentMenu = new PauseMenu( this );
 			}
@@ -536,13 +557,13 @@ namespace TanksDropTwo
 			foreach ( GameEntity entity in EntitiesCopy )
 			{
 				entity.ConUpdate( currentGameTime, EntitiesCopy, keyState );
-				if ( entity is Tank && ( (Tank)entity ).IsAlive )
+				if ( entity is Tank && ((Tank)entity).IsAlive )
 				{
 					NumberOfLivingTanks++;
 				}
 			}
 
-			if ( ( currentGameTime - timeSinceLastPickup ).TotalMilliseconds > SpawnMillisecs )
+			if ( (currentGameTime - timeSinceLastPickup).TotalMilliseconds > SpawnMillisecs )
 			{
 				SpawnPickup( currentGameTime );
 				timeSinceLastPickup = currentGameTime;
@@ -557,7 +578,7 @@ namespace TanksDropTwo
 				}
 			}
 			prevKeyState = keyState;
-			prevPadState = padState;
+			prevPadStates = padStates;
 			base.Update( gameTime );
 		}
 
@@ -569,7 +590,7 @@ namespace TanksDropTwo
 		private void NewRound( bool Score, bool sleep, bool check )
 		{
 			HasBeganWait = false;
-			if ( check && Entities.Count( x => x is Tank && ( (Tank)x ).IsAlive ) > 1 )
+			if ( check && Entities.Count( x => x is Tank && ((Tank)x).IsAlive ) > 1 )
 				return;
 			if ( sleep )
 			{
@@ -629,10 +650,10 @@ namespace TanksDropTwo
 			int ConEntLen = AvailableConEnts.Length;
 			int Category = r.Next( ProjLen + ConLen + ConEntLen );
 
-			if ( ( Category < ProjLen + ConLen || r.Next( 3 ) == 0 ) && ProjLen + ConLen > 0 ) // Low probability for the controller entities
+			if ( (Category < ProjLen + ConLen || r.Next( 3 ) == 0) && ProjLen + ConLen > 0 ) // Low probability for the controller entities
 			{
 				Pickup p = null;
-				Category %= ( ProjLen + ConLen );
+				Category %= (ProjLen + ConLen);
 				p = Category < AvailableProjectiles.Length ? new ProjectilePickup( AvailableProjectiles[Category], PickupLifetime ) : (Pickup)new TankControllerPickup( AvailableControllers[Category - ProjLen], PickupLifetime );
 				// Picks a random pickup using the category integer.
 

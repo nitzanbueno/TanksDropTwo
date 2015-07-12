@@ -23,7 +23,7 @@ namespace TanksDropTwo.Menus
 
 		KeyboardState prevKeyState;
 
-		public override void Update( TimeSpan gameTime, KeyboardState keyState, MouseState mouseState, GamePadState padState )
+		public override void Update( TimeSpan gameTime, KeyboardState keyState, MouseState mouseState, GamePadState[] padStates )
 		{
 			if ( !isSettingSetting )
 			{

@@ -27,6 +27,7 @@ namespace TanksDropTwo.Controllers
 			Texture = Content.Load<Texture2D>( "Sprites\\Roulette" );
 			Origin = new Vector2( 16, 16 );
 			Scale = 2.0F;
+			base.LoadTexture( Content );
 		}
 
 		public override GameController Clone()

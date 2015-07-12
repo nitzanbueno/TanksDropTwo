@@ -16,10 +16,11 @@ namespace TanksDropTwo.Controllers
 		{
 		}
 
-		public override void LoadTexture( Microsoft.Xna.Framework.Content.ContentManager content )
+		public override void LoadTexture( Microsoft.Xna.Framework.Content.ContentManager Content )
 		{
-			Texture = content.Load<Texture2D>( "Sprites\\Deflector" );
+			Texture = Content.Load<Texture2D>( "Sprites\\Deflector" );
 			Scale = 2F;
+			base.LoadTexture( Content );
 		}
 
 		public override void InstantControl( GameEntity control, TimeSpan gameTime )
